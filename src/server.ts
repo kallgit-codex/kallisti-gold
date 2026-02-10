@@ -1087,15 +1087,13 @@ async function main() {
   try {
     if (config.auth.keyName && config.auth.privateKey) {
       coinbaseClient = new CoinbaseClient(
-        config.dataSource.baseUrl,
-        config.auth.keyName,
-        config.auth.privateKey
+        { keyName: config.auth.keyName, privateKey: config.auth.privateKey },
+        config.dataSource.baseUrl
       );
       
       if (config.tradingMode === "live") {
         coinbaseTrader = new CoinbaseTrader(
-          config.auth.keyName,
-          config.auth.privateKey
+          { keyName: config.auth.keyName, privateKey: config.auth.privateKey }
         );
         log("🔴 LIVE trading enabled on Coinbase CFM");
       }
