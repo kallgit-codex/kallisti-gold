@@ -3,7 +3,7 @@
 // Handles: candles, ticker, orderbook, products, positions
 //
 // Product naming: Coinbase CFM uses "GLD-{date}-CDE" for Gold futures
-// We auto-discover the active gold contract on startup
+// We auto-discover the active perpetual-style contract on startup
 
 import { CoinbaseAuthConfig, getAuthHeader } from "./coinbase-auth";
 import { log, error } from "../logger";
@@ -116,8 +116,9 @@ export class CoinbaseClient {
   }
   
   /**
-   * Discover the active Gold futures contract
-   * Coinbase CFM naming: GLD-{date}-CDE for Gold futures
+   * Discover the active GOLD futures contract
+   * Coinbase CFM naming: GLD = Gold dated futures
+   * From screenshot: GLD-27MAR26-CDE format
    */
   async discoverFuturesProduct(): Promise<string> {
     if (this.activeProductId) return this.activeProductId;
@@ -128,7 +129,7 @@ export class CoinbaseClient {
     // Log ALL gold-related products for visibility
     const goldProducts = products.filter((p: any) => {
       const id = (p.product_id || "").toUpperCase();
-      return id.startsWith("GOL-");
+      return id.startsWith("GLD-");
     });
     
     log(`🥇 Gold futures products (${goldProducts.length} found):`);
@@ -137,8 +138,8 @@ export class CoinbaseClient {
     }
     
     if (goldProducts.length === 0) {
-      log("🥇 No Gold products found. All futures:");
-      for (const p of products.slice(0, 20)) {
+      log("🥇 No GLD products found. All futures:");
+      for (const p of products.slice(0, 25)) {
         log(`   ${p.product_id} status=${p.status} disabled=${p.trading_disabled} base=${p.base_currency_id}`);
       }
       throw new Error("No Gold futures found. Products: " + 
@@ -156,9 +157,8 @@ export class CoinbaseClient {
       return this.activeProductId;
     }
     
-    // Priority 2: For paper mode, accept any BIT/BIP even if not "online"
-    // (we only need price data, not actual execution)
-    // Parse dates from product IDs: BIT-27FEB26-CDE → 2026-02-27
+    // Priority 2: For paper mode, accept any GLD even if not "online"
+    // Parse dates from product IDs: GLD-27MAR26-CDE → 2026-03-27
     const MONTHS: Record<string, number> = { JAN:0, FEB:1, MAR:2, APR:3, MAY:4, JUN:5, JUL:6, AUG:7, SEP:8, OCT:9, NOV:10, DEC:11 };
     const parseDate = (id: string): number => {
       const m = id.match(/-(\d{2})([A-Z]{3})(\d{2})-/);
@@ -166,18 +166,18 @@ export class CoinbaseClient {
       return new Date(2000 + parseInt(m[3]), MONTHS[m[2]] ?? 0, parseInt(m[1])).getTime();
     };
     const nearest = goldProducts
-      .filter((p: any) => (p.product_id || "").startsWith("GOL-"))
+      .filter((p: any) => (p.product_id || "").startsWith("GLD-"))
       .sort((a: any, b: any) => parseDate(a.product_id) - parseDate(b.product_id));
     
     if (nearest.length > 0) {
       this.activeProductId = nearest[0].product_id;
-      log(`📊 Gold futures (paper fallback): ${this.activeProductId} status=${nearest[0].status}`);
+      log(`🥇 Gold futures (paper fallback): ${this.activeProductId} status=${nearest[0].status}`);
       return this.activeProductId;
     }
     
-    // Priority 3: Any BTC product at all
+    // Priority 3: Any GLD product at all
     this.activeProductId = goldProducts[0].product_id;
-    log(`📊 Gold futures (any): ${this.activeProductId} status=${goldProducts[0].status}`);
+    log(`🥇 Gold futures (any): ${this.activeProductId} status=${goldProducts[0].status}`);
     return this.activeProductId;
   }
   
