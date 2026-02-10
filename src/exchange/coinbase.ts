@@ -2,7 +2,7 @@
 // Drop-in replacement for BinanceClient
 // Handles: candles, ticker, orderbook, products, positions
 //
-// Product naming: Coinbase CFM uses "GLD-{date}-CDE" for Gold futures
+// Product naming: Coinbase CFM uses "GOL-{date}-CDE" for Gold futures
 // We auto-discover the active perpetual-style contract on startup
 
 import { CoinbaseAuthConfig, getAuthHeader } from "./coinbase-auth";
@@ -129,7 +129,7 @@ export class CoinbaseClient {
     // Log ALL gold-related products for visibility
     const goldProducts = products.filter((p: any) => {
       const id = (p.product_id || "").toUpperCase();
-      return id.startsWith("GLD-");
+      return id.startsWith("GOL-") || id.startsWith("GLD-");
     });
     
     log(`🥇 Gold futures products (${goldProducts.length} found):`);
@@ -166,7 +166,7 @@ export class CoinbaseClient {
       return new Date(2000 + parseInt(m[3]), MONTHS[m[2]] ?? 0, parseInt(m[1])).getTime();
     };
     const nearest = goldProducts
-      .filter((p: any) => (p.product_id || "").startsWith("GLD-"))
+      .filter((p: any) => (p.product_id || "").startsWith("GOL-") || (p.product_id || "").startsWith("GLD-"))
       .sort((a: any, b: any) => parseDate(a.product_id) - parseDate(b.product_id));
     
     if (nearest.length > 0) {
