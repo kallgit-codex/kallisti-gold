@@ -128,7 +128,7 @@ export class CoinbaseClient {
     // Log ALL gold-related products for visibility
     const goldProducts = products.filter((p: any) => {
       const id = (p.product_id || "").toUpperCase();
-      return id.startsWith("GLD-");
+      return id.startsWith("GOL-");
     });
     
     log(`🥇 Gold futures products (${goldProducts.length} found):`);
@@ -166,7 +166,7 @@ export class CoinbaseClient {
       return new Date(2000 + parseInt(m[3]), MONTHS[m[2]] ?? 0, parseInt(m[1])).getTime();
     };
     const nearest = goldProducts
-      .filter((p: any) => (p.product_id || "").startsWith("GLD-"))
+      .filter((p: any) => (p.product_id || "").startsWith("GOL-"))
       .sort((a: any, b: any) => parseDate(a.product_id) - parseDate(b.product_id));
     
     if (nearest.length > 0) {
