@@ -1,0 +1,14 @@
+{
+  "name": "kallisti-scalper",
+  "version": "4.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "bun src/server.ts",
+    "once": "bun src/agent.ts",
+    "dev": "bun --watch src/server.ts",
+    "test:coinbase": "bun test-coinbase.ts"
+  },
+  "dependencies": {
+    "jose": "^5.2.0"
+  }
+}
