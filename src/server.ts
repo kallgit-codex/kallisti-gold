@@ -48,8 +48,8 @@ interface TrailingState {
 const trailingStops: Map<string, TrailingState> = new Map();
 
 // Hard limits
-const ABSOLUTE_MAX_HOLD_SECONDS = 3600; // 60 min absolute max
-const ABSOLUTE_MAX_LOSS_DOLLARS = 30;   // $30 max loss per trade
+const ABSOLUTE_MAX_HOLD_SECONDS = 7200; // 2 hour absolute max (gold trends longer)
+const ABSOLUTE_MAX_LOSS_DOLLARS = 25;   // $25 max loss per trade (gold is calmer)
 const BREAKEVEN_TRIGGER_PERCENT = 0.4;  // Move stop to breakeven after 0.4% profit
 const TRAILING_DISTANCE_PERCENT = 0.25; // Trail 0.25% behind peak (tighter to lock in gains)
 
@@ -168,7 +168,7 @@ async function fetchCandles(): Promise<Candle[]> {
   
   try {
     // No Binance fallback for gold — Coinbase only
-    const klines = null; // await binanceFallback.getKlines("BTCUSDT", config.candleInterval, config.candleLimit);
+    const klines = null; // Gold bot — no Binance fallback, config.candleInterval, config.candleLimit);
     if (!klines || !klines.list) return [];
     return normalizeCandles(klines.list);
   } catch (err) {
@@ -1148,3 +1148,4 @@ main().catch((err) => {
   console.error("Fatal error:", err);
   process.exit(1);
 });
+
