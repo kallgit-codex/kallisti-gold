@@ -1,5 +1,5 @@
 {
-  "name": "kallisti-scalper",
+  "name": "kallisti-gold",
   "version": "4.0.0",
   "type": "module",
   "scripts": {
@@ -10,5 +10,6 @@
   },
   "dependencies": {
     "jose": "^5.2.0"
-  }
+  },
+  "description": "Gold futures swing trader \u2014 Coinbase CFM"
 }
