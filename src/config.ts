@@ -1,28 +1,24 @@
-// Last optimized: 2026-02-10T16:32:44.334Z
-// Reason: Switch to mean-reversion primary in chop regime, widen stops/targets for high-vol, lower ATR filter so bot actually trades, reduce trade frequency to 2/hr, longer hold times
-// was overriding config volumeMultiplier=1.0, inflating threshold to 0.25%. Also adding
-// mean-reversion mode for high_vol_chop regime. Wider targets for high-vol environment.
-// KALLISTI SCALPER v5.0 - DUAL MODE (Momentum + Mean Reversion)
+// KALLISTI GOLD v1.0 — SWING TRADER
 //
-// KEY CHANGES v5.0:
-//   - Fixed vol multiplier (code now uses config value)
-//   - Added mean reversion parameters
-//   - Wider profit targets for high-vol
-//   - Extended flat-cut to 90s
-//   - Maker fee mode for entries (0% fee!)
+// Gold Futures on Coinbase CFM
+// Contract: 1 GLD = 1 troy oz gold (~$5,031)
 //
 // EXCHANGE: Coinbase CFM (CFTC-regulated)
 //   - Leverage: 10x intraday
-//   - Position: $500 × 10x = $5,000 notional
-//   - Taker fee: 0.03% per side ($3 round-trip)
+//   - Position: 1 contract = ~$5,031 notional ($503 margin)
+//   - Taker fee: 0.03% per side (~$1.51/side = $3.02 round-trip)
 //   - Maker fee: 0% (promotional!)
-//   - Contracts: 0.01 BTC each
 //
-// P&L math at 10x (taker both sides):
-//   $5,000 position, 0.03% taker = $1.50/side = $3 round-trip
-//   0.10% move = $5 gross → $2 net
-//   0.20% move = $10 gross → $7 net
-//   0.50% move = $25 gross → $22 net
+// GOLD CHARACTERISTICS:
+//   - Daily range: 0.5-1.0% (~$25-50 per contract)
+//   - Cleaner trends than BTC, longer holds rewarded
+//   - Driven by: USD strength, rates, geopolitics
+//   - Best sessions: London open (3am ET), NY open (8:30am ET)
+//
+// P&L math at 10x (1 contract, taker both sides):
+//   0.25% move = $12.58 gross → $9.56 net
+//   0.50% move = $25.16 gross → $22.14 net
+//   1.00% move = $50.31 gross → $47.29 net
 
 export type TradingMode = "paper" | "live";
 
@@ -30,7 +26,7 @@ const env = process.env;
 
 export const config = {
   tradingMode: (env.TRADING_MODE as TradingMode) || "paper",
-  symbol: env.TARGET_SYMBOL || "BTC-PERP",
+  symbol: env.TARGET_SYMBOL || "GLD-PERP",
   candleInterval: "1m",
   candleLimit: 30,
   
@@ -48,7 +44,7 @@ export const config = {
   futures: {
     leverage: 10,
     maxPositions: 1,
-    contractSize: 0.01,
+    contractSize: 1,       // 1 contract = 1 troy oz gold
   },
   
   fees: {
@@ -59,51 +55,50 @@ export const config = {
   },
   
   strategy: {
-    // Profit targets (NET after fees)
-    minProfitDollars: 8,            // $8 net = ~0.22% move
-    maxProfitDollars: 200,           // $50 net = ~1.06% move
-    quickGrabDollars: 10,            // $4 net = ~0.14% move (achievable in high vol)
+    // Profit targets — gold has cleaner moves, hold longer
+    minProfitDollars: 8,             // ~0.16% move net
+    maxProfitDollars: 150,           // ~3% move (big gold day)
+    quickGrabDollars: 6,             // ~0.12% quick scalp
     
-    targetProfitPercent: 1.2,      // 0.20% gross = $10 → $7 net
-    initialStopPercent: 0.65,       // 0.15% gross = -$7.50 → -$10.50 net
+    targetProfitPercent: 0.8,        // Gold trends = let it run
+    initialStopPercent: 0.4,         // Wider stop for gold's noise
     recoveryStopPercent: 0.04,
     
-    maxTradeSeconds: 3600,           // 4 min max hold
-    quickExitSeconds: 300,           // 20s quick grab
+    maxTradeSeconds: 7200,           // 2 hour max hold (gold trends last)
+    quickExitSeconds: 300,           // 5 min quick grab window
     recoveryTimeSeconds: 120,
-    underwaterCutSeconds: 600,      // Cut losing trades at 2.5 min
-    underwaterMinLoss: -25,          // Cut at -$8 net
+    underwaterCutSeconds: 900,       // 15 min underwater cut
+    underwaterMinLoss: -20,          // Cut at -$20 net
     
-    // Momentum detection
-    consecutiveCandles: 4,
-    momentumThreshold: 0.12,        // Base threshold before vol adjustment
-    maxChasePercent: 0.3,          // Allow slightly more chase in high vol
+    // Momentum detection — gold needs less sensitivity
+    consecutiveCandles: 3,
+    momentumThreshold: 0.08,         // Gold moves slower than BTC
+    maxChasePercent: 0.25,           // Don't chase too far
     
-    // CRITICAL: This is now actually used by the strategy code
-    volumeMultiplier: 1.2,          // Vol-adjusted threshold = avgRange * 1.5
+    volumeMultiplier: 1.0,
     volumeLookback: 10,
     
-    minVolatilityPercent: 0.08,
+    minVolatilityPercent: 0.05,      // Gold can trade on smaller vol
     
-    // Mean reversion parameters (NEW in v5.0)
+    // Mean reversion — gold mean-reverts well to 20/50 EMAs
     meanReversionEnabled: true,
-    mrThresholdPercent: 0.3,       // Fade moves > 0.30% in 5 candles
-    mrMaxThresholdPercent: 1,    // Don't fade moves > 0.80% (could be breakout)
-    mrTargetPercent: 0.4,          // Target 0.12% reversion = $6 gross
-    mrStopPercent: 0.25,            // Stop 0.18% = -$9 gross
-    mrLookbackCandles: 10,           // Measure move over 5 candles
-    mrMinCandlesInDirection: 5,     // At least 3 of 5 candles in same direction
+    mrThresholdPercent: 0.25,        // Fade moves > 0.25%
+    mrMaxThresholdPercent: 0.8,
+    mrTargetPercent: 0.3,
+    mrStopPercent: 0.2,
+    mrLookbackCandles: 10,
+    mrMinCandlesInDirection: 4,
   },
   
   risk: {
     initialBalance: 2000,
-    positionSizeDollars: 500,
+    positionSizeDollars: 500,        // ~1 contract at 10x
     riskPerTrade: 500,
     maxDailyLossPercent: 10,
     maxDailyLossDollars: 150,
-    maxConsecutiveLosses: 3,        // More lenient
-    pauseAfterLossesMinutes: 60,    // Shorter pause
-    maxTradesPerHour: 2,            // Allow more trades
+    maxConsecutiveLosses: 3,
+    pauseAfterLossesMinutes: 60,
+    maxTradesPerHour: 2,
     maxOpenRiskDollars: 500,
   },
   
