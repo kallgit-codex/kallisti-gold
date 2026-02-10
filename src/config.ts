@@ -1,24 +1,27 @@
-// KALLISTI GOLD v1.0 — SWING TRADER
-//
-// Gold Futures on Coinbase CFM
-// Contract: 1 GLD = 1 troy oz gold (~$5,031)
+// KALLISTI GOLD v1.0 — GOLD FUTURES SWING TRADER
+// Last optimized: 2026-02-10 (initial deployment)
 //
 // EXCHANGE: Coinbase CFM (CFTC-regulated)
+//   - Instrument: GLD-27MAR26-CDE (Gold dated futures)
+//   - Contract: 1 contract = 1 oz gold ≈ $5,000
 //   - Leverage: 10x intraday
-//   - Position: 1 contract = ~$5,031 notional ($503 margin)
-//   - Taker fee: 0.03% per side (~$1.51/side = $3.02 round-trip)
+//   - Position: $500 × 10x = $5,000 notional ≈ 1 contract
+//   - Taker fee: 0.03% per side ($3 round-trip on $5k)
 //   - Maker fee: 0% (promotional!)
 //
 // GOLD CHARACTERISTICS:
-//   - Daily range: 0.5-1.0% (~$25-50 per contract)
-//   - Cleaner trends than BTC, longer holds rewarded
-//   - Driven by: USD strength, rates, geopolitics
-//   - Best sessions: London open (3am ET), NY open (8:30am ET)
+//   - Daily range: 0.5-1.2% (vs BTC 2-5%)
+//   - Driven by: rates, dollar, geopolitics, safe-haven flows
+//   - Trends: cleaner, longer-lasting than BTC
+//   - Sessions: London (03:00-12:00 UTC), NY (13:30-20:00 UTC)
+//   - Personality: trend-following + mean-reversion to 20/50 EMAs
 //
-// P&L math at 10x (1 contract, taker both sides):
-//   0.25% move = $12.58 gross → $9.56 net
-//   0.50% move = $25.16 gross → $22.14 net
-//   1.00% move = $50.31 gross → $47.29 net
+// P&L math at 10x:
+//   $5,000 position, 0.03% taker = $1.50/side = $3 round-trip
+//   0.10% move = $5 gross → $2 net
+//   0.30% move = $15 gross → $12 net
+//   0.50% move = $25 gross → $22 net
+//   1.00% move = $50 gross → $47 net
 
 export type TradingMode = "paper" | "live";
 
@@ -44,7 +47,7 @@ export const config = {
   futures: {
     leverage: 10,
     maxPositions: 1,
-    contractSize: 1,       // 1 contract = 1 troy oz gold
+    contractSize: 1,  // 1 contract = 1 oz gold (vs BTC 0.01)
   },
   
   fees: {
@@ -55,50 +58,52 @@ export const config = {
   },
   
   strategy: {
-    // Profit targets — gold has cleaner moves, hold longer
-    minProfitDollars: 8,             // ~0.16% move net
-    maxProfitDollars: 150,           // ~3% move (big gold day)
-    quickGrabDollars: 6,             // ~0.12% quick scalp
+    // Profit targets — gold moves slower, need patience
+    minProfitDollars: 8,
+    maxProfitDollars: 150,
+    quickGrabDollars: 6,
     
-    targetProfitPercent: 0.8,        // Gold trends = let it run
-    initialStopPercent: 0.4,         // Wider stop for gold's noise
+    // Gold-tuned percentages (tighter than BTC — gold is less volatile)
+    targetProfitPercent: 0.50,       // 0.50% = $25 gross → $22 net
+    initialStopPercent: 0.30,        // 0.30% = -$15 gross → -$18 net
     recoveryStopPercent: 0.04,
     
-    maxTradeSeconds: 7200,           // 2 hour max hold (gold trends last)
-    quickExitSeconds: 300,           // 5 min quick grab window
-    recoveryTimeSeconds: 120,
+    // Hold times — gold trends are cleaner, hold longer
+    maxTradeSeconds: 7200,           // 2 hour max hold
+    quickExitSeconds: 300,           // 5 min quick grab
+    recoveryTimeSeconds: 180,
     underwaterCutSeconds: 900,       // 15 min underwater cut
-    underwaterMinLoss: -20,          // Cut at -$20 net
+    underwaterMinLoss: -15,          // Cut at -$15 net
     
-    // Momentum detection — gold needs less sensitivity
+    // Momentum detection — gold needs lower thresholds (less volatile)
     consecutiveCandles: 3,
-    momentumThreshold: 0.08,         // Gold moves slower than BTC
-    maxChasePercent: 0.25,           // Don't chase too far
+    momentumThreshold: 0.06,         // Gold 1m candles are smaller
+    maxChasePercent: 0.20,           // Tighter chase for gold
     
     volumeMultiplier: 1.0,
     volumeLookback: 10,
     
-    minVolatilityPercent: 0.05,      // Gold can trade on smaller vol
+    minVolatilityPercent: 0.04,      // Lower bar — gold is inherently less volatile
     
-    // Mean reversion — gold mean-reverts well to 20/50 EMAs
+    // Mean reversion — gold loves mean reversion to EMAs
     meanReversionEnabled: true,
-    mrThresholdPercent: 0.25,        // Fade moves > 0.25%
-    mrMaxThresholdPercent: 0.8,
-    mrTargetPercent: 0.3,
-    mrStopPercent: 0.2,
+    mrThresholdPercent: 0.20,        // Fade moves > 0.20% in lookback
+    mrMaxThresholdPercent: 0.60,     // Don't fade > 0.60% (real breakout)
+    mrTargetPercent: 0.15,           // Target 0.15% reversion
+    mrStopPercent: 0.12,             // Stop 0.12%
     mrLookbackCandles: 10,
     mrMinCandlesInDirection: 4,
   },
   
   risk: {
     initialBalance: 2000,
-    positionSizeDollars: 500,        // ~1 contract at 10x
+    positionSizeDollars: 500,
     riskPerTrade: 500,
     maxDailyLossPercent: 10,
     maxDailyLossDollars: 150,
     maxConsecutiveLosses: 3,
     pauseAfterLossesMinutes: 60,
-    maxTradesPerHour: 2,
+    maxTradesPerHour: 3,
     maxOpenRiskDollars: 500,
   },
   
