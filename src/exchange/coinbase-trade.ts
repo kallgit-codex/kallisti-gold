@@ -3,7 +3,7 @@
 // For CFM futures (BIP contracts)
 //
 // Contract specs:
-//   - 1 contract = 0.01 BTC
+//   - 1 contract = 1 oz gold (or 0.01 BTC)
 //   - Cash-settled, USD margin
 //   - Max 10x intraday leverage (8 AM - 4 PM ET)
 //   - Fees: 0% maker / 0.03% taker (promotional)
@@ -85,10 +85,13 @@ export class CoinbaseTrader {
   /**
    * Calculate number of contracts for a given USD position size
    * 1 contract = 0.01 BTC
-   * At $100k BTC: 1 contract = $1,000
+   * At $5000 gold: 1 contract = $5,000
    */
-  static calculateContracts(positionSizeUsd: number, btcPrice: number): number {
-    const contractValueUsd = 0.01 * btcPrice;
+  static calculateContracts(positionSizeUsd: number, assetPrice: number): number {
+    // Gold: 1 contract = 1 oz gold ≈ $5,000
+    // BTC: 1 contract = 0.01 BTC
+    const contractSize = assetPrice > 10000 ? 0.01 : 1; // Auto-detect: if price > $10k it's BTC
+    const contractValueUsd = contractSize * assetPrice;
     return Math.max(1, Math.floor(positionSizeUsd / contractValueUsd));
   }
   
@@ -270,3 +273,4 @@ export class CoinbaseTrader {
     return this.marketOrder(closeSide, productId, contracts);
   }
 }
+
