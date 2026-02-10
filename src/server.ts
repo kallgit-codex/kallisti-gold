@@ -1,5 +1,5 @@
-// Railway Deployment - Continuous Trading Loop v7.0
-// KALLISTI SWING TRADER - Conservative Long-Biased + Trailing Stops
+// Railway Deployment - Continuous Trading Loop
+// KALLISTI GOLD v1.0 — Gold Futures Swing Trader
 // 
 // v7.0 Changes:
 //   - CRASH FIX: Removed call to non-existent ledger.checkDailyReset()
@@ -62,7 +62,7 @@ async function triggerOptimizer(reason: string): Promise<void> {
   if (!GITHUB_TOKEN) return;
   try {
     const resp = await fetch(
-      "https://api.github.com/repos/kallgit-codex/kallisti-scalper/actions/workflows/optimizer.yml/dispatches",
+      "https://api.github.com/repos/kallgit-codex/kallisti-gold/actions/workflows/optimizer.yml/dispatches",
       {
         method: "POST",
         headers: {
@@ -167,7 +167,8 @@ async function fetchCandles(): Promise<Candle[]> {
   }
   
   try {
-    const klines = await binanceFallback.getKlines("BTCUSDT", config.candleInterval, config.candleLimit);
+    // No Binance fallback for gold — Coinbase only
+    const klines = null; // await binanceFallback.getKlines("BTCUSDT", config.candleInterval, config.candleLimit);
     if (!klines || !klines.list) return [];
     return normalizeCandles(klines.list);
   } catch (err) {
@@ -839,7 +840,7 @@ async function scan(ledger: Ledger, ghSync: GitHubSync) {
       
       log(scanId + " 💎 $" + balance.toFixed(2) + 
           " | Day: $" + stats.dailyPnl + " | " + stats.totalTrades + " trades (" + stats.winRate + "% W)" +
-          " | BTC: $" + currentPrice.toFixed(2) + swingTag + regimeTag + modeTag + exchangeTag);
+          " | GLD: $" + currentPrice.toFixed(2) + swingTag + regimeTag + modeTag + exchangeTag);
     }
 
     // ===== ENTRY LOGIC =====
@@ -1008,7 +1009,7 @@ async function scan(ledger: Ledger, ghSync: GitHubSync) {
 
 async function main() {
   log("═══════════════════════════════════════");
-  log("  KALLISTI v7.0 — SWING TRADER (LONG BIAS)");
+  log("  KALLISTI GOLD v1.0 — GOLD FUTURES SWING TRADER");
   log("  Support Bounce + Pullback + Trend Follow");
   log("  Mode: " + config.tradingMode.toUpperCase());
   log("  Exchange: Coinbase CFM");
@@ -1030,7 +1031,7 @@ async function main() {
         if (url.pathname === "/health") {
           return new Response(JSON.stringify({ 
             status: "ok", 
-            version: "v7.0-swing-longbias", 
+            version: "v1.0-gold-swing", 
             uptime: process.uptime(),
             scanCount,
             tradingMode: config.tradingMode,
@@ -1041,7 +1042,7 @@ async function main() {
         if (url.pathname === "/status") {
           try {
             return new Response(JSON.stringify({
-              version: "v7.0",
+              version: "gold-v1.0",
               uptime: process.uptime(),
               scanCount,
               tradingMode: config.tradingMode,
@@ -1054,7 +1055,7 @@ async function main() {
             return new Response('{"status":"error"}', { status: 500 });
           }
         }
-        return new Response("Kallisti Swing Trader v7.0 — Long Bias", { status: 200 });
+        return new Response("Kallisti Gold v1.0 — Gold Futures Swing Trader", { status: 200 });
       },
     });
     log(`Health check listening on port ${PORT}`);
@@ -1067,7 +1068,7 @@ async function main() {
         Bun.serve({
           port: altPort,
           fetch(req: Request) {
-            return new Response(JSON.stringify({ status: "ok", version: "v7.0" }), {
+            return new Response(JSON.stringify({ status: "ok", version: "gold-v1.0" }), {
               headers: { "Content-Type": "application/json" },
             });
           },
