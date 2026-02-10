@@ -1,9 +1,9 @@
-// Coinbase Advanced Trade Market Data Client
+// Coinbase Advanced Trade Market Data Client — GOLD FUTURES
 // Drop-in replacement for BinanceClient
 // Handles: candles, ticker, orderbook, products, positions
 //
-// Product naming: Coinbase CFM uses "BIT-{date}-CDE" for BTC nano futures
-// We auto-discover the active perpetual-style contract on startup
+// Product naming: Coinbase CFM uses "GLD-{date}-CDE" for Gold futures
+// We auto-discover the active gold contract on startup
 
 import { CoinbaseAuthConfig, getAuthHeader } from "./coinbase-auth";
 import { log, error } from "../logger";
@@ -116,9 +116,8 @@ export class CoinbaseClient {
   }
   
   /**
-   * Discover the active BTC futures contract
-   * Coinbase CFM naming: BIT = Bitcoin dated, BIP = Bitcoin perpetual
-   * BCP = Bitcoin Coin-margined Perpetual
+   * Discover the active Gold futures contract
+   * Coinbase CFM naming: GLD-{date}-CDE for Gold futures
    */
   async discoverFuturesProduct(): Promise<string> {
     if (this.activeProductId) return this.activeProductId;
@@ -126,36 +125,34 @@ export class CoinbaseClient {
     const data = await this.request("GET", "/api/v3/brokerage/products?product_type=FUTURE");
     const products = data.products || [];
     
-    // Log ALL BTC-related products for visibility
-    const btcProducts = products.filter((p: any) => {
+    // Log ALL gold-related products for visibility
+    const goldProducts = products.filter((p: any) => {
       const id = (p.product_id || "").toUpperCase();
-      return id.startsWith("BIT-") || id.startsWith("BIP-") || id.startsWith("BCP-");
+      return id.startsWith("GLD-");
     });
     
-    log(`🔍 BTC futures products (${btcProducts.length} found):`);
-    for (const p of btcProducts) {
+    log(`🥇 Gold futures products (${goldProducts.length} found):`);
+    for (const p of goldProducts) {
       log(`   ${p.product_id} status=${p.status} disabled=${p.trading_disabled} base=${p.base_currency_id}`);
     }
     
-    if (btcProducts.length === 0) {
-      log("🔍 No BTC products found. All futures:");
-      for (const p of products.slice(0, 15)) {
+    if (goldProducts.length === 0) {
+      log("🥇 No Gold products found. All futures:");
+      for (const p of products.slice(0, 20)) {
         log(`   ${p.product_id} status=${p.status} disabled=${p.trading_disabled} base=${p.base_currency_id}`);
       }
-      throw new Error("No BTC futures found. Products: " + 
-        products.slice(0, 10).map((p: any) => p.product_id).join(", "));
+      throw new Error("No Gold futures found. Products: " + 
+        products.slice(0, 15).map((p: any) => p.product_id).join(", "));
     }
     
-    // Priority 1: Online + tradeable BIT/BIP
-    const online = btcProducts.filter((p: any) => 
+    // Priority 1: Online + tradeable GLD
+    const online = goldProducts.filter((p: any) => 
       p.status === "online" && p.trading_disabled !== true
     );
     
     if (online.length > 0) {
-      // Prefer: BIP (perpetual) > BIT nearest expiry
-      const perp = online.find((p: any) => (p.product_id || "").startsWith("BIP-"));
-      this.activeProductId = perp ? perp.product_id : online[0].product_id;
-      log(`📊 Active BTC futures: ${this.activeProductId} (${online.length} online)`);
+      this.activeProductId = online[0].product_id;
+      log(`🥇 Active Gold futures: ${this.activeProductId} (${online.length} online)`);
       return this.activeProductId;
     }
     
@@ -168,19 +165,19 @@ export class CoinbaseClient {
       if (!m) return Infinity;
       return new Date(2000 + parseInt(m[3]), MONTHS[m[2]] ?? 0, parseInt(m[1])).getTime();
     };
-    const nearest = btcProducts
-      .filter((p: any) => (p.product_id || "").startsWith("BIT-"))
+    const nearest = goldProducts
+      .filter((p: any) => (p.product_id || "").startsWith("GLD-"))
       .sort((a: any, b: any) => parseDate(a.product_id) - parseDate(b.product_id));
     
     if (nearest.length > 0) {
       this.activeProductId = nearest[0].product_id;
-      log(`📊 BTC futures (paper fallback): ${this.activeProductId} status=${nearest[0].status}`);
+      log(`📊 Gold futures (paper fallback): ${this.activeProductId} status=${nearest[0].status}`);
       return this.activeProductId;
     }
     
     // Priority 3: Any BTC product at all
-    this.activeProductId = btcProducts[0].product_id;
-    log(`📊 BTC futures (any): ${this.activeProductId} status=${btcProducts[0].status}`);
+    this.activeProductId = goldProducts[0].product_id;
+    log(`📊 Gold futures (any): ${this.activeProductId} status=${goldProducts[0].status}`);
     return this.activeProductId;
   }
   
@@ -352,3 +349,4 @@ export class CoinbaseClient {
     log(`📊 Product override: ${productId}`);
   }
 }
+
