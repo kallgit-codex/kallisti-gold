@@ -1,34 +1,34 @@
 {
-  "timestamp": 1770788677930,
-  "generatedAt": "2026-02-11T05:44:37.930Z",
-  "price": 5087,
+  "timestamp": 1770789577855,
+  "generatedAt": "2026-02-11T05:59:37.855Z",
+  "price": 5077.2,
   "regime": "trending_bullish",
   "regimeConfidence": 0.85,
-  "regimeReason": "Price 0.44% above EMA20, high vol, 24h +0.6% | ⚠️ 4 risk events",
+  "regimeReason": "Price 0.26% above EMA20, high vol, 24h +0.3% | ⚠️ 4 risk events",
   "stats24h": {
-    "change": 0.62109344093678,
+    "change": 0.32405943724312,
     "high": 5101,
     "low": 4995.5,
-    "volume": 21876,
+    "volume": 22047,
     "range": 2.1119007106395755
   },
   "volatility": {
-    "atr_1h_pct": 0.4368636979860342,
-    "atr_15m_pct": 0.16678275398750814,
-    "bbWidth_1h": 1.1082029636217237,
+    "atr_1h_pct": 0.43770693131154104,
+    "atr_15m_pct": 0.18177921134100408,
+    "bbWidth_1h": 1.0509268629907653,
     "level": "high"
   },
   "trend": {
     "direction": "bullish",
-    "priceVsEma20": 0.4388216908510977,
-    "priceVsEma50": 0.5293298113559276,
+    "priceVsEma20": 0.26380493167444785,
+    "priceVsEma50": 0.34328302461008625,
     "ema20VsEma50": "flat"
   },
   "orderbook": {
-    "bidDepthUsd": 4388767.500000001,
-    "askDepthUsd": 6021721.4,
-    "imbalance": -0.15685660065398072,
-    "bias": "ask_heavy"
+    "bidDepthUsd": 5329340.699999999,
+    "askDepthUsd": 4762198.699999998,
+    "imbalance": 0.056199750852679725,
+    "bias": "balanced"
   },
   "news": {
     "sentiment": "neutral",
@@ -49,9 +49,9 @@
     "topHeadlines": [
       "Gold Price Forecast: XAU/USD Plummets To Near $5,050 As Critical US Jobs Data Looms - Bitcoin world",
       "Gold Price Forecast - XAU/USD Price Trades at $3,680 as Inflation Rises and Fed Cut Bets Build - TradingNEWS",
+      "Gold Price Today: MCX Gold Rises 1% as Falling US Yields Boost Safe-Haven Demand - Analytics Insight",
       "Gold Edges Higher as US Data Bolsters Case for More Rate Cuts - Bloomberg.com",
-      "Gold price climbs after interest rates cut by Federal Reserve - Yahoo Finance UK",
-      "Gold price consolidates below $4,000 as the Federal Reserve cuts interest rates - KITCO"
+      "Gold price climbs after interest rates cut by Federal Reserve - Yahoo Finance UK"
     ]
   },
   "recommendations": {
@@ -77,21 +77,21 @@
   "recentCandles": [
     {
       "interval": "1m_last10",
-      "bullish": 4,
-      "bearish": 6,
-      "avgBodyPct": 0.010028443274731626
+      "bullish": 1,
+      "bearish": 9,
+      "avgBodyPct": 0.016344113341962237
     },
     {
       "interval": "5m_last1h",
-      "bullish": 6,
-      "bearish": 6,
-      "avgBodyPct": 0.027086192906859836
+      "bullish": 7,
+      "bearish": 5,
+      "avgBodyPct": 0.05136140703471567
     },
     {
       "interval": "1h_last6",
       "bullish": 3,
       "bearish": 3,
-      "avgBodyPct": 0.14902946621057064
+      "avgBodyPct": 0.11682080668239404
     }
   ]
 }
