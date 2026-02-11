@@ -1,5 +1,5 @@
 {
-  "balance": 1988.9836890638676,
+  "balance": 1488.9836890638676,
   "initialBalance": 2000,
   "dailyStartBalance": 2000,
   "dailyPnl": -11.016310936132736,
@@ -100,9 +100,27 @@
       "fees": 2.9999999999999996,
       "grossPnl": 3.71972826406173,
       "reason": "generous-exit"
+    },
+    {
+      "id": "swing-1770845356039-kclt",
+      "side": "Long",
+      "entryPrice": 5107.6,
+      "entryTime": 1770845356039,
+      "collateral": 500,
+      "leverage": 10,
+      "stopLoss": 5098.40632,
+      "takeProfit": 5117.8152,
+      "minProfitTarget": 5,
+      "maxProfitTarget": 150,
+      "status": "open",
+      "mode": "bounce",
+      "peakGrossPnl": 0,
+      "peakPrice": 5107.6,
+      "trailingStopActive": false,
+      "breakevenStopActive": false
     }
   ],
   "lastReset": 1770835975006,
-  "tradesThisHour": 4,
+  "tradesThisHour": 5,
   "lastHourReset": 1770835975006
 }
