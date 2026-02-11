@@ -59,25 +59,25 @@ export const config = {
   
   strategy: {
     // Profit targets — gold moves slower, need patience
-    minProfitDollars: 6,
+    minProfitDollars: 5,
     maxProfitDollars: 150,
-    quickGrabDollars: 15,
+    quickGrabDollars: 12,
     
     // Gold-tuned percentages (tighter than BTC — gold is less volatile)
-    targetProfitPercent: 1.5,       // 0.50% = $25 gross → $22 net
-    initialStopPercent: 0.5,        // 0.30% = -$15 gross → -$18 net
+    targetProfitPercent: 1.2,       // 0.50% = $25 gross → $22 net
+    initialStopPercent: 0.4,        // 0.30% = -$15 gross → -$18 net
     recoveryStopPercent: 0.4,
     
     // Hold times — gold trends are cleaner, hold longer
-    maxTradeSeconds: 7200,           // 2 hour max hold
-    quickExitSeconds: 600,           // 5 min quick grab
+    maxTradeSeconds: 5400,           // 2 hour max hold
+    quickExitSeconds: 420,           // 5 min quick grab
     recoveryTimeSeconds: 300,
-    underwaterCutSeconds: 3600,       // 15 min underwater cut
-    underwaterMinLoss: -20,          // Cut at -$15 net
+    underwaterCutSeconds: 2400,       // 15 min underwater cut
+    underwaterMinLoss: -15,          // Cut at -$15 net
     
     // Momentum detection — gold needs lower thresholds (less volatile)
     consecutiveCandles: 2,
-    momentumThreshold: 0.03,         // Gold 1m candles are smaller
+    momentumThreshold: 0.025,         // Gold 1m candles are smaller
     maxChasePercent: 0.35,           // Tighter chase for gold
     
     volumeMultiplier: 1.0,
