@@ -1,34 +1,34 @@
 {
-  "timestamp": 1770807578101,
-  "generatedAt": "2026-02-11T10:59:38.101Z",
-  "price": 5117,
+  "timestamp": 1770808478229,
+  "generatedAt": "2026-02-11T11:14:38.229Z",
+  "price": 5114.6,
   "regime": "trending_bullish",
-  "regimeConfidence": 0.9,
-  "regimeReason": "Price 0.84% above EMA20, high vol, 24h +0.9% | ⚠️ 5 risk events",
+  "regimeConfidence": 0.85,
+  "regimeReason": "Price 0.71% above EMA20, high vol, 24h +0.8% | ⚠️ 5 risk events",
   "stats24h": {
-    "change": 0.93299406276506,
+    "change": 0.78625337458372,
     "high": 5180,
     "low": 4995.5,
-    "volume": 24077,
+    "volume": 24404,
     "range": 3.693323991592433
   },
   "volatility": {
-    "atr_1h_pct": 0.5931931025362224,
-    "atr_15m_pct": 0.33452244599848435,
-    "bbWidth_1h": 1.5083178920485478,
+    "atr_1h_pct": 0.5463783259950717,
+    "atr_15m_pct": 0.32173375357487805,
+    "bbWidth_1h": 1.7273472716336356,
     "level": "high"
   },
   "trend": {
     "direction": "bullish",
-    "priceVsEma20": 0.8404361102869755,
-    "priceVsEma50": 1.0769401190473138,
+    "priceVsEma20": 0.7110640835543014,
+    "priceVsEma50": 0.9206187570882146,
     "ema20VsEma50": "golden"
   },
   "orderbook": {
-    "bidDepthUsd": 6343999.699999998,
-    "askDepthUsd": 3922157.9000000004,
-    "imbalance": 0.235905379048535,
-    "bias": "bid_heavy"
+    "bidDepthUsd": 4773046.7,
+    "askDepthUsd": 6318621.4,
+    "imbalance": -0.13934555975399227,
+    "bias": "ask_heavy"
   },
   "news": {
     "sentiment": "neutral",
@@ -52,7 +52,7 @@
       "Gold Price Forecast - XAU/USD Price Trades at $3,680 as Inflation Rises and Fed Cut Bets Build - TradingNEWS",
       "Gold Holds Above $5,000 as US Data Bolsters Case for Rate Cuts - Bloomberg",
       "Gold Prices Hold Above $5,000 After Weak US Retail Sales Data - CoinCentral",
-      "Gold Prices Top $4,000 for First Time - The Wall Street Journal"
+      "Gold price pushes higher as US data boosts case for interest rate cuts - Yahoo Finance UK"
     ]
   },
   "recommendations": {
@@ -78,21 +78,21 @@
   "recentCandles": [
     {
       "interval": "1m_last10",
-      "bullish": 6,
-      "bearish": 4,
-      "avgBodyPct": 0.02890144283295591
+      "bullish": 4,
+      "bearish": 6,
+      "avgBodyPct": 0.014076670130299295
     },
     {
       "interval": "5m_last1h",
-      "bullish": 7,
-      "bearish": 5,
-      "avgBodyPct": 0.08530882674506786
+      "bullish": 5,
+      "bearish": 7,
+      "avgBodyPct": 0.10528782047963652
     },
     {
       "interval": "1h_last6",
-      "bullish": 4,
-      "bearish": 2,
-      "avgBodyPct": 0.23149828055188704
+      "bullish": 3,
+      "bearish": 3,
+      "avgBodyPct": 0.2352539106275712
     }
   ]
 }
