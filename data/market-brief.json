@@ -1,6 +1,6 @@
 {
-  "timestamp": 1770849878616,
-  "generatedAt": "2026-02-11T22:44:38.616Z",
+  "timestamp": 1770850778596,
+  "generatedAt": "2026-02-11T22:59:38.596Z",
   "price": 5109.7,
   "regime": "trending_bullish",
   "regimeConfidence": 0.9,
@@ -14,7 +14,7 @@
   },
   "volatility": {
     "atr_1h_pct": 0.6517628343854417,
-    "atr_15m_pct": 0.2203109724349086,
+    "atr_15m_pct": 0.18416640071876753,
     "bbWidth_1h": 1.3787199265749708,
     "level": "high"
   },
@@ -25,9 +25,9 @@
     "ema20VsEma50": "golden"
   },
   "orderbook": {
-    "bidDepthUsd": 797715,
-    "askDepthUsd": 385572.30000000005,
-    "imbalance": 0.34830315511710463,
+    "bidDepthUsd": 1046273.9,
+    "askDepthUsd": 436817.30000000005,
+    "imbalance": 0.41093669762183194,
     "bias": "bid_heavy"
   },
   "news": {
