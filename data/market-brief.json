@@ -1,34 +1,34 @@
 {
-  "timestamp": 1770781322311,
-  "generatedAt": "2026-02-11T03:42:02.311Z",
-  "price": 5081.5,
+  "timestamp": 1770782222401,
+  "generatedAt": "2026-02-11T03:57:02.401Z",
+  "price": 5078.8,
   "regime": "trending_bullish",
-  "regimeConfidence": 0.9,
-  "regimeReason": "Price 0.39% above EMA20, high vol, 24h +0.7%",
+  "regimeConfidence": 0.85,
+  "regimeReason": "Price 0.34% above EMA20, high vol, 24h +0.7%",
   "stats24h": {
-    "change": 0.66362916006339,
+    "change": 0.70590101522843,
     "high": 5101,
     "low": 4995.5,
-    "volume": 21592,
+    "volume": 21647,
     "range": 2.1119007106395755
   },
   "volatility": {
-    "atr_1h_pct": 0.4695416588763328,
-    "atr_15m_pct": 0.22040888015303226,
-    "bbWidth_1h": 1.0173646914911263,
+    "atr_1h_pct": 0.47241656944818033,
+    "atr_15m_pct": 0.20818697879379952,
+    "bbWidth_1h": 1.0006049143447588,
     "level": "high"
   },
   "trend": {
     "direction": "bullish",
-    "priceVsEma20": 0.39172934396554515,
-    "priceVsEma50": 0.4507649221534844,
+    "priceVsEma20": 0.3434849314060101,
+    "priceVsEma50": 0.39949293316929263,
     "ema20VsEma50": "flat"
   },
   "orderbook": {
-    "bidDepthUsd": 6797350.3,
-    "askDepthUsd": 5206258.2,
-    "imbalance": 0.13255114909820656,
-    "bias": "bid_heavy"
+    "bidDepthUsd": 5313439.9,
+    "askDepthUsd": 5522268.399999999,
+    "imbalance": -0.019272251911764647,
+    "bias": "balanced"
   },
   "news": {
     "sentiment": "neutral",
@@ -63,19 +63,19 @@
       "interval": "1m_last10",
       "bullish": 3,
       "bearish": 7,
-      "avgBodyPct": 0.007086230603520758
+      "avgBodyPct": 0.00964450409947858
     },
     {
       "interval": "5m_last1h",
-      "bullish": 6,
-      "bearish": 6,
-      "avgBodyPct": 0.035622509450772645
+      "bullish": 5,
+      "bearish": 7,
+      "avgBodyPct": 0.03413790450484272
     },
     {
       "interval": "1h_last6",
       "bullish": 4,
       "bearish": 2,
-      "avgBodyPct": 0.15890585956275696
+      "avgBodyPct": 0.1500453243864329
     }
   ]
 }
