@@ -1,8 +1,8 @@
 {
-  "balance": 1477.3092676487815,
+  "balance": 1978.1284536725188,
   "initialBalance": 2000,
   "dailyStartBalance": 2000,
-  "dailyPnl": -22.690732351218802,
+  "dailyPnl": -21.871546327481447,
   "consecutiveLosses": 0,
   "positions": [
     {
@@ -160,12 +160,18 @@
       "takeProfit": 5123.670300000001,
       "minProfitTarget": 5,
       "maxProfitTarget": 150,
-      "status": "open",
+      "status": "closed",
       "mode": "trend_follow",
       "peakGrossPnl": 0,
       "peakPrice": 5105.8,
       "trailingStopActive": false,
-      "breakevenStopActive": false
+      "breakevenStopActive": false,
+      "exitPrice": 5109.7,
+      "exitTime": 1770848066030,
+      "pnl": 0.8191860237373545,
+      "fees": 2.9999999999999996,
+      "grossPnl": 3.819186023737354,
+      "reason": "generous-exit"
     }
   ],
   "lastReset": 1770835975006,
