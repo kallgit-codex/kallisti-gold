@@ -1,6 +1,6 @@
 {
-  "timestamp": 1770769521204,
-  "generatedAt": "2026-02-11T00:25:21.204Z",
+  "timestamp": 1770769521735,
+  "generatedAt": "2026-02-11T00:25:21.735Z",
   "price": 5041.2,
   "regime": "high_vol_chop",
   "regimeConfidence": 0.7,
@@ -25,9 +25,9 @@
     "ema20VsEma50": "flat"
   },
   "orderbook": {
-    "bidDepthUsd": 245915.85598299993,
+    "bidDepthUsd": 247121.0458659999,
     "askDepthUsd": 302830.23345199996,
-    "imbalance": -0.10371714453145393,
+    "imbalance": -0.10129840529707572,
     "bias": "ask_heavy"
   },
   "news": {
