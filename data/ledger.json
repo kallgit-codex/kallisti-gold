@@ -1,5 +1,5 @@
 {
-  "balance": 1977.3092676487815,
+  "balance": 1477.3092676487815,
   "initialBalance": 2000,
   "dailyStartBalance": 2000,
   "dailyPnl": -22.690732351218802,
@@ -148,9 +148,27 @@
       "fees": 2.9999999999999996,
       "grossPnl": 3.331765443713298,
       "reason": "generous-exit"
+    },
+    {
+      "id": "swing-1770847166030-vd42",
+      "side": "Long",
+      "entryPrice": 5105.8,
+      "entryTime": 1770847166030,
+      "collateral": 500,
+      "leverage": 10,
+      "stopLoss": 5095.588400000001,
+      "takeProfit": 5123.670300000001,
+      "minProfitTarget": 5,
+      "maxProfitTarget": 150,
+      "status": "open",
+      "mode": "trend_follow",
+      "peakGrossPnl": 0,
+      "peakPrice": 5105.8,
+      "trailingStopActive": false,
+      "breakevenStopActive": false
     }
   ],
   "lastReset": 1770835975006,
-  "tradesThisHour": 6,
+  "tradesThisHour": 7,
   "lastHourReset": 1770835975006
 }
