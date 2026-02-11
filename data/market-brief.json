@@ -1,58 +1,59 @@
 {
-  "timestamp": 1770832778360,
-  "generatedAt": "2026-02-11T17:59:38.360Z",
-  "price": 5115.4,
+  "timestamp": 1770833678361,
+  "generatedAt": "2026-02-11T18:14:38.361Z",
+  "price": 5094.6,
   "regime": "trending_bullish",
-  "regimeConfidence": 0.85,
-  "regimeReason": "Price 0.54% above EMA20, high vol, 24h +1.3% | ⚠️ 5 risk events",
+  "regimeConfidence": 0.9,
+  "regimeReason": "Price 0.12% above EMA20, high vol, 24h +1.1% | ⚠️ 5 risk events",
   "stats24h": {
-    "change": 1.3151119033472,
+    "change": 1.09737463536602,
     "high": 5180,
     "low": 5000,
-    "volume": 41448,
+    "volume": 42154,
     "range": 3.5999999999999996
   },
   "volatility": {
-    "atr_1h_pct": 0.863167174303181,
-    "atr_15m_pct": 0.3464051517839053,
-    "bbWidth_1h": 1.6186712800571676,
+    "atr_1h_pct": 0.8185647447899294,
+    "atr_15m_pct": 0.4767894549290822,
+    "bbWidth_1h": 1.4683242964818135,
     "level": "high"
   },
   "trend": {
     "direction": "bullish",
-    "priceVsEma20": 0.5415176893394774,
-    "priceVsEma50": 0.8534100810043866,
+    "priceVsEma20": 0.12021820992725797,
+    "priceVsEma50": 0.4165971220374968,
     "ema20VsEma50": "golden"
   },
   "orderbook": {
-    "bidDepthUsd": 4653311.4,
-    "askDepthUsd": 6677952.4,
-    "imbalance": -0.1786774216658869,
-    "bias": "ask_heavy"
+    "bidDepthUsd": 5897796.400000001,
+    "askDepthUsd": 3689939.7000000007,
+    "imbalance": 0.23027925226269008,
+    "bias": "bid_heavy"
   },
   "news": {
     "sentiment": "neutral",
-    "catalystCount": 4,
+    "catalystCount": 5,
     "riskEventCount": 5,
     "catalysts": [
-      "Market: Gold Price Forecast: XAU/USD Record Breakout Sizzles- Exhaustion Risk - FOREX.co",
+      "Geopolitical: Gold Price Forecast - XAU/USD Slides 3% to $4,000 as Risk Appetite Rises and Fed",
       "Market: Gold Price Today (15.12.2025): XAU/USD Near $4,350 as Weaker Dollar, Lower Yield",
-      "Macro: Gold Price Today, December 5, 2025 (3:30 p.m. EST): XAU/USD Hovers Near $4,200 a",
-      "Market: Gold Price Today, December 3, 2025: XAU Holds Above $4,200 as Fed Cut Bets and W"
+      "Geopolitical: Gold prices eye new highs as US tariffs on Swiss bullion send futures to record ",
+      "Market: Gold prices eye new highs as US tariffs on Swiss bullion send futures to record ",
+      "Macro: Gold Price Today, December 5, 2025 (3:30 p.m. EST): XAU/USD Hovers Near $4,200 a"
     ],
     "riskEvents": [
+      "Gold Price Forecast - XAU/USD Slides 3% to $4,000 as Risk Appetite Rises and Fed",
+      "Gold Price Forecast - XAU/USD Price Trades at $3,680 as Inflation Rises and Fed ",
       "Gold price climbs after interest rates cut by Federal Reserve - Yahoo Finance UK",
       "Gold price consolidates below $4,000 as the Federal Reserve cuts interest rates ",
-      "Gold Price Today (15.12.2025): XAU/USD Near $4,350 as Weaker Dollar, Lower Yield",
-      "Gold Price Today, December 5, 2025 (3:30 p.m. EST): XAU/USD Hovers Near $4,200 a",
-      "Gold Price Today (Dec. 18, 2025, 09:55): XAU/USD Holds Near $4,330 as Softer U.S"
+      "Gold Price Today (15.12.2025): XAU/USD Near $4,350 as Weaker Dollar, Lower Yield"
     ],
     "topHeadlines": [
+      "Gold Price Forecast - XAU/USD Slides 3% to $4,000 as Risk Appetite Rises and Fed Cut Bets Pressure Safe Havens - TradingNEWS",
+      "Gold Price Forecast - XAU/USD Price Trades at $3,680 as Inflation Rises and Fed Cut Bets Build - TradingNEWS",
       "Gold price climbs after interest rates cut by Federal Reserve - Yahoo Finance UK",
       "Gold price consolidates below $4,000 as the Federal Reserve cuts interest rates - KITCO",
-      "Gold Price Forecast: XAU/USD Record Breakout Sizzles- Exhaustion Risk - FOREX.com",
-      "Gold Price Today (15.12.2025): XAU/USD Near $4,350 as Weaker Dollar, Lower Yields and Fed Cut Bets Drive Fresh Rally - TechStock²",
-      "XAU/USD Gold Price Today: Live Trading Analysis & 2025 Forecast - VT Markets"
+      "Gold Price Today (15.12.2025): XAU/USD Near $4,350 as Weaker Dollar, Lower Yields and Fed Cut Bets Drive Fresh Rally - TechStock²"
     ]
   },
   "recommendations": {
@@ -78,21 +79,21 @@
   "recentCandles": [
     {
       "interval": "1m_last10",
-      "bullish": 3,
-      "bearish": 7,
-      "avgBodyPct": 0.012904534272084725
+      "bullish": 2,
+      "bearish": 8,
+      "avgBodyPct": 0.038801445644030194
     },
     {
       "interval": "5m_last1h",
-      "bullish": 6,
-      "bearish": 6,
-      "avgBodyPct": 0.060825103810377375
+      "bullish": 3,
+      "bearish": 9,
+      "avgBodyPct": 0.08250617754447499
     },
     {
       "interval": "1h_last6",
       "bullish": 3,
       "bearish": 3,
-      "avgBodyPct": 0.2908374404552122
+      "avgBodyPct": 0.2561675813636035
     }
   ]
 }
