@@ -23,7 +23,7 @@ import { Ledger } from "./ledger";
 import { GitHubSync } from "./github-sync";
 import { getOverrides, getCurrentBrief, ScalperOverrides } from "./brief-reader";
 
-const SCAN_INTERVAL_MS = 30_000;
+const SCAN_INTERVAL_MS = 10_000; // 10s scans — catch stops faster, Coinbase rate limit is fine
 const GITHUB_SYNC_INTERVAL_MS = 300_000;
 
 let lastSignalTime = 0;
@@ -459,6 +459,37 @@ function manageTrailingStop(
   }
   
   return { shouldClose: false, reason: "", exitPrice: currentPrice };
+}
+
+
+// === HOT-RELOAD CONFIG FROM DATA BRANCH ===
+// Optimizer pushes config-params.json to data branch (no redeploy).
+// Bot loads overrides every 5 minutes.
+let configOverrides: Record<string, any> = {};
+const CONFIG_RELOAD_INTERVAL_MS = 300_000; // 5 min
+
+async function loadConfigOverrides(): Promise<void> {
+  try {
+    const resp = await fetch(
+      "https://api.github.com/repos/kallgit-codex/kallisti-gold/contents/data/config-params.json?ref=data",
+      { headers: { Authorization: `token ${process.env.GITHUB_TOKEN || ""}`, "User-Agent": "kallisti-gold" } }
+    );
+    if (!resp.ok) return; // No overrides file yet, that's fine
+    const data: any = await resp.json();
+    const parsed = JSON.parse(Buffer.from(data.content, "base64").toString("utf-8"));
+    if (JSON.stringify(parsed) !== JSON.stringify(configOverrides)) {
+      configOverrides = parsed;
+      // Apply overrides to config
+      for (const [key, value] of Object.entries(parsed)) {
+        if (key in config) {
+          (config as any)[key] = value;
+          log(`🔧 Hot-reload: ${key} = ${value}`);
+        }
+      }
+    }
+  } catch (e) {
+    // Silent fail — config reload is best-effort
+  }
 }
 
 // ===== SWING ENTRY LOGIC =====
@@ -946,8 +977,8 @@ async function scan(ledger: Ledger, ghSync: GitHubSync) {
     
     // Dynamic stop based on ATR — GOLD TUNED: wide stops survive noise, gold trends pay
     // Floor of 0.12% stop (~$6) prevents noise stop-outs on 30s scan intervals
-    let stopPercent = Math.max(0.12, Math.min(0.6, swingAnalysis.atrPercent * 2.0));
-    let targetPercent = Math.max(0.30, Math.min(2.5, swingAnalysis.atrPercent * 3.5));
+    let stopPercent = Math.max(0.20, Math.min(0.6, swingAnalysis.atrPercent * 2.0));
+    let targetPercent = Math.max(0.40, Math.min(2.5, swingAnalysis.atrPercent * 3.5));
     
     // Longs get slightly wider targets (gold trends up better than down)
     if (finalSide === "Long") {
@@ -956,7 +987,7 @@ async function scan(ledger: Ledger, ghSync: GitHubSync) {
     
     // Bounce plays: moderate stops, quicker targets (mean reversion = faster exit)
     if (swingSignal.mode === "bounce") {
-      stopPercent = Math.max(0.10, Math.min(0.5, swingAnalysis.atrPercent * 1.5));
+      stopPercent = Math.max(0.18, Math.min(0.5, swingAnalysis.atrPercent * 1.5));
       targetPercent = Math.max(0.20, Math.min(2.0, swingAnalysis.atrPercent * 2.5));
     }
     
@@ -1128,6 +1159,9 @@ async function main() {
   }
 
   // Scan loop
+  // Hot-reload config from data branch every 5 min
+  await loadConfigOverrides();
+  setInterval(loadConfigOverrides, CONFIG_RELOAD_INTERVAL_MS);
   log(`Starting scan loop (every ${SCAN_INTERVAL_MS / 1000}s)...`);
   
   const runScan = async () => {
