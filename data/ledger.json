@@ -1,5 +1,5 @@
 {
-  "balance": 1981.9602402072023,
+  "balance": 1481.9602402072023,
   "initialBalance": 2000,
   "dailyStartBalance": 2000,
   "dailyPnl": -18.03975979279769,
@@ -52,9 +52,27 @@
       "fees": 2.9999999999999996,
       "grossPnl": -5.589660109439483,
       "reason": "stop-loss"
+    },
+    {
+      "id": "swing-1770834149756-dz1d",
+      "side": "Long",
+      "entryPrice": 5098.9,
+      "entryTime": 1770834149756,
+      "collateral": 500,
+      "leverage": 10,
+      "stopLoss": 5092.342857142857,
+      "takeProfit": 5116.74615,
+      "minProfitTarget": 5,
+      "maxProfitTarget": 150,
+      "status": "open",
+      "mode": "pullback",
+      "peakGrossPnl": 0,
+      "peakPrice": 5098.9,
+      "trailingStopActive": false,
+      "breakevenStopActive": false
     }
   ],
   "lastReset": 1770832918183,
-  "tradesThisHour": 2,
+  "tradesThisHour": 3,
   "lastHourReset": 1770832918183
 }
