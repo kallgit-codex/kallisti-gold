@@ -1,24 +1,27 @@
 {
-  "timestamp": "2026-02-11T03:58:30.110Z",
+  "timestamp": "2026-02-11T05:58:46.071Z",
   "version": "v7.1-gold-params-only",
   "asset": "GOLD",
-  "analysis": "Gold at $5078 in London session, trending_bullish regime (0.85 confidence). Bot showing HIGH_VOL_CHOP internally despite researcher saying trending_bullish — the internal regime detection may be using stale data. 24h range is 2.1% which is elevated but good for momentum. The bot isn't trading due to stale brief. Key issue: maxTradeSeconds shows 10800 in config but bot banner says 7200s — need to align. Gold surged to $5600 in Jan per [monetary-metals.com](https://www.monetary-metals.com/insights/articles/gold-outlook-report-2026-brief/) before pulling back, now consolidating ~$5080. JPMorgan sees gold potentially breaking $5000 per [jpmorgan.com](https://jpmorgan.com/insights/global-research/commodities/gold-prices). We're above that psychological level — bullish bias confirmed. Lowering momentum threshold further and widening profit target to ride the trend.",
+  "analysis": "Bot is finally taking trades but getting stopped out instantly — the 0.25% initialStopPercent is being overridden by ATR-based stops that are absurdly tight (0.02% stop = $0.76 on a $5k position). The ATR filter at 0.03% is barely letting trades through, and when they do, the stops are tighter than the spread. Need to widen stops significantly, lower ATR minimum, and increase hold times. Gold at $5087 is trending bullish per researcher with 2.1% 24h range — we should be capturing this trend with wider stops and longer holds.",
   "paramChanges": {
-    "strategy.momentumThreshold": 0.006,
-    "strategy.targetProfitPercent": 0.5,
-    "strategy.initialStopPercent": 0.25,
-    "strategy.maxTradeSeconds": 7200,
-    "strategy.quickExitSeconds": 180,
-    "strategy.underwaterCutSeconds": 600,
-    "strategy.underwaterMinLoss": -20,
+    "strategy.initialStopPercent": 0.15,
+    "strategy.targetProfitPercent": 0.35,
+    "strategy.minVolatilityPercent": 0.0005,
+    "strategy.momentumThreshold": 0.004,
+    "strategy.maxTradeSeconds": 10800,
+    "strategy.quickExitSeconds": 300,
+    "strategy.underwaterCutSeconds": 900,
+    "strategy.underwaterMinLoss": -25,
+    "strategy.quickGrabDollars": 8,
+    "strategy.minProfitDollars": 2,
+    "strategy.recoveryStopPercent": 0.03,
     "strategy.consecutiveCandles": 2,
-    "strategy.maxChasePercent": 0.15,
-    "strategy.minVolatilityPercent": 0.001,
-    "risk.maxTradesPerHour": 20
+    "risk.maxConsecutiveLosses": 5,
+    "risk.pauseAfterLossesMinutes": 15
   },
-  "paramReason": "Lower momentum entry threshold for gold's smaller candles, wider profit target to ride trends, tighter chase limit, and faster underwater cut to preserve capital on fresh deployment",
+  "paramReason": "Widen stops to survive gold noise (0.15% = ~$7.50 risk), lower ATR floor so bot actually trades, extend hold times to capture gold's smooth trends",
   "resetLedger": false,
   "paused": false,
-  "balance": 2000,
-  "dailyPnl": 0
+  "balance": 1491.7327975175947,
+  "dailyPnl": -8.267202482405418
 }
