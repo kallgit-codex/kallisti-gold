@@ -1,25 +1,38 @@
-// KALLISTI v11.0 - Regime-Adaptive Dual-Mode Strategy
-// v11.0: COMPLETE REWRITE addressing critical optimizer findings
+// KALLISTI GOLD v2.0 - Gold Futures Regime-Adaptive Strategy
+// v2.0: COMPLETE REWRITE for gold futures on Coinbase CFM
 //
-// CRITICAL FIXES:
-//   1. Null-safe Coinbase candle parsing (raw?.replace crash)
-//   2. Removed '15min stability' gate — trade immediately after regime change
-//   3. Uses researcher's ATR instead of broken local 1m ATR calculation
-//   4. Regime-aware mode switching: mean reversion in chop, momentum in trends
-//   5. Minimum 5-minute hold (no more sub-2-minute stop-outs)
-//   6. Wider stops in high-vol to avoid noise stops
-//   7. Max 2 trades/hour to reduce churn
+// CRITICAL FIXES FROM v1.0:
+//   1. ATR threshold was 0.25% hardcoded — gold 1m ATR is 0.03-0.10%, blocked ALL trades
+//   2. Now uses config.strategy.minVolatilityPercent (0.02%) instead of hardcoded values
+//   3. ATR scaling properly handles gold's lower volatility vs BTC
+//   4. Session awareness: London/NY = aggressive, Asian = conservative, maintenance = no trade
+//   5. Safe-haven bias: BTC crash / risk-off detection → gold bullish bias
+//   6. Gold-specific EMA mean reversion (gold loves bouncing off 9/21 EMAs intraday)
+//   7. Proper ATR calculation per [wikipedia.org](https://en.wikipedia.org/wiki/Average_true_range)
+//   8. ATR-based stops per [paperswithbacktest.com](https://paperswithbacktest.com/wiki/average-true-range-trading-strategy)
+//   9. MA + RSI combo per [mudrex.com](https://mudrex.com/learn/gold-futures-swing-trading-ma-rsi-strategy/)
+//
+// GOLD CHARACTERISTICS:
+//   - Daily range: 0.5-1.2% (vs BTC 2-5%)
+//   - 1m ATR: typically 0.03-0.10% — MUCH lower than BTC
+//   - Hourly ATR: typically 0.15-0.60%
+//   - Trends: cleaner, session-driven (London open, NY overlap)
+//   - Mean reverts to 9/21 EMA intraday
+//   - Safe haven: rallies when equities/crypto crash
+//   - Maintenance break: 22:00-23:00 UTC daily
 //
 // STRATEGY MODES:
-//   A. HIGH_VOL_CHOP → Mean Reversion primary (fade extremes, tight targets)
-//   B. TRENDING → Momentum/Pullback (ride the move, trailing stop)
-//   C. LOW_VOL → Wait (no edge, skip)
+//   A. HIGH_VOL_CHOP → Mean Reversion (fade BB extremes, tight targets)
+//   B. TRENDING → Trend Following + EMA Pullbacks (ride the move)
+//   C. LOW_VOL → EMA Bounce only (tight, high-probability)
 //
-// EXCHANGE: Coinbase CFM (CFTC-regulated)
-//   - Leverage: 10x intraday
-//   - Position: $500 × 10x = $5,000 notional
-//   - Taker fee: 0.03% per side ($3 round-trip)
-//   - Maker fee: 0% (promotional!)
+// SESSIONS (affects aggression):
+//   - Asian (23:00-03:00 UTC): low vol, conservative, MR only
+//   - London (03:00-08:00 UTC): structural moves, moderate
+//   - London/NY Overlap (13:00-17:00 UTC): peak vol, aggressive
+//   - NY (08:00-20:00 UTC): news-driven, moderate-aggressive
+//   - Pre-maintenance (20:00-22:00 UTC): wind down, no new trades after 21:30
+//   - Maintenance (22:00-23:00 UTC): NO TRADING
 
 import { config } from "../config";
 
@@ -31,8 +44,8 @@ export interface Candle {
   time: number;
   open: number;
   high: number;
-  low: number;
   close: number;
+  low: number;
   volume: number;
 }
 
@@ -41,7 +54,7 @@ export interface MomentumSignal {
   reason?: string;
   strength?: number;
   side?: "Long" | "Short";
-  mode?: "momentum" | "mean_reversion" | "swing_trend" | "swing_divergence" | "swing_pullback";
+  mode?: "momentum" | "mean_reversion" | "swing_trend" | "swing_divergence" | "swing_pullback" | "ema_bounce" | "session_breakout";
   suggestedMinHoldSeconds?: number;
   stopPercent?: number;
   targetPercent?: number;
@@ -62,7 +75,7 @@ export interface BriefDirective {
   regimeConfidence: number;
   recommendedThreshold?: number;
   volatility?: {
-    atrPercent: number;       // Researcher's ATR% (hourly) — USE THIS not local calc
+    atrPercent: number;
     range24hPercent?: number;
     dailyRange?: number;
   };
@@ -73,6 +86,10 @@ export interface BriefDirective {
     goldenCross?: boolean;
     atrPercent?: number;
     range24hPercent?: number;
+  };
+  safeHaven?: {
+    btcDrawdownPercent?: number;
+    riskOff?: boolean;
   };
 }
 
@@ -85,7 +102,91 @@ export interface OrderbookImbalance {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-// REGIME CLASSIFICATION
+// SESSION AWARENESS — Gold is heavily session-driven
+// ═══════════════════════════════════════════════════════════════════════
+
+type GoldSession = "asian" | "london" | "london_ny_overlap" | "new_york" | "pre_maintenance" | "maintenance";
+
+interface SessionConfig {
+  name: string;
+  aggressionMultiplier: number;  // Scales signal strength requirements
+  preferredMode: "mean_reversion" | "trend_follow" | "both" | "none";
+  maxTradesPerHour: number;
+  minStrengthOverride?: number;  // Override regime minStrength
+}
+
+const SESSION_CONFIGS: Record<GoldSession, SessionConfig> = {
+  asian: {
+    name: "Asian (Low Vol)",
+    aggressionMultiplier: 0.6,
+    preferredMode: "mean_reversion",
+    maxTradesPerHour: 2,
+    minStrengthOverride: 0.50,
+  },
+  london: {
+    name: "London Open",
+    aggressionMultiplier: 0.9,
+    preferredMode: "both",
+    maxTradesPerHour: 3,
+  },
+  london_ny_overlap: {
+    name: "London/NY Overlap (Peak)",
+    aggressionMultiplier: 1.2,
+    preferredMode: "both",
+    maxTradesPerHour: 4,
+  },
+  new_york: {
+    name: "New York",
+    aggressionMultiplier: 1.0,
+    preferredMode: "both",
+    maxTradesPerHour: 3,
+  },
+  pre_maintenance: {
+    name: "Pre-Maintenance Wind Down",
+    aggressionMultiplier: 0.4,
+    preferredMode: "mean_reversion",
+    maxTradesPerHour: 1,
+    minStrengthOverride: 0.60,
+  },
+  maintenance: {
+    name: "Maintenance Break",
+    aggressionMultiplier: 0,
+    preferredMode: "none",
+    maxTradesPerHour: 0,
+  },
+};
+
+function getCurrentSession(): { session: GoldSession; config: SessionConfig } {
+  const now = new Date();
+  const utcHour = now.getUTCHours();
+  const utcMinute = now.getUTCMinutes();
+  const timeDecimal = utcHour + utcMinute / 60;
+
+  let session: GoldSession;
+
+  if (timeDecimal >= 22 && timeDecimal < 23) {
+    session = "maintenance";
+  } else if (timeDecimal >= 21.5 && timeDecimal < 22) {
+    session = "pre_maintenance";
+  } else if (timeDecimal >= 20 && timeDecimal < 21.5) {
+    session = "pre_maintenance";
+  } else if (timeDecimal >= 23 || timeDecimal < 3) {
+    session = "asian";
+  } else if (timeDecimal >= 3 && timeDecimal < 8) {
+    session = "london";
+  } else if (timeDecimal >= 13 && timeDecimal < 17) {
+    session = "london_ny_overlap";
+  } else if (timeDecimal >= 8 && timeDecimal < 20) {
+    session = "new_york";
+  } else {
+    session = "asian";
+  }
+
+  return { session, config: SESSION_CONFIGS[session] };
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// REGIME CLASSIFICATION — Tuned for gold's lower volatility
 // ═══════════════════════════════════════════════════════════════════════
 
 type RegimeMode = "mean_reversion" | "trend_follow" | "wait";
@@ -101,44 +202,40 @@ interface RegimeConfig {
 }
 
 const REGIME_CONFIGS: Record<string, RegimeConfig> = {
-  // High vol chop: mean reversion, fade extremes, tighter targets
   high_vol_chop: {
     mode: "mean_reversion",
-    minStrength: 0.40,
-    stopMultiplier: 0.7,       // 0.7x ATR stop — wider to survive noise
-    targetMultiplier: 0.5,     // 0.5x ATR target — take profits quickly
-    minHoldSeconds: 300,       // 5 min minimum
-    maxHoldSeconds: 1800,      // 30 min max in chop
+    minStrength: 0.35,
+    stopMultiplier: 1.2,       // Wider stops for gold — noise is proportionally larger
+    targetMultiplier: 0.8,     // Take profits at 0.8x ATR
+    minHoldSeconds: 180,       // 3 min minimum
+    maxHoldSeconds: 2400,      // 40 min max in chop
     trailingStopEnabled: false,
   },
-  // Trending: ride the move
   trending: {
     mode: "trend_follow",
-    minStrength: 0.35,
-    stopMultiplier: 0.5,
-    targetMultiplier: 1.5,
-    minHoldSeconds: 600,       // 10 min minimum
-    maxHoldSeconds: 3600,      // 60 min max
+    minStrength: 0.30,
+    stopMultiplier: 1.0,
+    targetMultiplier: 2.0,     // Let gold trends run — they're cleaner than BTC
+    minHoldSeconds: 300,       // 5 min minimum
+    maxHoldSeconds: 5400,      // 90 min max — gold trends last longer
     trailingStopEnabled: true,
   },
-  // Low vol: generally skip
   low_vol: {
-    mode: "wait",
-    minStrength: 0.70,         // Very high bar
-    stopMultiplier: 1.0,
+    mode: "mean_reversion",    // Changed from "wait" — gold low vol still tradeable with EMA bounces
+    minStrength: 0.45,
+    stopMultiplier: 1.5,       // Tight stops relative to small moves
     targetMultiplier: 1.0,
-    minHoldSeconds: 300,
-    maxHoldSeconds: 1200,
+    minHoldSeconds: 120,
+    maxHoldSeconds: 1800,
     trailingStopEnabled: false,
   },
-  // Unknown/default: conservative trend following
   unknown: {
     mode: "trend_follow",
-    minStrength: 0.50,
-    stopMultiplier: 0.6,
-    targetMultiplier: 1.0,
-    minHoldSeconds: 300,
-    maxHoldSeconds: 2400,
+    minStrength: 0.40,
+    stopMultiplier: 1.0,
+    targetMultiplier: 1.5,
+    minHoldSeconds: 180,
+    maxHoldSeconds: 3600,
     trailingStopEnabled: true,
   },
 };
@@ -152,7 +249,7 @@ function getRegimeConfig(regime: string): RegimeConfig {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-// BRIEF PARSER — with volatility extraction
+// BRIEF PARSER — with volatility & safe-haven extraction
 // ═══════════════════════════════════════════════════════════════════════
 
 export function parseBriefDirective(brief: any): BriefDirective {
@@ -207,12 +304,10 @@ export function parseBriefDirective(brief: any): BriefDirective {
       recommendedThreshold = rawThreshold;
     }
 
-    // CRITICAL: Extract volatility data from researcher brief
-    // This is the AUTHORITATIVE source for ATR, not our broken local 1m calculation
+    // Extract volatility data from researcher brief
     const volatility: BriefDirective["volatility"] = {} as any;
     let hasVolatility = false;
 
-    // Try multiple possible field names
     const volSources = [
       brief.volatility,
       brief.vol,
@@ -232,7 +327,6 @@ export function parseBriefDirective(brief: any): BriefDirective {
           hasVolatility = true;
           break;
         }
-        // Also try parsing string like "1.05%"
         if (typeof src[field] === "string") {
           const parsed = parseFloat(src[field]);
           if (!isNaN(parsed) && parsed > 0 && parsed < 20) {
@@ -245,7 +339,6 @@ export function parseBriefDirective(brief: any): BriefDirective {
       if (volatility!.atrPercent) break;
     }
 
-    // Range data
     const rangeFields = ["range_24h_percent", "range24hPercent", "daily_range", "dailyRange", "range_24h"];
     for (const src of volSources) {
       if (!src || typeof src !== "object") continue;
@@ -284,10 +377,28 @@ export function parseBriefDirective(brief: any): BriefDirective {
     if (td.death_cross || td.deathCross) { trendData.deathCross = true; hasTrendData = true; }
     if (td.golden_cross || td.goldenCross) { trendData.goldenCross = true; hasTrendData = true; }
 
-    // If we got ATR from trend_data but not from volatility, copy it
     if (!volatility!.atrPercent && trendData.atrPercent) {
       volatility!.atrPercent = trendData.atrPercent;
       hasVolatility = true;
+    }
+
+    // Extract safe-haven signals
+    let safeHaven: BriefDirective["safeHaven"] | undefined;
+    const shSources = [brief.safe_haven, brief.safeHaven, brief.macro, brief];
+    for (const src of shSources) {
+      if (!src || typeof src !== "object") continue;
+      const btcFields = ["btc_drawdown", "btcDrawdown", "btc_drawdown_percent", "btcDrawdownPercent"];
+      for (const f of btcFields) {
+        if (typeof src[f] === "number") {
+          safeHaven = { btcDrawdownPercent: src[f], riskOff: src[f] < -5 };
+          break;
+        }
+      }
+      if (src.risk_off !== undefined || src.riskOff !== undefined) {
+        safeHaven = safeHaven || {};
+        safeHaven.riskOff = Boolean(src.risk_off || src.riskOff);
+      }
+      if (safeHaven) break;
     }
 
     return {
@@ -300,6 +411,7 @@ export function parseBriefDirective(brief: any): BriefDirective {
       recommendedThreshold,
       volatility: hasVolatility ? volatility : undefined,
       trendData: hasTrendData ? trendData : undefined,
+      safeHaven,
     };
   } catch {
     return defaults;
@@ -345,7 +457,7 @@ export function computeOrderbookImbalance(
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-// TECHNICAL INDICATORS
+// TECHNICAL INDICATORS — Gold-tuned
 // ═══════════════════════════════════════════════════════════════════════
 
 function calcEMA(values: number[], period: number): number {
@@ -388,12 +500,15 @@ function calcRSI(closes: number[], period: number = 14): number {
   return 100 - (100 / (1 + rs));
 }
 
+// ATR calculation per Wilder's smoothed moving average method
+// [wikipedia.org](https://en.wikipedia.org/wiki/Average_true_range)
 function calcATR(candles: Candle[], period: number = 14): number {
   if (candles.length < 2) return 0;
   const trs: number[] = [];
   for (let i = 1; i < candles.length; i++) {
     const c = candles[i];
     const prevClose = candles[i - 1].close;
+    // True Range = max(high - low, |high - prevClose|, |low - prevClose|)
     const tr = Math.max(
       c.high - c.low,
       Math.abs(c.high - prevClose),
@@ -402,8 +517,14 @@ function calcATR(candles: Candle[], period: number = 14): number {
     trs.push(tr);
   }
   if (trs.length === 0) return 0;
-  const slice = trs.slice(-period);
-  return slice.reduce((a, b) => a + b, 0) / slice.length;
+
+  // Use Wilder's smoothing: ATR_t = (ATR_{t-1} * (n-1) + TR_t) / n
+  const n = Math.min(period, trs.length);
+  let atr = trs.slice(0, n).reduce((a, b) => a + b, 0) / n;
+  for (let i = n; i < trs.length; i++) {
+    atr = (atr * (n - 1) + trs[i]) / n;
+  }
+  return atr;
 }
 
 function calcMACD(closes: number[], fastPeriod = 12, slowPeriod = 26, signalPeriod = 9) {
@@ -442,21 +563,16 @@ function calcBollingerBands(closes: number[], period = 20, stdDevMultiplier = 2)
 
   const upper = middle + stdDev * stdDevMultiplier;
   const lower = middle - stdDev * stdDevMultiplier;
-  const width = ((upper - lower) / middle) * 100;
+  const width = middle > 0 ? ((upper - lower) / middle) * 100 : 0;
   const currentPrice = closes[closes.length - 1];
   const percentB = upper !== lower ? (currentPrice - lower) / (upper - lower) : 0.5;
 
   return { upper, middle, lower, width, percentB };
 }
 
-/**
- * Stochastic RSI — better for mean reversion entries than plain RSI
- * Returns 0-100, with <20 oversold and >80 overbought
- */
 function calcStochRSI(closes: number[], rsiPeriod = 14, stochPeriod = 14): number {
   if (closes.length < rsiPeriod + stochPeriod + 1) return 50;
 
-  // Calculate RSI series
   const rsiValues: number[] = [];
   for (let i = rsiPeriod + 1; i <= closes.length; i++) {
     const rsi = calcRSI(closes.slice(0, i), rsiPeriod);
@@ -472,6 +588,19 @@ function calcStochRSI(closes: number[], rsiPeriod = 14, stochPeriod = 14): numbe
 
   if (maxRSI === minRSI) return 50;
   return ((currentRSI - minRSI) / (maxRSI - minRSI)) * 100;
+}
+
+// VWAP approximation from candle data
+function calcVWAP(candles: Candle[]): number {
+  if (candles.length === 0) return 0;
+  let cumulativeTPV = 0;
+  let cumulativeVol = 0;
+  for (const c of candles) {
+    const typicalPrice = (c.high + c.low + c.close) / 3;
+    cumulativeTPV += typicalPrice * c.volume;
+    cumulativeVol += c.volume;
+  }
+  return cumulativeVol > 0 ? cumulativeTPV / cumulativeVol : candles[candles.length - 1].close;
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -514,51 +643,124 @@ export function aggregateCandles(candles: Candle[], periodMinutes: number): Cand
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-// EFFECTIVE ATR — Uses researcher data when available, local as fallback
-// This is the FIX for the broken ATR calculation issue.
-// The local 1m ATR was showing 0.16% while researcher shows 1.05% hourly.
-// They measure different things: we need the hourly-scale ATR for position sizing.
+// EFFECTIVE ATR — Gold-calibrated, multi-source
+// Uses researcher hourly ATR when available, properly scales local 1m ATR
+// Per [paperswithbacktest.com](https://paperswithbacktest.com/wiki/average-true-range-applications)
 // ═══════════════════════════════════════════════════════════════════════
 
 function getEffectiveATRPercent(
   candles: Candle[],
   briefDirective?: BriefDirective,
-): number {
+): { hourly: number; local1m: number; source: string } {
+  let hourly = 0;
+  let source = "default";
+
   // PRIORITY 1: Researcher's ATR (hourly, most accurate)
   if (briefDirective?.volatility?.atrPercent && briefDirective.volatility.atrPercent > 0) {
-    return briefDirective.volatility.atrPercent;
+    hourly = briefDirective.volatility.atrPercent;
+    source = "researcher_atr";
   }
 
   // PRIORITY 2: ATR from trend data
-  if (briefDirective?.trendData?.atrPercent && briefDirective.trendData.atrPercent > 0) {
-    return briefDirective.trendData.atrPercent;
+  if (!hourly && briefDirective?.trendData?.atrPercent && briefDirective.trendData.atrPercent > 0) {
+    hourly = briefDirective.trendData.atrPercent;
+    source = "trend_data_atr";
   }
 
-  // PRIORITY 3: Estimate from 24h range (range ≈ 4-6x ATR typically)
-  if (briefDirective?.volatility?.range24hPercent && briefDirective.volatility.range24hPercent > 0) {
-    return briefDirective.volatility.range24hPercent / 5;
+  // PRIORITY 3: Estimate from 24h range (range ≈ 4-5x hourly ATR for gold)
+  if (!hourly && briefDirective?.volatility?.range24hPercent && briefDirective.volatility.range24hPercent > 0) {
+    hourly = briefDirective.volatility.range24hPercent / 4.5;
+    source = "range_24h_derived";
   }
 
-  // PRIORITY 4: Local calculation on available candles, scaled up
-  // If we have 1m candles, ATR will be tiny. Scale up to ~hourly equivalent.
+  // Calculate local 1m ATR regardless (for comparison and fallback)
+  let local1m = 0;
   if (candles.length >= 5) {
     const localATR = calcATR(candles, Math.min(14, candles.length - 1));
     const price = candles[candles.length - 1].close;
     if (price > 0 && localATR > 0) {
-      const localATRPct = (localATR / price) * 100;
-      // 1m ATR → hourly: multiply by sqrt(60) ≈ 7.75
-      // This is approximate but much better than raw 1m ATR
-      const hourlyEstimate = localATRPct * Math.sqrt(60);
-      return hourlyEstimate;
+      local1m = (localATR / price) * 100;
     }
   }
 
-  // PRIORITY 5: Default reasonable assumption for BTC
-  return 0.8;
+  // PRIORITY 4: Scale local 1m ATR to hourly
+  // For gold: 1m ATR ≈ 0.03-0.10%, hourly ≈ 0.15-0.60%
+  // Scaling factor: sqrt(60) ≈ 7.75 for random walk, but gold mean-reverts
+  // so use a lower factor of ~5
+  if (!hourly && local1m > 0) {
+    hourly = local1m * 5.0;
+    source = "local_1m_scaled";
+  }
+
+  // PRIORITY 5: Default for gold
+  if (!hourly) {
+    hourly = 0.35;  // Typical gold hourly ATR
+    source = "gold_default";
+  }
+
+  return { hourly, local1m, source };
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-// TREND ASSESSMENT
+// SAFE HAVEN DETECTION — BTC crash = gold bullish
+// ═══════════════════════════════════════════════════════════════════════
+
+interface SafeHavenSignal {
+  active: boolean;
+  bias: "long" | "neutral";
+  strength: number;  // 0-1
+  reason: string;
+}
+
+function detectSafeHavenBias(briefDirective?: BriefDirective): SafeHavenSignal {
+  const neutral: SafeHavenSignal = { active: false, bias: "neutral", strength: 0, reason: "no signal" };
+
+  if (!briefDirective) return neutral;
+
+  let strength = 0;
+  const reasons: string[] = [];
+
+  // Direct safe-haven data from researcher
+  if (briefDirective.safeHaven?.riskOff) {
+    strength += 0.30;
+    reasons.push("risk_off_flag");
+  }
+
+  if (briefDirective.safeHaven?.btcDrawdownPercent) {
+    const dd = briefDirective.safeHaven.btcDrawdownPercent;
+    if (dd < -3) {
+      strength += Math.min(Math.abs(dd) * 0.04, 0.40);
+      reasons.push(`BTC_dd=${dd.toFixed(1)}%`);
+    }
+  }
+
+  // High volatility in crypto often means risk-off → gold bid
+  const regime = briefDirective.regime || "";
+  if (regime.includes("high_vol")) {
+    strength += 0.10;
+    reasons.push("high_vol_regime");
+  }
+
+  // If researcher explicitly says long bias with high confidence, amplify
+  if (briefDirective.bias === "long" && briefDirective.regimeConfidence > 0.7) {
+    strength += 0.15;
+    reasons.push("researcher_long_bias");
+  }
+
+  if (strength >= 0.20) {
+    return {
+      active: true,
+      bias: "long",
+      strength: Math.min(strength, 1.0),
+      reason: `🏆 Safe-Haven: ${reasons.join(", ")}`,
+    };
+  }
+
+  return neutral;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// TREND ASSESSMENT — Gold-tuned
 // ═══════════════════════════════════════════════════════════════════════
 
 interface TrendAssessment {
@@ -570,12 +772,15 @@ interface TrendAssessment {
   rsi: number;
   stochRSI: number;
   macd: { macd: number; signal: number; histogram: number; prevHistogram: number };
-  atrPercent: number;             // Effective ATR from researcher or scaled local
-  localAtrPercent: number;        // Raw local 1m ATR for reference
+  atrPercent: number;             // Hourly-scale effective ATR
+  localAtrPercent: number;        // Raw local 1m ATR
+  atrSource: string;
   bbands: { upper: number; middle: number; lower: number; width: number; percentB: number };
+  vwap: number;
   priceVsEma9Pct: number;
   priceVsEma21Pct: number;
   priceVsEma50Pct: number;
+  priceVsVwapPct: number;
   isMacdCrossUp: boolean;
   isMacdCrossDown: boolean;
   isHistogramGrowing: boolean;
@@ -592,44 +797,47 @@ function assessTrend(candles: Candle[], briefDirective?: BriefDirective): TrendA
   const stochRSI = calcStochRSI(closes, 14, 14);
   const macd = calcMACD(closes, 12, 26, 9);
 
-  // Local ATR (raw 1m)
-  const localATR = calcATR(candles, 14);
-  const localAtrPercent = currentPrice > 0 ? (localATR / currentPrice) * 100 : 0;
-
-  // Effective ATR (researcher or scaled)
-  const atrPercent = getEffectiveATRPercent(candles, briefDirective);
+  const atrData = getEffectiveATRPercent(candles, briefDirective);
 
   const bbands = calcBollingerBands(closes, 20, 2);
+  const vwap = calcVWAP(candles);
 
   const priceVsEma9Pct = ema9 > 0 ? ((currentPrice - ema9) / ema9) * 100 : 0;
   const priceVsEma21Pct = ema21 > 0 ? ((currentPrice - ema21) / ema21) * 100 : 0;
   const priceVsEma50Pct = ema50 > 0 ? ((currentPrice - ema50) / ema50) * 100 : 0;
+  const priceVsVwapPct = vwap > 0 ? ((currentPrice - vwap) / vwap) * 100 : 0;
 
   const isMacdCrossUp = macd.histogram > 0 && macd.prevHistogram <= 0;
   const isMacdCrossDown = macd.histogram < 0 && macd.prevHistogram >= 0;
   const isHistogramGrowing = Math.abs(macd.histogram) > Math.abs(macd.prevHistogram);
 
-  // Trend direction scoring
+  // Gold trend scoring — per [mudrex.com](https://mudrex.com/learn/gold-futures-swing-trading-ma-rsi-strategy/)
+  // Uses EMA stack, MACD, RSI with gold-appropriate thresholds
   let score = 0;
   if (ema9 > ema21) score += 1; else score -= 1;
   if (ema21 > ema50) score += 1; else score -= 1;
   if (currentPrice > ema9) score += 0.5; else score -= 0.5;
   if (currentPrice > ema21) score += 0.5; else score -= 0.5;
+  if (currentPrice > vwap) score += 0.3; else score -= 0.3;
   if (macd.histogram > 0) score += 0.5; else score -= 0.5;
   if (isHistogramGrowing && macd.histogram > 0) score += 0.5;
   if (isHistogramGrowing && macd.histogram < 0) score -= 0.5;
+  // Gold RSI: use 40-60 neutral zone per mudrex strategy
   if (rsi > 55) score += 0.5; else if (rsi < 45) score -= 0.5;
 
   let direction: "bullish" | "bearish" | "neutral" = "neutral";
-  if (score >= 2) direction = "bullish";
-  else if (score <= -2) direction = "bearish";
+  if (score >= 1.5) direction = "bullish";
+  else if (score <= -1.5) direction = "bearish";
 
   const strength = Math.min(Math.abs(score) / 5, 1.0);
 
   return {
     direction, strength, ema9, ema21, ema50, rsi, stochRSI, macd,
-    atrPercent, localAtrPercent,
-    bbands, priceVsEma9Pct, priceVsEma21Pct, priceVsEma50Pct,
+    atrPercent: atrData.hourly,
+    localAtrPercent: atrData.local1m,
+    atrSource: atrData.source,
+    bbands, vwap,
+    priceVsEma9Pct, priceVsEma21Pct, priceVsEma50Pct, priceVsVwapPct,
     isMacdCrossUp, isMacdCrossDown, isHistogramGrowing,
   };
 }
@@ -656,29 +864,179 @@ function positionInRange(candles: Candle[], lookback: number = 20): {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-// MEAN REVERSION SIGNAL — Primary mode for high_vol_chop
+// GOLD-SPECIFIC: EMA BOUNCE SIGNAL
+// Gold mean-reverts beautifully to 9 and 21 EMAs intraday
+// This is the bread-and-butter gold scalp
 // ═══════════════════════════════════════════════════════════════════════
 
-/**
- * v11.0: Regime-aware mean reversion.
- * In high_vol_chop, this is the PRIMARY signal source.
- *
- * Entry conditions:
- *   - StochRSI at extreme (<15 or >85)
- *   - Price outside Bollinger Bands OR at band edge
- *   - Recent move was extended (multi-candle run in one direction)
- *   - Preferably: volume declining on the extension (exhaustion)
- *
- * Key difference from v10: uses researcher's ATR for proper sizing,
- * wider stops to survive high-vol noise.
- */
+function detectEMABounceSignal(
+  candles1m: Candle[],
+  trend: TrendAssessment,
+  regimeConfig: RegimeConfig,
+  sessionConfig: SessionConfig,
+  briefDirective?: BriefDirective,
+  orderbook?: OrderbookImbalance,
+  safeHaven?: SafeHavenSignal,
+): MomentumSignal {
+  const noSignal = (reason: string): MomentumSignal => ({ detected: false, reason });
+  const price = candles1m[candles1m.length - 1].close;
+
+  if (candles1m.length < 15) return noSignal("Insufficient candles for EMA bounce");
+
+  // Gold loves bouncing off EMA9 in trends, EMA21 for deeper pullbacks
+  const distEma9 = trend.priceVsEma9Pct;
+  const distEma21 = trend.priceVsEma21Pct;
+
+  // Need a clear EMA stack direction
+  const emaStackUp = trend.ema9 > trend.ema21 && trend.ema21 > trend.ema50;
+  const emaStackDown = trend.ema9 < trend.ema21 && trend.ema21 < trend.ema50;
+
+  if (!emaStackUp && !emaStackDown) {
+    return noSignal(`EMA bounce: no clear stack (9=${trend.ema9.toFixed(1)} 21=${trend.ema21.toFixed(1)} 50=${trend.ema50.toFixed(1)}) @ $${price.toFixed(1)}`);
+  }
+
+  const side: "Long" | "Short" = emaStackUp ? "Long" : "Short";
+
+  // Gold-specific EMA proximity thresholds (in %)
+  // Gold 1m candles: EMA9 touch ≈ 0.01-0.04%, EMA21 touch ≈ 0.03-0.08%
+  const touchingEma9 = Math.abs(distEma9) < 0.03;
+  const touchingEma21 = Math.abs(distEma21) < 0.06;
+  const pulledBackToEma9 = side === "Long" ? (distEma9 > -0.04 && distEma9 < 0.01) :
+                                              (distEma9 < 0.04 && distEma9 > -0.01);
+  const pulledBackToEma21 = side === "Long" ? (distEma21 > -0.07 && distEma21 < 0.02) :
+                                               (distEma21 < 0.07 && distEma21 > -0.02);
+
+  if (!touchingEma9 && !touchingEma21 && !pulledBackToEma9 && !pulledBackToEma21) {
+    return noSignal(`EMA bounce: price too far from EMAs (d9=${distEma9.toFixed(3)}% d21=${distEma21.toFixed(3)}%) @ $${price.toFixed(1)}`);
+  }
+
+  // Bounce confirmation: last candle should show direction change
+  const last = candles1m[candles1m.length - 1];
+  const prev = candles1m[candles1m.length - 2];
+  const lastMove = last.close - last.open;
+  const prevMove = prev.close - prev.open;
+
+  const bouncing = (side === "Long" && lastMove > 0) || (side === "Short" && lastMove < 0);
+  const wasPullingBack = (side === "Long" && prevMove < 0) || (side === "Short" && prevMove > 0);
+
+  if (!bouncing) {
+    return noSignal(`EMA bounce ${side}: no bounce candle yet @ $${price.toFixed(1)}`);
+  }
+
+  // RSI: should be in the 40-60 zone for pullback entry (per mudrex strategy)
+  // Or at least not overbought/oversold
+  if (side === "Long" && trend.rsi > 70) return noSignal(`EMA bounce Long: RSI too high (${trend.rsi.toFixed(0)}) @ $${price.toFixed(1)}`);
+  if (side === "Short" && trend.rsi < 30) return noSignal(`EMA bounce Short: RSI too low (${trend.rsi.toFixed(0)}) @ $${price.toFixed(1)}`);
+
+  // ─── STRENGTH SCORING ───
+  let strength = 0.25;
+  const reasons: string[] = [];
+
+  // EMA proximity
+  if (touchingEma9 || pulledBackToEma9) {
+    strength += 0.12;
+    reasons.push(`EMA9_touch(${distEma9.toFixed(3)}%)`);
+  }
+  if (touchingEma21 || pulledBackToEma21) {
+    strength += 0.15;
+    reasons.push(`EMA21_touch(${distEma21.toFixed(3)}%)`);
+  }
+
+  // Was pulling back then bounced (classic pattern)
+  if (wasPullingBack) {
+    strength += 0.10;
+    reasons.push("pullback_bounce");
+  }
+
+  // RSI in sweet zone (40-60)
+  if (trend.rsi >= 40 && trend.rsi <= 60) {
+    strength += 0.08;
+    reasons.push(`RSI_sweet(${trend.rsi.toFixed(0)})`);
+  }
+
+  // VWAP alignment
+  if ((side === "Long" && price > trend.vwap) || (side === "Short" && price < trend.vwap)) {
+    strength += 0.06;
+    reasons.push("VWAP_aligned");
+  }
+
+  // Safe haven bonus
+  if (safeHaven?.active && side === "Long") {
+    strength += safeHaven.strength * 0.15;
+    reasons.push("safe_haven_boost");
+  }
+
+  // Researcher alignment
+  if (briefDirective?.bias === (side === "Long" ? "long" : "short")) {
+    strength += 0.10;
+    reasons.push("bias_aligned");
+  }
+
+  // OB alignment
+  if (orderbook && orderbook.strength > 0.2) {
+    if ((orderbook.lean === "long" && side === "Long") || (orderbook.lean === "short" && side === "Short")) {
+      strength += 0.08 * orderbook.strength;
+      reasons.push(`OB:${orderbook.ratio.toFixed(2)}`);
+    }
+  }
+
+  // Session multiplier
+  strength *= sessionConfig.aggressionMultiplier;
+
+  // Counter-trend penalty
+  if (briefDirective?.bias && briefDirective.bias !== "neutral" &&
+      briefDirective.bias !== (side === "Long" ? "long" : "short") &&
+      briefDirective.regimeConfidence > 0.6) {
+    strength *= 0.6;
+    reasons.push("counter_bias");
+  }
+
+  strength = Math.max(0, Math.min(1.0, strength));
+
+  const minStr = sessionConfig.minStrengthOverride || regimeConfig.minStrength;
+  if (strength < minStr) {
+    return noSignal(`EMA bounce ${side}: too weak (${strength.toFixed(2)} < ${minStr.toFixed(2)}) [${reasons.join(", ")}] @ $${price.toFixed(1)}`);
+  }
+
+  // ATR-based stop and target — gold-tuned
+  // [paperswithbacktest.com](https://paperswithbacktest.com/wiki/average-true-range-trading-strategy)
+  const atr = trend.atrPercent;
+  const stopPercent = Math.max(0.08, atr * 0.4);   // Tighter for EMA bounces
+  const targetPercent = Math.max(0.10, atr * 0.6);  // Quick targets
+
+  reasons.push(`ATR=${atr.toFixed(3)}%(${trend.atrSource})`);
+
+  return {
+    detected: true,
+    side,
+    mode: "ema_bounce",
+    reason: `📏 EMA_BOUNCE ${side.toUpperCase()}: ${reasons.join(", ")}, target=${targetPercent.toFixed(3)}%, stop=${stopPercent.toFixed(3)}% @ $${price.toFixed(1)}`,
+    strength,
+    suggestedMinHoldSeconds: Math.max(120, regimeConfig.minHoldSeconds),
+    stopPercent,
+    targetPercent,
+    hardMaxHoldSeconds: regimeConfig.maxHoldSeconds,
+    trailingStop: {
+      activationPercent: targetPercent * 0.6,
+      trailPercent: targetPercent * 0.4,
+    },
+    maxLossDollars: 25,
+  };
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// MEAN REVERSION SIGNAL — For chop regimes, fade BB/StochRSI extremes
+// ═══════════════════════════════════════════════════════════════════════
+
 function detectMeanReversionSignal(
   candles1m: Candle[],
   candles5m: Candle[],
   trend: TrendAssessment,
   regimeConfig: RegimeConfig,
+  sessionConfig: SessionConfig,
   briefDirective?: BriefDirective,
   orderbook?: OrderbookImbalance,
+  safeHaven?: SafeHavenSignal,
 ): MomentumSignal {
   const noSignal = (reason: string): MomentumSignal => ({ detected: false, reason });
   const price = candles1m[candles1m.length - 1].close;
@@ -688,27 +1046,27 @@ function detectMeanReversionSignal(
   const closes5m = candles5m.map(c => c.close);
   const bb5m = calcBollingerBands(closes5m, 20, 2);
   const rsi5m = calcRSI(closes5m, 14);
-
-  // Use 1m data for more sensitive stochastic
-  const closes1m = candles1m.map(c => c.close);
   const stochRSI = trend.stochRSI;
 
-  // Minimum volatility — need enough movement to trade
-  if (trend.atrPercent < 0.3) {
-    return noSignal(`MR: ATR too low (${trend.atrPercent.toFixed(2)}%) — no edge @ $${price.toFixed(0)}`);
+  // *** CRITICAL FIX: Use config-based minimum volatility, NOT hardcoded ***
+  // Gold 1m ATR is typically 0.03-0.10%, config says 0.02% minimum
+  // The old code had 0.30% which BLOCKED ALL GOLD TRADES
+  const minVol = config.strategy.minVolatilityPercent || 0.02;
+  if (trend.localAtrPercent < minVol && trend.atrPercent < minVol) {
+    return noSignal(`MR: ATR below config minimum (local=${trend.localAtrPercent.toFixed(4)}%, hourly=${trend.atrPercent.toFixed(3)}%, min=${minVol}%) @ $${price.toFixed(1)}`);
   }
 
   // ─── OVERSOLD LONG ───
-  const oversold = stochRSI < 15 || (stochRSI < 20 && rsi5m < 35);
+  const oversold = stochRSI < 15 || (stochRSI < 25 && rsi5m < 38);
   const belowLowerBand = bb5m.percentB < 0.10;
   const nearLowerBand = bb5m.percentB < 0.20;
 
   // ─── OVERBOUGHT SHORT ───
-  const overbought = stochRSI > 85 || (stochRSI > 80 && rsi5m > 65);
+  const overbought = stochRSI > 85 || (stochRSI > 75 && rsi5m > 62);
   const aboveUpperBand = bb5m.percentB > 0.90;
   const nearUpperBand = bb5m.percentB > 0.80;
 
-  // Check for directional extension over last N candles
+  // Directional extension check
   const lookback = Math.min(7, candles5m.length - 1);
   const recentCandles5m = candles5m.slice(-lookback - 1);
   let upCandles = 0;
@@ -724,10 +1082,12 @@ function detectMeanReversionSignal(
 
   const totalMovePct = recentCandles5m[0].close > 0
     ? (totalMove / recentCandles5m[0].close) * 100 : 0;
-  const extendedDown = downCandles >= 4 && totalMovePct < -0.15;
-  const extendedUp = upCandles >= 4 && totalMovePct > 0.15;
 
-  // Volume exhaustion: declining volume on the extension = better MR signal
+  // Gold-specific: lower thresholds for "extended" moves
+  const extendedDown = downCandles >= 3 && totalMovePct < -0.06;
+  const extendedUp = upCandles >= 3 && totalMovePct > 0.06;
+
+  // Volume exhaustion
   const recentVols = candles5m.slice(-5).map(c => c.volume);
   const volDecreasing = recentVols.length >= 3 &&
     recentVols[recentVols.length - 1] < recentVols[recentVols.length - 3];
@@ -746,25 +1106,31 @@ function detectMeanReversionSignal(
     if (belowLowerBand) { strength += 0.15; reasons.push("below_BB"); }
     else if (nearLowerBand) { strength += 0.08; }
 
-    if (extendedDown) { strength += 0.15; reasons.push(`extended↓(${downCandles}/${lookback})`); }
+    if (extendedDown) { strength += 0.12; reasons.push(`extended↓(${downCandles}/${lookback})`); }
     if (volDecreasing) { strength += 0.08; reasons.push("vol_exhaust"); }
     if (stochRSI < 10) { strength += 0.10; reasons.push("deep_oversold"); }
 
-    // OB confirmation (bid-heavy = support)
+    // VWAP below = extra confirmation for long MR
+    if (price < trend.vwap) { strength += 0.06; reasons.push("below_VWAP"); }
+
+    // Safe haven boost for longs
+    if (safeHaven?.active) {
+      strength += safeHaven.strength * 0.12;
+      reasons.push("safe_haven");
+    }
+
     if (orderbook && orderbook.lean === "long" && orderbook.strength > 0.2) {
       strength += 0.10 * orderbook.strength;
       reasons.push(`OB_bid:${orderbook.ratio.toFixed(2)}`);
     }
 
-    // Researcher alignment bonus
     if (briefDirective?.bias === "long") {
       strength += 0.10;
       reasons.push("bias_aligned");
     }
 
-    // PENALTY: if researcher says SHORT and confidence is high, reduce strength
     if (briefDirective?.bias === "short" && (briefDirective.regimeConfidence || 0) > 0.7) {
-      strength -= 0.15;
+      strength -= 0.12;
       reasons.push("bias_opposed");
     }
   }
@@ -779,9 +1145,17 @@ function detectMeanReversionSignal(
     if (aboveUpperBand) { strength += 0.15; reasons.push("above_BB"); }
     else if (nearUpperBand) { strength += 0.08; }
 
-    if (extendedUp) { strength += 0.15; reasons.push(`extended↑(${upCandles}/${lookback})`); }
+    if (extendedUp) { strength += 0.12; reasons.push(`extended↑(${upCandles}/${lookback})`); }
     if (volDecreasing) { strength += 0.08; reasons.push("vol_exhaust"); }
     if (stochRSI > 90) { strength += 0.10; reasons.push("deep_overbought"); }
+
+    if (price > trend.vwap) { strength += 0.06; reasons.push("above_VWAP"); }
+
+    // Safe haven: penalize shorts if risk-off
+    if (safeHaven?.active) {
+      strength -= safeHaven.strength * 0.15;
+      reasons.push("safe_haven_short_penalty");
+    }
 
     if (orderbook && orderbook.lean === "short" && orderbook.strength > 0.2) {
       strength += 0.10 * orderbook.strength;
@@ -794,36 +1168,40 @@ function detectMeanReversionSignal(
     }
 
     if (briefDirective?.bias === "long" && (briefDirective.regimeConfidence || 0) > 0.7) {
-      strength -= 0.15;
+      strength -= 0.12;
       reasons.push("bias_opposed");
     }
   }
 
   if (!side) {
-    return noSignal(`MR: no extreme (stochRSI=${stochRSI.toFixed(0)}, BB%=${bb5m.percentB.toFixed(2)}, RSI5m=${rsi5m.toFixed(0)}) @ $${price.toFixed(0)}`);
+    return noSignal(`MR: no extreme (stochRSI=${stochRSI.toFixed(0)}, BB%=${bb5m.percentB.toFixed(2)}, RSI5m=${rsi5m.toFixed(0)}) @ $${price.toFixed(1)}`);
   }
 
-  // Don't fade moves that are TOO large — could be a breakout
-  const maxFadeMove = trend.atrPercent * 2.0; // Don't fade moves > 2x hourly ATR
-  if (Math.abs(totalMovePct) > maxFadeMove) {
-    return noSignal(`MR: move too large to fade (${Math.abs(totalMovePct).toFixed(2)}% > ${maxFadeMove.toFixed(2)}% limit) — possible breakout @ $${price.toFixed(0)}`);
+  // Don't fade moves that are TOO large — could be breakout
+  // Gold-tuned: lower threshold than BTC
+  const maxFadeMove = trend.atrPercent * 1.5;
+  if (Math.abs(totalMovePct) > maxFadeMove && maxFadeMove > 0.05) {
+    return noSignal(`MR: move too large to fade (${Math.abs(totalMovePct).toFixed(3)}% > ${maxFadeMove.toFixed(3)}% limit) @ $${price.toFixed(1)}`);
   }
 
+  // Session scaling
+  strength *= sessionConfig.aggressionMultiplier;
   strength = Math.max(0, Math.min(1.0, strength));
 
-  if (strength < regimeConfig.minStrength) {
-    return noSignal(`MR ${side}: too weak (${strength.toFixed(2)} < ${regimeConfig.minStrength}) @ $${price.toFixed(0)}`);
+  const minStr = sessionConfig.minStrengthOverride || regimeConfig.minStrength;
+  if (strength < minStr) {
+    return noSignal(`MR ${side}: too weak (${strength.toFixed(2)} < ${minStr.toFixed(2)}) @ $${price.toFixed(1)}`);
   }
 
-  // Calculate stop and target using effective ATR
-  const stopPercent = Math.max(0.35, trend.atrPercent * regimeConfig.stopMultiplier);
-  const targetPercent = Math.max(0.20, trend.atrPercent * regimeConfig.targetMultiplier);
+  // ATR-based stop and target
+  const stopPercent = Math.max(0.06, trend.atrPercent * regimeConfig.stopMultiplier);
+  const targetPercent = Math.max(0.05, trend.atrPercent * regimeConfig.targetMultiplier);
 
   return {
     detected: true,
     side,
     mode: "mean_reversion",
-    reason: `🔄 MR ${side.toUpperCase()}: ${reasons.join(", ")}, ATR=${trend.atrPercent.toFixed(2)}%, target=${targetPercent.toFixed(2)}%, stop=${stopPercent.toFixed(2)}% @ $${price.toFixed(0)}`,
+    reason: `🔄 MR ${side.toUpperCase()}: ${reasons.join(", ")}, ATR=${trend.atrPercent.toFixed(3)}%(${trend.atrSource}), target=${targetPercent.toFixed(3)}%, stop=${stopPercent.toFixed(3)}% @ $${price.toFixed(1)}`,
     strength,
     suggestedMinHoldSeconds: regimeConfig.minHoldSeconds,
     stopPercent,
@@ -833,12 +1211,12 @@ function detectMeanReversionSignal(
       activationPercent: targetPercent * 0.6,
       trailPercent: targetPercent * 0.4,
     } : undefined,
-    maxLossDollars: 30,
+    maxLossDollars: 25,
   };
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-// TREND FOLLOWING SIGNAL — Primary mode for trending regimes
+// TREND FOLLOWING SIGNAL — For trending regimes, ride gold's clean trends
 // ═══════════════════════════════════════════════════════════════════════
 
 function detectTrendSignal(
@@ -846,25 +1224,28 @@ function detectTrendSignal(
   candles5m: Candle[],
   trend: TrendAssessment,
   regimeConfig: RegimeConfig,
+  sessionConfig: SessionConfig,
   briefDirective?: BriefDirective,
   orderbook?: OrderbookImbalance,
+  safeHaven?: SafeHavenSignal,
 ): MomentumSignal {
   const noSignal = (reason: string): MomentumSignal => ({ detected: false, reason });
   const price = candles1m[candles1m.length - 1].close;
 
   if (candles5m.length < 10) return noSignal("Insufficient 5m candles for trend");
 
-  // Need clear directional trend
   if (trend.direction === "neutral") {
-    return noSignal(`Trend neutral (str:${trend.strength.toFixed(2)}) @ $${price.toFixed(0)}`);
+    return noSignal(`Trend neutral (str:${trend.strength.toFixed(2)}) @ $${price.toFixed(1)}`);
   }
 
-  // ATR bounds
-  if (trend.atrPercent < 0.25) {
-    return noSignal(`Trend: ATR too low (${trend.atrPercent.toFixed(2)}%) @ $${price.toFixed(0)}`);
+  // *** CRITICAL FIX: Use config minimum, not hardcoded 0.25% ***
+  const minVol = config.strategy.minVolatilityPercent || 0.02;
+  if (trend.localAtrPercent < minVol && trend.atrPercent < minVol) {
+    return noSignal(`Trend: ATR below minimum (${trend.atrPercent.toFixed(3)}%) @ $${price.toFixed(1)}`);
   }
-  if (trend.atrPercent > 4.0) {
-    return noSignal(`Trend: ATR too high (${trend.atrPercent.toFixed(2)}%) — chaos @ $${price.toFixed(0)}`);
+
+  if (trend.atrPercent > 3.0) {
+    return noSignal(`Trend: ATR too high for gold (${trend.atrPercent.toFixed(2)}%) — chaos @ $${price.toFixed(1)}`);
   }
 
   const side: "Long" | "Short" = trend.direction === "bullish" ? "Long" : "Short";
@@ -875,30 +1256,30 @@ function detectTrendSignal(
     (briefDirective.bias === "short" && side === "Long")
   );
   if (counterTrend && (briefDirective!.regimeConfidence || 0) >= 0.7) {
-    return noSignal(`🚫 ${side} blocked: counter-trend in ${briefDirective!.regime} (conf:${(briefDirective!.regimeConfidence || 0).toFixed(2)}) @ $${price.toFixed(0)}`);
+    return noSignal(`🚫 ${side} blocked: counter-trend (conf:${(briefDirective!.regimeConfidence || 0).toFixed(2)}) @ $${price.toFixed(1)}`);
   }
 
   // MACD alignment
   const macdAligned = (side === "Long" && trend.macd.histogram > 0) ||
                       (side === "Short" && trend.macd.histogram < 0);
   if (!macdAligned) {
-    return noSignal(`${side} trend but MACD opposes (hist:${trend.macd.histogram.toFixed(2)}) @ $${price.toFixed(0)}`);
+    return noSignal(`${side} trend but MACD opposes (hist:${trend.macd.histogram.toFixed(4)}) @ $${price.toFixed(1)}`);
   }
 
-  // RSI: don't chase into overbought/oversold
+  // RSI: don't chase extremes — gold uses 30/70 for trend following
   if (side === "Long" && trend.rsi > 72) {
-    return noSignal(`Long trend but RSI overbought (${trend.rsi.toFixed(0)}) @ $${price.toFixed(0)}`);
+    return noSignal(`Long trend but RSI overbought (${trend.rsi.toFixed(0)}) @ $${price.toFixed(1)}`);
   }
   if (side === "Short" && trend.rsi < 28) {
-    return noSignal(`Short trend but RSI oversold (${trend.rsi.toFixed(0)}) @ $${price.toFixed(0)}`);
+    return noSignal(`Short trend but RSI oversold (${trend.rsi.toFixed(0)}) @ $${price.toFixed(1)}`);
   }
 
   // Position in range quality
   const posRange = positionInRange(candles5m, 20);
   const posQuality = side === "Long" ? (1.0 - posRange.position) : posRange.position;
 
-  if (posQuality < 0.15) {
-    return noSignal(`${side} trend but bad range position (${posRange.position.toFixed(2)}) @ $${price.toFixed(0)}`);
+  if (posQuality < 0.10) {
+    return noSignal(`${side} trend but extreme range position (${posRange.position.toFixed(2)}) @ $${price.toFixed(1)}`);
   }
 
   // ─── STRENGTH SCORING ───
@@ -909,7 +1290,7 @@ function detectTrendSignal(
   strength += trend.strength * 0.25;
   reasons.push(`trend=${trend.direction}(${trend.strength.toFixed(2)})`);
 
-  // MACD momentum growing (0-0.2)
+  // MACD momentum growing (0-0.15)
   if (trend.isHistogramGrowing) {
     strength += 0.15;
     reasons.push("MACD↑");
@@ -923,23 +1304,40 @@ function detectTrendSignal(
     reasons.push("MACD_cross");
   }
 
-  // Position quality (0-0.12)
-  strength += posQuality * 0.12;
+  // Position quality (0-0.10)
+  strength += posQuality * 0.10;
 
-  // Researcher alignment (0-0.15)
+  // VWAP alignment (0-0.08)
+  if ((side === "Long" && price > trend.vwap) || (side === "Short" && price < trend.vwap)) {
+    strength += 0.08;
+    reasons.push("VWAP_aligned");
+  }
+
+  // Safe haven boost for longs
+  if (safeHaven?.active && side === "Long") {
+    strength += safeHaven.strength * 0.15;
+    reasons.push("safe_haven");
+  }
+  // Safe haven penalizes shorts
+  if (safeHaven?.active && side === "Short") {
+    strength -= safeHaven.strength * 0.20;
+    reasons.push("safe_haven_penalty");
+  }
+
+  // Researcher alignment (0-0.12)
   const researcherAligned = briefDirective &&
     ((briefDirective.bias === "long" && side === "Long") ||
      (briefDirective.bias === "short" && side === "Short"));
   if (researcherAligned) {
-    strength += 0.15 * (briefDirective!.regimeConfidence || 0.5);
+    strength += 0.12 * (briefDirective!.regimeConfidence || 0.5);
     reasons.push("bias_aligned");
   }
 
-  // OB alignment (0-0.1)
+  // OB alignment (0-0.08)
   if (orderbook && orderbook.strength > 0.2) {
     if ((orderbook.lean === "long" && side === "Long") ||
         (orderbook.lean === "short" && side === "Short")) {
-      strength += 0.10 * orderbook.strength;
+      strength += 0.08 * orderbook.strength;
       reasons.push(`OB:${orderbook.ratio.toFixed(2)}`);
     }
   }
@@ -950,36 +1348,39 @@ function detectTrendSignal(
   const currentVol = recentVols[recentVols.length - 1] || 0;
   const volRatio = avgVol > 0 ? currentVol / avgVol : 1;
   if (volRatio > 1.5) { strength += 0.05; reasons.push(`vol=${volRatio.toFixed(1)}x`); }
-  if (volRatio < 0.3) { strength -= 0.10; }
+  if (volRatio < 0.3) { strength -= 0.08; }
 
   // Counter-trend penalty
-  if (counterTrend) { strength -= 0.20; reasons.push("counter_trend"); }
+  if (counterTrend) { strength -= 0.15; reasons.push("counter_trend"); }
 
+  // Session scaling
+  strength *= sessionConfig.aggressionMultiplier;
   strength = Math.max(0, Math.min(1.0, strength));
 
-  if (strength < regimeConfig.minStrength) {
-    return noSignal(`${side} trend too weak (${strength.toFixed(2)} < ${regimeConfig.minStrength}) [${reasons.join(", ")}] @ $${price.toFixed(0)}`);
+  const minStr = sessionConfig.minStrengthOverride || regimeConfig.minStrength;
+  if (strength < minStr) {
+    return noSignal(`${side} trend too weak (${strength.toFixed(2)} < ${minStr.toFixed(2)}) [${reasons.join(", ")}] @ $${price.toFixed(1)}`);
   }
 
-  // Calculate stop and target
-  const stopPercent = Math.max(0.35, trend.atrPercent * regimeConfig.stopMultiplier);
-  const targetPercent = Math.max(0.50, trend.atrPercent * regimeConfig.targetMultiplier);
+  // ATR-based stops — gold trends are cleaner, so wider targets
+  const stopPercent = Math.max(0.08, trend.atrPercent * regimeConfig.stopMultiplier);
+  const targetPercent = Math.max(0.12, trend.atrPercent * regimeConfig.targetMultiplier);
 
   reasons.push(`RSI=${trend.rsi.toFixed(0)}`);
-  reasons.push(`ATR=${trend.atrPercent.toFixed(2)}%`);
+  reasons.push(`ATR=${trend.atrPercent.toFixed(3)}%(${trend.atrSource})`);
 
   return {
     detected: true,
     side,
     mode: "swing_trend",
-    reason: `📈 TREND ${side.toUpperCase()}: ${reasons.join(", ")}, target=${targetPercent.toFixed(2)}%, stop=${stopPercent.toFixed(2)}% @ $${price.toFixed(0)}`,
+    reason: `📈 TREND ${side.toUpperCase()}: ${reasons.join(", ")}, target=${targetPercent.toFixed(3)}%, stop=${stopPercent.toFixed(3)}% @ $${price.toFixed(1)}`,
     strength,
     suggestedMinHoldSeconds: regimeConfig.minHoldSeconds,
     stopPercent,
     targetPercent,
     hardMaxHoldSeconds: regimeConfig.maxHoldSeconds,
     trailingStop: regimeConfig.trailingStopEnabled ? {
-      activationPercent: targetPercent * 0.5,
+      activationPercent: targetPercent * 0.4,
       trailPercent: targetPercent * 0.3,
     } : undefined,
     maxLossDollars: 30,
@@ -987,7 +1388,9 @@ function detectTrendSignal(
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-// PULLBACK ENTRY — Works in trending AND choppy regimes
+// PULLBACK ENTRY — Gold's bread and butter in trends
+// Per [mudrex.com](https://mudrex.com/learn/gold-futures-swing-trading-ma-rsi-strategy/):
+// "Use 21/50 MAs plus RSI(14) 40-60 zones for pullback entries"
 // ═══════════════════════════════════════════════════════════════════════
 
 function detectPullbackSignal(
@@ -995,23 +1398,25 @@ function detectPullbackSignal(
   candles5m: Candle[],
   trend: TrendAssessment,
   regimeConfig: RegimeConfig,
+  sessionConfig: SessionConfig,
   briefDirective?: BriefDirective,
   orderbook?: OrderbookImbalance,
+  safeHaven?: SafeHavenSignal,
 ): MomentumSignal {
   const noSignal = (reason: string): MomentumSignal => ({ detected: false, reason });
   const price = candles1m[candles1m.length - 1].close;
 
-  if (candles5m.length < 15) return noSignal("Insufficient 5m candles for pullback");
+  if (candles5m.length < 12) return noSignal("Insufficient 5m candles for pullback");
 
   const closes5m = candles5m.map(c => c.close);
-  const ema21 = calcEMA(closes5m, 21);
-  const ema50 = calcEMA(closes5m, Math.min(50, closes5m.length));
+  const ema21_5m = calcEMA(closes5m, 21);
+  const ema50_5m = calcEMA(closes5m, Math.min(50, closes5m.length));
 
-  const trendUp = ema21 > ema50;
-  const trendDown = ema21 < ema50;
+  const trendUp = ema21_5m > ema50_5m;
+  const trendDown = ema21_5m < ema50_5m;
 
   if (!trendUp && !trendDown) {
-    return noSignal(`No EMA trend for pullback (ema21=${ema21.toFixed(0)} ema50=${ema50.toFixed(0)}) @ $${price.toFixed(0)}`);
+    return noSignal(`No EMA trend for pullback @ $${price.toFixed(1)}`);
   }
 
   const side: "Long" | "Short" = trendUp ? "Long" : "Short";
@@ -1022,21 +1427,21 @@ function detectPullbackSignal(
     (briefDirective.bias === "short" && side === "Long")
   );
   if (counterTrend && (briefDirective!.regimeConfidence || 0) >= 0.6) {
-    return noSignal(`${side} pullback blocked: counter-trend @ $${price.toFixed(0)}`);
+    return noSignal(`${side} pullback blocked: counter-trend @ $${price.toFixed(1)}`);
   }
 
-  // Price must be near EMA21
-  const distFromEma21Pct = ((price - ema21) / ema21) * 100;
+  // Gold-specific: price must be near EMA21 (tighter thresholds than BTC)
+  const distFromEma21Pct = ((price - ema21_5m) / ema21_5m) * 100;
 
   if (side === "Long") {
-    if (distFromEma21Pct > 0.20) return noSignal(`Long pullback: too far above EMA21 (${distFromEma21Pct.toFixed(3)}%) @ $${price.toFixed(0)}`);
-    if (distFromEma21Pct < -0.60) return noSignal(`Long pullback: too far below EMA21 (${distFromEma21Pct.toFixed(3)}%) — trend break? @ $${price.toFixed(0)}`);
+    if (distFromEma21Pct > 0.10) return noSignal(`Long pullback: too far above EMA21 (${distFromEma21Pct.toFixed(3)}%) @ $${price.toFixed(1)}`);
+    if (distFromEma21Pct < -0.30) return noSignal(`Long pullback: too far below EMA21 (${distFromEma21Pct.toFixed(3)}%) — trend break? @ $${price.toFixed(1)}`);
   } else {
-    if (distFromEma21Pct < -0.20) return noSignal(`Short pullback: too far below EMA21 (${distFromEma21Pct.toFixed(3)}%) @ $${price.toFixed(0)}`);
-    if (distFromEma21Pct > 0.60) return noSignal(`Short pullback: too far above EMA21 (${distFromEma21Pct.toFixed(3)}%) — trend break? @ $${price.toFixed(0)}`);
+    if (distFromEma21Pct < -0.10) return noSignal(`Short pullback: too far below EMA21 (${distFromEma21Pct.toFixed(3)}%) @ $${price.toFixed(1)}`);
+    if (distFromEma21Pct > 0.30) return noSignal(`Short pullback: too far above EMA21 (${distFromEma21Pct.toFixed(3)}%) — trend break? @ $${price.toFixed(1)}`);
   }
 
-  // Bounce candle confirmation
+  // Bounce candle confirmation on 1m
   const last1m = candles1m[candles1m.length - 1];
   const prev1m = candles1m.length > 1 ? candles1m[candles1m.length - 2] : null;
 
@@ -1044,57 +1449,76 @@ function detectPullbackSignal(
   const bouncingRight = (side === "Long" && lastMove > 0) || (side === "Short" && lastMove < 0);
 
   if (!bouncingRight) {
-    return noSignal(`${side} pullback: no bounce candle (${lastMove > 0 ? "↑" : "↓"}) @ $${price.toFixed(0)}`);
+    return noSignal(`${side} pullback: no bounce candle @ $${price.toFixed(1)}`);
   }
 
   const prevMove = prev1m ? (prev1m.close - prev1m.open) : 0;
   const wasPullingBack = (side === "Long" && prevMove < 0) || (side === "Short" && prevMove > 0);
 
-  // RSI check
-  if (side === "Long" && trend.rsi > 70) return noSignal(`Long pullback: RSI too high (${trend.rsi.toFixed(0)}) @ $${price.toFixed(0)}`);
-  if (side === "Short" && trend.rsi < 30) return noSignal(`Short pullback: RSI too low (${trend.rsi.toFixed(0)}) @ $${price.toFixed(0)}`);
+  // RSI in pullback zone (40-60 per mudrex gold strategy)
+  if (side === "Long" && trend.rsi > 68) return noSignal(`Long pullback: RSI too high (${trend.rsi.toFixed(0)}) @ $${price.toFixed(1)}`);
+  if (side === "Short" && trend.rsi < 32) return noSignal(`Short pullback: RSI too low (${trend.rsi.toFixed(0)}) @ $${price.toFixed(1)}`);
 
   // ─── STRENGTH ───
-  let strength = 0.30;
+  let strength = 0.28;
   const reasons: string[] = [`dist_EMA21=${distFromEma21Pct.toFixed(3)}%`];
 
   // Trend gap strength
-  const trendGap = Math.abs(((ema21 - ema50) / ema50) * 100);
-  strength += Math.min(trendGap * 0.4, 0.15);
-  if (trendGap > 0.1) reasons.push(`trendGap=${trendGap.toFixed(3)}%`);
+  const trendGap = Math.abs(((ema21_5m - ema50_5m) / ema50_5m) * 100);
+  strength += Math.min(trendGap * 0.8, 0.12);
+  if (trendGap > 0.03) reasons.push(`trendGap=${trendGap.toFixed(3)}%`);
 
   if (wasPullingBack) { strength += 0.10; reasons.push("pullback_confirmed"); }
+
+  // RSI in sweet zone
+  if (trend.rsi >= 40 && trend.rsi <= 60) {
+    strength += 0.08;
+    reasons.push(`RSI_sweet(${trend.rsi.toFixed(0)})`);
+  }
 
   // Bounce quality
   const bounceRange = last1m.high - last1m.low;
   const bounceBody = Math.abs(lastMove);
   const bounceQuality = bounceRange > 0 ? bounceBody / bounceRange : 0;
-  strength += bounceQuality * 0.10;
+  strength += bounceQuality * 0.08;
+
+  // VWAP alignment
+  if ((side === "Long" && price > trend.vwap) || (side === "Short" && price < trend.vwap)) {
+    strength += 0.06;
+    reasons.push("VWAP_aligned");
+  }
+
+  // Safe haven
+  if (safeHaven?.active && side === "Long") {
+    strength += safeHaven.strength * 0.12;
+    reasons.push("safe_haven");
+  }
 
   // Researcher alignment
   if (briefDirective?.bias === (side === "Long" ? "long" : "short")) {
-    strength += 0.12;
+    strength += 0.10;
     reasons.push("bias_aligned");
   }
 
   // OB alignment
   if (orderbook && orderbook.strength > 0.2) {
     if ((orderbook.lean === "long" && side === "Long") || (orderbook.lean === "short" && side === "Short")) {
-      strength += 0.08;
+      strength += 0.06;
       reasons.push(`OB:${orderbook.ratio.toFixed(2)}`);
     }
   }
 
+  // Session scaling
+  strength *= sessionConfig.aggressionMultiplier;
   strength = Math.max(0, Math.min(1.0, strength));
 
-  // Use a slightly lower bar for pullbacks (high-probability pattern)
-  const minStrength = Math.max(regimeConfig.minStrength - 0.05, 0.30);
-  if (strength < minStrength) {
-    return noSignal(`${side} pullback too weak (${strength.toFixed(2)} < ${minStrength}) @ $${price.toFixed(0)}`);
+  const minStr = Math.max((sessionConfig.minStrengthOverride || regimeConfig.minStrength) - 0.05, 0.25);
+  if (strength < minStr) {
+    return noSignal(`${side} pullback too weak (${strength.toFixed(2)} < ${minStr.toFixed(2)}) @ $${price.toFixed(1)}`);
   }
 
-  const stopPercent = Math.max(0.35, trend.atrPercent * regimeConfig.stopMultiplier);
-  const targetPercent = Math.max(0.40, trend.atrPercent * regimeConfig.targetMultiplier * 0.8);
+  const stopPercent = Math.max(0.06, trend.atrPercent * regimeConfig.stopMultiplier * 0.8);
+  const targetPercent = Math.max(0.10, trend.atrPercent * regimeConfig.targetMultiplier * 0.7);
 
   reasons.push(`RSI=${trend.rsi.toFixed(0)}`);
 
@@ -1102,7 +1526,7 @@ function detectPullbackSignal(
     detected: true,
     side,
     mode: "swing_pullback",
-    reason: `🔄 PULLBACK ${side.toUpperCase()}: ${reasons.join(", ")}, target=${targetPercent.toFixed(2)}%, stop=${stopPercent.toFixed(2)}% @ $${price.toFixed(0)}`,
+    reason: `🔄 PULLBACK ${side.toUpperCase()}: ${reasons.join(", ")}, target=${targetPercent.toFixed(3)}%, stop=${stopPercent.toFixed(3)}% @ $${price.toFixed(1)}`,
     strength,
     suggestedMinHoldSeconds: regimeConfig.minHoldSeconds,
     stopPercent,
@@ -1112,7 +1536,7 @@ function detectPullbackSignal(
       activationPercent: targetPercent * 0.5,
       trailPercent: targetPercent * 0.35,
     } : undefined,
-    maxLossDollars: 30,
+    maxLossDollars: 25,
   };
 }
 
@@ -1125,8 +1549,10 @@ function detectDivergenceSignal(
   candles5m: Candle[],
   trend: TrendAssessment,
   regimeConfig: RegimeConfig,
+  sessionConfig: SessionConfig,
   briefDirective?: BriefDirective,
   orderbook?: OrderbookImbalance,
+  safeHaven?: SafeHavenSignal,
 ): MomentumSignal {
   const noSignal = (reason: string): MomentumSignal => ({ detected: false, reason });
 
@@ -1142,58 +1568,61 @@ function detectDivergenceSignal(
 
   const trendSide = trend.direction === "bullish" ? "Long" : trend.direction === "bearish" ? "Short" : null;
 
-  // Need divergence
   if (!trendSide || obSide === trendSide) {
-    return noSignal(`OB (${obSide}) agrees with trend (${trendSide}) — no divergence @ $${price.toFixed(0)}`);
+    return noSignal(`OB (${obSide}) agrees with trend (${trendSide}) — no divergence @ $${price.toFixed(1)}`);
   }
 
   const side = obSide;
 
-  // Strong OB required
-  const strongOB = orderbook.ratio > 2.0 || orderbook.ratio < 0.5;
+  const strongOB = orderbook.ratio > 1.8 || orderbook.ratio < 0.55;
   if (!strongOB) {
-    return noSignal(`${side} divergence: OB not strong enough (ratio:${orderbook.ratio.toFixed(2)}) @ $${price.toFixed(0)}`);
+    return noSignal(`${side} divergence: OB not strong enough (ratio:${orderbook.ratio.toFixed(2)}) @ $${price.toFixed(1)}`);
   }
 
-  // RSI extreme confirmation
-  const rsiExtreme = (side === "Long" && trend.rsi < 35) || (side === "Short" && trend.rsi > 65);
+  const rsiExtreme = (side === "Long" && trend.rsi < 38) || (side === "Short" && trend.rsi > 62);
   if (!rsiExtreme) {
-    return noSignal(`${side} divergence: RSI not extreme (${trend.rsi.toFixed(0)}) @ $${price.toFixed(0)}`);
+    return noSignal(`${side} divergence: RSI not extreme (${trend.rsi.toFixed(0)}) @ $${price.toFixed(1)}`);
   }
 
   const bbExtreme = (side === "Long" && trend.bbands.percentB < 0.15) ||
                     (side === "Short" && trend.bbands.percentB > 0.85);
 
-  // Rejection wick
   const lastCandle = candles1m[candles1m.length - 1];
   const body = Math.abs(lastCandle.close - lastCandle.open);
   const range = lastCandle.high - lastCandle.low;
   const hasRejection = range > 0 && body / range < 0.5;
 
-  let strength = 0.30;
+  let strength = 0.28;
   const reasons: string[] = [`OB:${orderbook.ratio.toFixed(2)}/${orderbook.lean}`];
 
-  strength += Math.min(orderbook.strength * 0.20, 0.20);
-  if (rsiExtreme) { strength += 0.12; reasons.push(`RSI=${trend.rsi.toFixed(0)}`); }
-  if (bbExtreme) { strength += 0.10; reasons.push(`BB%=${trend.bbands.percentB.toFixed(2)}`); }
-  if (hasRejection) { strength += 0.12; reasons.push("rejection_wick"); }
+  strength += Math.min(orderbook.strength * 0.18, 0.18);
+  if (rsiExtreme) { strength += 0.10; reasons.push(`RSI=${trend.rsi.toFixed(0)}`); }
+  if (bbExtreme) { strength += 0.08; reasons.push(`BB%=${trend.bbands.percentB.toFixed(2)}`); }
+  if (hasRejection) { strength += 0.10; reasons.push("rejection_wick"); }
 
-  strength = Math.max(0, Math.min(1.0, strength));
-
-  // Higher bar for divergence plays
-  const minStrength = Math.max(regimeConfig.minStrength + 0.10, 0.50);
-  if (strength < minStrength) {
-    return noSignal(`${side} divergence too weak (${strength.toFixed(2)} < ${minStrength}) @ $${price.toFixed(0)}`);
+  // Safe haven for long divergence
+  if (safeHaven?.active && side === "Long") {
+    strength += safeHaven.strength * 0.12;
+    reasons.push("safe_haven");
   }
 
-  const stopPercent = Math.max(0.40, trend.atrPercent * 0.6);
-  const targetPercent = Math.max(0.50, trend.atrPercent * 1.2);
+  // Session scaling
+  strength *= sessionConfig.aggressionMultiplier;
+  strength = Math.max(0, Math.min(1.0, strength));
+
+  const minStr = Math.max((sessionConfig.minStrengthOverride || regimeConfig.minStrength) + 0.08, 0.45);
+  if (strength < minStr) {
+    return noSignal(`${side} divergence too weak (${strength.toFixed(2)} < ${minStr.toFixed(2)}) @ $${price.toFixed(1)}`);
+  }
+
+  const stopPercent = Math.max(0.08, trend.atrPercent * 0.6);
+  const targetPercent = Math.max(0.12, trend.atrPercent * 1.2);
 
   return {
     detected: true,
     side,
     mode: "swing_divergence",
-    reason: `📊 DIVERGENCE ${side.toUpperCase()}: ${reasons.join(", ")}, target=${targetPercent.toFixed(2)}%, stop=${stopPercent.toFixed(2)}% @ $${price.toFixed(0)}`,
+    reason: `📊 DIVERGENCE ${side.toUpperCase()}: ${reasons.join(", ")}, target=${targetPercent.toFixed(3)}%, stop=${stopPercent.toFixed(3)}% @ $${price.toFixed(1)}`,
     strength,
     suggestedMinHoldSeconds: regimeConfig.minHoldSeconds,
     stopPercent,
@@ -1201,6 +1630,132 @@ function detectDivergenceSignal(
     hardMaxHoldSeconds: regimeConfig.maxHoldSeconds,
     trailingStop: {
       activationPercent: targetPercent * 0.5,
+      trailPercent: targetPercent * 0.3,
+    },
+    maxLossDollars: 25,
+  };
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// SESSION BREAKOUT — London open and NY open are key for gold
+// Gold makes structural moves at session opens
+// ═══════════════════════════════════════════════════════════════════════
+
+function detectSessionBreakoutSignal(
+  candles1m: Candle[],
+  candles5m: Candle[],
+  trend: TrendAssessment,
+  regimeConfig: RegimeConfig,
+  sessionInfo: { session: GoldSession; config: SessionConfig },
+  briefDirective?: BriefDirective,
+  orderbook?: OrderbookImbalance,
+  safeHaven?: SafeHavenSignal,
+): MomentumSignal {
+  const noSignal = (reason: string): MomentumSignal => ({ detected: false, reason });
+  const price = candles1m[candles1m.length - 1].close;
+
+  // Only at session opens: London (03:00-04:00 UTC) and NY (13:00-14:30 UTC)
+  const now = new Date();
+  const utcHour = now.getUTCHours();
+  const utcMinute = now.getUTCMinutes();
+  const timeDecimal = utcHour + utcMinute / 60;
+
+  const isLondonOpen = timeDecimal >= 3 && timeDecimal < 4;
+  const isNYOpen = timeDecimal >= 13 && timeDecimal < 14.5;
+
+  if (!isLondonOpen && !isNYOpen) {
+    return noSignal("Not at session open");
+  }
+
+  if (candles5m.length < 6) return noSignal("Insufficient candles for session breakout");
+
+  // Look at Asian range (for London open) or morning range (for NY open)
+  const rangeCandles = candles5m.slice(-Math.min(12, candles5m.length));
+  const rangeHigh = Math.max(...rangeCandles.map(c => c.high));
+  const rangeLow = Math.min(...rangeCandles.map(c => c.low));
+  const rangeSize = rangeHigh - rangeLow;
+  const rangePct = price > 0 ? (rangeSize / price) * 100 : 0;
+
+  // Need the range to be tight enough to breakout from
+  if (rangePct > 0.40) {
+    return noSignal(`Session breakout: prior range too wide (${rangePct.toFixed(3)}%) @ $${price.toFixed(1)}`);
+  }
+
+  // Detect breakout direction
+  let side: "Long" | "Short" | null = null;
+  const breakoutMargin = rangeSize * 0.15; // 15% above/below range
+
+  if (price > rangeHigh + breakoutMargin) {
+    side = "Long";
+  } else if (price < rangeLow - breakoutMargin) {
+    side = "Short";
+  }
+
+  if (!side) {
+    return noSignal(`Session breakout: price within range ($${rangeLow.toFixed(1)}-$${rangeHigh.toFixed(1)}) @ $${price.toFixed(1)}`);
+  }
+
+  // Volume confirmation: breakout should have volume
+  const recentVols = candles1m.slice(-5).map(c => c.volume);
+  const avgVol = candles1m.slice(-15, -5).map(c => c.volume);
+  const avgVolVal = avgVol.length > 0 ? avgVol.reduce((a, b) => a + b, 0) / avgVol.length : 0;
+  const currentVol = recentVols[recentVols.length - 1] || 0;
+  const volRatio = avgVolVal > 0 ? currentVol / avgVolVal : 1;
+
+  let strength = 0.35;
+  const reasons: string[] = [isLondonOpen ? "London_open" : "NY_open"];
+  reasons.push(`range=${rangePct.toFixed(3)}%`);
+
+  // Volume confirmation
+  if (volRatio > 1.5) { strength += 0.12; reasons.push(`vol=${volRatio.toFixed(1)}x`); }
+
+  // MACD alignment
+  const macdAligned = (side === "Long" && trend.macd.histogram > 0) ||
+                      (side === "Short" && trend.macd.histogram < 0);
+  if (macdAligned) { strength += 0.10; reasons.push("MACD_aligned"); }
+
+  // Researcher alignment
+  if (briefDirective?.bias === (side === "Long" ? "long" : "short")) {
+    strength += 0.10;
+    reasons.push("bias_aligned");
+  }
+
+  // Safe haven
+  if (safeHaven?.active && side === "Long") {
+    strength += safeHaven.strength * 0.12;
+    reasons.push("safe_haven");
+  }
+
+  // OB
+  if (orderbook && orderbook.strength > 0.2) {
+    if ((orderbook.lean === "long" && side === "Long") || (orderbook.lean === "short" && side === "Short")) {
+      strength += 0.08;
+      reasons.push(`OB:${orderbook.ratio.toFixed(2)}`);
+    }
+  }
+
+  strength = Math.max(0, Math.min(1.0, strength));
+
+  if (strength < 0.40) {
+    return noSignal(`Session breakout ${side}: too weak (${strength.toFixed(2)}) @ $${price.toFixed(1)}`);
+  }
+
+  // Wider targets for session breakouts — these can run
+  const stopPercent = Math.max(0.08, rangePct * 0.5);
+  const targetPercent = Math.max(0.15, rangePct * 1.0);
+
+  return {
+    detected: true,
+    side,
+    mode: "session_breakout",
+    reason: `🌅 SESSION_BREAKOUT ${side.toUpperCase()}: ${reasons.join(", ")}, target=${targetPercent.toFixed(3)}%, stop=${stopPercent.toFixed(3)}% @ $${price.toFixed(1)}`,
+    strength,
+    suggestedMinHoldSeconds: 300,
+    stopPercent,
+    targetPercent,
+    hardMaxHoldSeconds: 5400,
+    trailingStop: {
+      activationPercent: targetPercent * 0.4,
       trailPercent: targetPercent * 0.3,
     },
     maxLossDollars: 30,
@@ -1212,15 +1767,15 @@ function detectDivergenceSignal(
 // ═══════════════════════════════════════════════════════════════════════
 
 /**
- * detectMomentum — Primary entry signal detector.
- * v11.0: Now regime-adaptive. Composes signals based on current market regime.
+ * detectMomentum — Primary entry signal detector for gold futures.
+ * v2.0: Gold-specific with session awareness, safe-haven detection,
+ *       EMA bounce signals, and properly calibrated ATR thresholds.
  *
- * In HIGH_VOL_CHOP: Mean Reversion first, then pullbacks
- * In TRENDING: Trend following first, then pullbacks
- * In LOW_VOL: Mostly skip, only take very strong signals
- *
- * NO STABILITY GATE — trades immediately regardless of regime changes.
- * The regime config itself provides the appropriate caution level.
+ * Signal priority varies by regime and session:
+ *   HIGH_VOL_CHOP: MR → EMA Bounce → Pullback → Divergence
+ *   TRENDING: Trend → Session Breakout → EMA Bounce → Pullback → MR
+ *   LOW_VOL: EMA Bounce → Pullback (conservative)
+ *   MAINTENANCE: No trading
  */
 export function detectMomentum(
   candles: Candle[],
@@ -1231,95 +1786,18 @@ export function detectMomentum(
 ): MomentumSignal {
   const noSignal: MomentumSignal = { detected: false, reason: "No signal" };
 
-  if (candles.length < 20) {
-    return { ...noSignal, reason: `Insufficient candles: ${candles.length} (need 20)` };
+  if (candles.length < 15) {
+    return { ...noSignal, reason: `Insufficient candles: ${candles.length} (need 15)` };
+  }
+
+  // Session check — gold is session-driven
+  const sessionInfo = getCurrentSession();
+  const sessionCfg = sessionInfo.config;
+
+  // Block trading during maintenance
+  if (sessionInfo.session === "maintenance") {
+    return { ...noSignal, reason: `⏸️ MAINTENANCE BREAK (22:00-23:00 UTC) — no trading` };
   }
 
   // Determine regime and configuration
-  const regime = briefDirective?.regime || "unknown";
-  const regimeConfig = getRegimeConfig(regime);
-
-  // Assess trend using effective ATR (researcher data preferred)
-  const trend = assessTrend(candles, briefDirective);
-
-  // Aggregate to 5m candles
-  const candles5m = aggregateCandles(candles, 5);
-
-  const price = candles[candles.length - 1].close;
-
-  // Log regime info
-  const regimeInfo = `[${regime}→${regimeConfig.mode}] ATR=${trend.atrPercent.toFixed(2)}%(eff) localATR=${trend.localAtrPercent.toFixed(3)}%(1m)`;
-
-  // If regime says WAIT and we don't have a super-strong setup, skip
-  if (regimeConfig.mode === "wait") {
-    // Still try but with very high bar (minStrength is already 0.70)
-    const trendSig = detectTrendSignal(candles, candles5m, trend, regimeConfig, briefDirective, orderbook);
-    if (trendSig.detected) return trendSig;
-    return { ...noSignal, reason: `${regimeInfo} — waiting mode, no strong signal @ $${price.toFixed(0)}` };
-  }
-
-  // ─── MEAN REVERSION PRIORITY in chop regimes ───
-  if (regimeConfig.mode === "mean_reversion") {
-    // Try mean reversion first (primary)
-    const mrSignal = detectMeanReversionSignal(candles, candles5m, trend, regimeConfig, briefDirective, orderbook);
-    if (mrSignal.detected) return mrSignal;
-
-    // Then pullbacks (secondary — still works in chop if there's a local trend)
-    const pullbackSignal = detectPullbackSignal(candles, candles5m, trend, regimeConfig, briefDirective, orderbook);
-    if (pullbackSignal.detected) return pullbackSignal;
-
-    // Divergence (tertiary)
-    const divSignal = detectDivergenceSignal(candles, candles5m, trend, regimeConfig, briefDirective, orderbook);
-    if (divSignal.detected) return divSignal;
-
-    return { ...noSignal, reason: `${regimeInfo} — MR mode, ${mrSignal.reason}` };
-  }
-
-  // ─── TREND FOLLOWING PRIORITY in trending regimes ───
-  if (regimeConfig.mode === "trend_follow") {
-    // Try trend following first (primary)
-    const trendSignal = detectTrendSignal(candles, candles5m, trend, regimeConfig, briefDirective, orderbook);
-    if (trendSignal.detected) return trendSignal;
-
-    // Then pullbacks (secondary — highest probability entry)
-    const pullbackSignal = detectPullbackSignal(candles, candles5m, trend, regimeConfig, briefDirective, orderbook);
-    if (pullbackSignal.detected) return pullbackSignal;
-
-    // Divergence (tertiary — counter-trend plays)
-    const divSignal = detectDivergenceSignal(candles, candles5m, trend, regimeConfig, briefDirective, orderbook);
-    if (divSignal.detected) return divSignal;
-
-    // Mean reversion (last resort in trending — rare but possible at extremes)
-    const mrSignal = detectMeanReversionSignal(candles, candles5m, trend, regimeConfig, briefDirective, orderbook);
-    if (mrSignal.detected) return mrSignal;
-
-    return { ...noSignal, reason: `${regimeInfo} — trend mode, ${trendSignal.reason}` };
-  }
-
-  return { ...noSignal, reason: `${regimeInfo} — unhandled mode @ $${price.toFixed(0)}` };
-}
-
-/**
- * detectMeanReversion — Standalone mean reversion detector.
- * v11.0: Enhanced with StochRSI, wider BB tolerance, researcher ATR.
- * Can be called directly by server.ts for explicit MR checks.
- */
-export function detectMeanReversion(
-  candles: Candle[],
-  threshold: number = 0.3,
-  briefDirective?: BriefDirective,
-  orderbook?: OrderbookImbalance,
-): MomentumSignal {
-  const noSignal: MomentumSignal = { detected: false, reason: "No mean reversion signal" };
-
-  if (candles.length < 20) {
-    return { ...noSignal, reason: `Insufficient candles: ${candles.length}` };
-  }
-
-  const regime = briefDirective?.regime || "unknown";
-  const regimeConfig = getRegimeConfig(regime);
-  const trend = assessTrend(candles, briefDirective);
-  const candles5m = aggregateCandles(candles, 5);
-
-  return detectMeanReversionSignal(candles, candles5m, trend, regimeConfig, briefDirective, orderbook);
-}
+  const regime = briefDirective?.regime ||
