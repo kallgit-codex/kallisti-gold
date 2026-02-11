@@ -6,25 +6,25 @@
   "consecutiveLosses": 0,
   "positions": [
     {
-      "id": "swing-1770818405813-pdex",
+      "id": "swing-1770818462583-rjsr",
       "side": "Long",
-      "entryPrice": 5089.5,
-      "entryTime": 1770818405813,
+      "entryPrice": 5086.1,
+      "entryTime": 1770818462583,
       "collateral": 500,
       "leverage": 10,
-      "stopLoss": 5080.342857142858,
-      "takeProfit": 5107.814285714286,
-      "minProfitTarget": 10,
+      "stopLoss": 5076.828571428571,
+      "takeProfit": 5104.642857142858,
+      "minProfitTarget": 8,
       "maxProfitTarget": 150,
       "status": "open",
       "mode": "trend_follow",
       "peakGrossPnl": 0,
-      "peakPrice": 5089.5,
+      "peakPrice": 5086.1,
       "trailingStopActive": false,
       "breakevenStopActive": false
     }
   ],
-  "lastReset": 1770817534941,
+  "lastReset": 1770818461673,
   "tradesThisHour": 1,
-  "lastHourReset": 1770817534941
+  "lastHourReset": 1770818461673
 }
