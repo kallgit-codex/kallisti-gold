@@ -1,5 +1,5 @@
 {
-  "balance": 1995.4487581800608,
+  "balance": 1495.4487581800608,
   "initialBalance": 2000,
   "dailyStartBalance": 2000,
   "dailyPnl": -4.551241819939156,
@@ -172,9 +172,27 @@
       "fees": 2.9999999999999996,
       "grossPnl": 6.923722036938988,
       "reason": "take-profit"
+    },
+    {
+      "id": "swing-1770810904838-a6dj",
+      "side": "Long",
+      "entryPrice": 5138.1,
+      "entryTime": 1770810904838,
+      "collateral": 500,
+      "leverage": 10,
+      "stopLoss": 5136.6,
+      "takeProfit": 5144.35,
+      "minProfitTarget": 5,
+      "maxProfitTarget": 150,
+      "status": "open",
+      "mode": "trend_follow",
+      "peakGrossPnl": 0,
+      "peakPrice": 5138.1,
+      "trailingStopActive": false,
+      "breakevenStopActive": false
     }
   ],
   "lastReset": 1770804003707,
-  "tradesThisHour": 7,
+  "tradesThisHour": 8,
   "lastHourReset": 1770804003707
 }
