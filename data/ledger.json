@@ -1,36 +1,30 @@
 {
-  "balance": 1994.8373277234928,
+  "balance": 1500,
   "initialBalance": 2000,
   "dailyStartBalance": 2000,
-  "dailyPnl": -5.162672276507301,
-  "consecutiveLosses": 1,
+  "dailyPnl": 0,
+  "consecutiveLosses": 0,
   "positions": [
     {
-      "id": "swing-1770803435100-d08u",
+      "id": "swing-1770804484725-quoh",
       "side": "Long",
-      "entryPrice": 5086.3,
-      "entryTime": 1770803435100,
+      "entryPrice": 5088.9,
+      "entryTime": 1770804484725,
       "collateral": 500,
       "leverage": 10,
-      "stopLoss": 5084.795714285714,
-      "takeProfit": 5092.567857142857,
-      "minProfitTarget": 4,
+      "stopLoss": 5087.751428571428,
+      "takeProfit": 5093.685714285713,
+      "minProfitTarget": 5,
       "maxProfitTarget": 150,
-      "status": "closed",
-      "mode": "trend_follow",
+      "status": "open",
+      "mode": "pullback",
       "peakGrossPnl": 0,
-      "peakPrice": 5086.3,
+      "peakPrice": 5088.9,
       "trailingStopActive": false,
-      "breakevenStopActive": false,
-      "exitPrice": 5084.1,
-      "exitTime": 1770803644643,
-      "pnl": -5.162672276507301,
-      "fees": 2.9999999999999996,
-      "grossPnl": -2.162672276507302,
-      "reason": "stop-loss"
+      "breakevenStopActive": false
     }
   ],
-  "lastReset": 1770796772915,
+  "lastReset": 1770804003707,
   "tradesThisHour": 1,
-  "lastHourReset": 1770796772915
+  "lastHourReset": 1770804003707
 }
