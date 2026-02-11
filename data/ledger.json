@@ -1,5 +1,5 @@
 {
-  "balance": 1978.0639166403853,
+  "balance": 1478.0639166403853,
   "initialBalance": 2000,
   "dailyStartBalance": 2000,
   "dailyPnl": -21.936083359614614,
@@ -124,9 +124,27 @@
       "fees": 2.9999999999999996,
       "grossPnl": -4.597746126154149,
       "reason": "stop-loss"
+    },
+    {
+      "id": "swing-1770813930859-gs4d",
+      "side": "Long",
+      "entryPrice": 5090.6,
+      "entryTime": 1770813930859,
+      "collateral": 500,
+      "leverage": 10,
+      "stopLoss": 5086.682142857143,
+      "takeProfit": 5102.353571428572,
+      "minProfitTarget": 10,
+      "maxProfitTarget": 150,
+      "status": "open",
+      "mode": "bounce",
+      "peakGrossPnl": 0,
+      "peakPrice": 5090.6,
+      "trailingStopActive": false,
+      "breakevenStopActive": false
     }
   ],
   "lastReset": 1770811229434,
-  "tradesThisHour": 5,
+  "tradesThisHour": 6,
   "lastHourReset": 1770811229434
 }
