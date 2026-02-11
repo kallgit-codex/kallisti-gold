@@ -1,9 +1,9 @@
 {
-  "balance": 1490.9081075235329,
+  "balance": 1985.6616627665394,
   "initialBalance": 2000,
   "dailyStartBalance": 2000,
-  "dailyPnl": -9.091892476467006,
-  "consecutiveLosses": 1,
+  "dailyPnl": -14.338337233460464,
+  "consecutiveLosses": 2,
   "positions": [
     {
       "id": "swing-1770811350562-es5l",
@@ -88,12 +88,18 @@
       "takeProfit": 5127.271428571428,
       "minProfitTarget": 10,
       "maxProfitTarget": 150,
-      "status": "open",
+      "status": "closed",
       "mode": "pullback",
       "peakGrossPnl": 0,
       "peakPrice": 5119.2,
       "trailingStopActive": false,
-      "breakevenStopActive": false
+      "breakevenStopActive": false,
+      "exitPrice": 5116.9,
+      "exitTime": 1770813180681,
+      "pnl": -5.246444756993458,
+      "fees": 2.9999999999999996,
+      "grossPnl": -2.246444756993458,
+      "reason": "stop-loss"
     }
   ],
   "lastReset": 1770811229434,
