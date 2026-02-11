@@ -59,31 +59,31 @@ export const config = {
   
   strategy: {
     // Profit targets — gold moves slower, need patience
-    minProfitDollars: 3,
+    minProfitDollars: 2,
     maxProfitDollars: 150,
-    quickGrabDollars: 5,
+    quickGrabDollars: 8,
     
     // Gold-tuned percentages (tighter than BTC — gold is less volatile)
-    targetProfitPercent: 0.5,       // 0.50% = $25 gross → $22 net
-    initialStopPercent: 0.25,        // 0.30% = -$15 gross → -$18 net
-    recoveryStopPercent: 0.04,
+    targetProfitPercent: 0.35,       // 0.50% = $25 gross → $22 net
+    initialStopPercent: 0.15,        // 0.30% = -$15 gross → -$18 net
+    recoveryStopPercent: 0.03,
     
     // Hold times — gold trends are cleaner, hold longer
-    maxTradeSeconds: 7200,           // 2 hour max hold
-    quickExitSeconds: 180,           // 5 min quick grab
+    maxTradeSeconds: 10800,           // 2 hour max hold
+    quickExitSeconds: 300,           // 5 min quick grab
     recoveryTimeSeconds: 180,
-    underwaterCutSeconds: 600,       // 15 min underwater cut
-    underwaterMinLoss: -20,          // Cut at -$15 net
+    underwaterCutSeconds: 900,       // 15 min underwater cut
+    underwaterMinLoss: -25,          // Cut at -$15 net
     
     // Momentum detection — gold needs lower thresholds (less volatile)
     consecutiveCandles: 2,
-    momentumThreshold: 0.006,         // Gold 1m candles are smaller
+    momentumThreshold: 0.004,         // Gold 1m candles are smaller
     maxChasePercent: 0.15,           // Tighter chase for gold
     
     volumeMultiplier: 1.0,
     volumeLookback: 10,
     
-    minVolatilityPercent: 0.001,      // Lower bar — gold is inherently less volatile
+    minVolatilityPercent: 0.0005,      // Lower bar — gold is inherently less volatile
     
     // Mean reversion — gold loves mean reversion to EMAs
     meanReversionEnabled: true,
@@ -101,8 +101,8 @@ export const config = {
     riskPerTrade: 500,
     maxDailyLossPercent: 10,
     maxDailyLossDollars: 150,
-    maxConsecutiveLosses: 3,
-    pauseAfterLossesMinutes: 60,
+    maxConsecutiveLosses: 5,
+    pauseAfterLossesMinutes: 15,
     maxTradesPerHour: 20,
     maxOpenRiskDollars: 500,
   },
