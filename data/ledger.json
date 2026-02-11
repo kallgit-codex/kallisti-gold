@@ -1,9 +1,9 @@
 {
-  "balance": 1508.5653334694186,
+  "balance": 1985.8265531492768,
   "initialBalance": 2000,
   "dailyStartBalance": 2000,
-  "dailyPnl": 8.565333469418569,
-  "consecutiveLosses": 0,
+  "dailyPnl": -14.173446850723202,
+  "consecutiveLosses": 1,
   "positions": [
     {
       "id": "swing-1770818462583-rjsr",
@@ -136,12 +136,18 @@
       "takeProfit": 5112.1285714285705,
       "minProfitTarget": 8,
       "maxProfitTarget": 150,
-      "status": "open",
+      "status": "closed",
       "mode": "trend_follow",
       "peakGrossPnl": 0,
       "peakPrice": 5091.5,
       "trailingStopActive": false,
-      "breakevenStopActive": false
+      "breakevenStopActive": false,
+      "exitPrice": 5071.4,
+      "exitTime": 1770823473781,
+      "pnl": -22.73878032014177,
+      "fees": 2.9999999999999996,
+      "grossPnl": -19.73878032014177,
+      "reason": "stop-loss"
     }
   ],
   "lastReset": 1770818461673,
