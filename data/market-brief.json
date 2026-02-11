@@ -1,42 +1,44 @@
 {
-  "timestamp": 1770838178423,
-  "generatedAt": "2026-02-11T19:29:38.423Z",
-  "price": 5116.5,
+  "timestamp": 1770839078526,
+  "generatedAt": "2026-02-11T19:44:38.526Z",
+  "price": 5109.6,
   "regime": "trending_bullish",
   "regimeConfidence": 0.85,
-  "regimeReason": "Price 0.48% above EMA20, high vol, 24h +1.4% | ⚠️ 5 risk events",
+  "regimeReason": "Price 0.35% above EMA20, high vol, 24h +1.2% | ⚠️ 5 risk events",
   "stats24h": {
-    "change": 1.41724479682854,
+    "change": 1.21026047340794,
     "high": 5180,
     "low": 5000,
-    "volume": 43067,
+    "volume": 42874,
     "range": 3.5999999999999996
   },
   "volatility": {
-    "atr_1h_pct": 0.739075248857263,
-    "atr_15m_pct": 0.2592649059145684,
-    "bbWidth_1h": 1.5094919382605463,
+    "atr_1h_pct": 0.7413780290912895,
+    "atr_15m_pct": 0.26170010645380526,
+    "bbWidth_1h": 1.4784285779245308,
     "level": "high"
   },
   "trend": {
     "direction": "bullish",
-    "priceVsEma20": 0.4756937836649603,
-    "priceVsEma50": 0.8187536305169435,
+    "priceVsEma20": 0.3531447301796221,
+    "priceVsEma50": 0.6881601977440863,
     "ema20VsEma50": "golden"
   },
   "orderbook": {
-    "bidDepthUsd": 4731164.100000001,
-    "askDepthUsd": 3900232.1,
-    "imbalance": 0.09626855038817478,
-    "bias": "balanced"
+    "bidDepthUsd": 2768241.6,
+    "askDepthUsd": 5417643.8,
+    "imbalance": -0.3236549341382179,
+    "bias": "ask_heavy"
   },
   "news": {
     "sentiment": "neutral",
-    "catalystCount": 3,
+    "catalystCount": 5,
     "riskEventCount": 5,
     "catalysts": [
       "Market: Gold Price Forecast: XAU/USD Record Breakout Sizzles- Exhaustion Risk - FOREX.co",
       "Market: Gold Price Today (15.12.2025): XAU/USD Near $4,350 as Weaker Dollar, Lower Yield",
+      "Geopolitical: Gold prices eye new highs as US tariffs on Swiss bullion send futures to record ",
+      "Market: Gold prices eye new highs as US tariffs on Swiss bullion send futures to record ",
       "Macro: Gold Price Today, December 5, 2025 (3:30 p.m. EST): XAU/USD Hovers Near $4,200 a"
     ],
     "riskEvents": [
@@ -79,19 +81,19 @@
       "interval": "1m_last10",
       "bullish": 4,
       "bearish": 6,
-      "avgBodyPct": 0.018565131602099348
+      "avgBodyPct": 0.01976622893653817
     },
     {
       "interval": "5m_last1h",
-      "bullish": 9,
-      "bearish": 3,
-      "avgBodyPct": 0.0419407997560983
+      "bullish": 7,
+      "bearish": 5,
+      "avgBodyPct": 0.04141214250451218
     },
     {
       "interval": "1h_last6",
       "bullish": 4,
       "bearish": 2,
-      "avgBodyPct": 0.18574354992940115
+      "avgBodyPct": 0.16323028668083636
     }
   ]
 }
