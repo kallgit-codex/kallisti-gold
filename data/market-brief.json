@@ -1,40 +1,41 @@
 {
-  "timestamp": 1770821078363,
-  "generatedAt": "2026-02-11T14:44:38.363Z",
-  "price": 5064,
-  "regime": "trending_bearish",
-  "regimeConfidence": 0.85,
-  "regimeReason": "Price 0.35% below EMA20, high vol, 24h -0.3% | ⚠️ 5 risk events",
+  "timestamp": 1770821978335,
+  "generatedAt": "2026-02-11T14:59:38.335Z",
+  "price": 5083.7,
+  "regime": "high_vol_chop",
+  "regimeConfidence": 0.7,
+  "regimeReason": "High ATR (0.96%) but no direction. 24h range: 3.7% | ⚠️ 5 risk events",
   "stats24h": {
-    "change": -0.29337061174664,
+    "change": 0.44455860270292,
     "high": 5180,
     "low": 4995.5,
-    "volume": 34587,
+    "volume": 35723,
     "range": 3.693323991592433
   },
   "volatility": {
-    "atr_1h_pct": 0.9645318456249559,
-    "atr_15m_pct": 0.57427253329639,
-    "bbWidth_1h": 1.8558845608886771,
+    "atr_1h_pct": 0.960794159026846,
+    "atr_15m_pct": 0.5507366443452543,
+    "bbWidth_1h": 1.8434048315167133,
     "level": "high"
   },
   "trend": {
-    "direction": "bearish",
-    "priceVsEma20": -0.3521477714716316,
-    "priceVsEma50": -0.11434729912406959,
+    "direction": "neutral",
+    "priceVsEma20": -0.0014157445303550555,
+    "priceVsEma50": 0.2589506810891456,
     "ema20VsEma50": "golden"
   },
   "orderbook": {
-    "bidDepthUsd": 5722913.900000001,
-    "askDepthUsd": 2547298.4,
-    "imbalance": 0.3839823434762371,
-    "bias": "bid_heavy"
+    "bidDepthUsd": 4407042.5,
+    "askDepthUsd": 4512524.899999999,
+    "imbalance": -0.01182595469820649,
+    "bias": "balanced"
   },
   "news": {
     "sentiment": "neutral",
-    "catalystCount": 4,
+    "catalystCount": 5,
     "riskEventCount": 5,
     "catalysts": [
+      "Market: Gold Price Forecast: XAU/USD Record Breakout Sizzles- Exhaustion Risk - FOREX.co",
       "Market: Gold Price Today (15.12.2025): XAU/USD Near $4,350 as Weaker Dollar, Lower Yield",
       "Geopolitical: Gold prices eye new highs as US tariffs on Swiss bullion send futures to record ",
       "Market: Gold prices eye new highs as US tariffs on Swiss bullion send futures to record ",
@@ -51,24 +52,28 @@
       "Gold Price Forecast - XAU/USD Price Trades at $3,680 as Inflation Rises and Fed Cut Bets Build - TradingNEWS",
       "Gold price climbs after interest rates cut by Federal Reserve - Yahoo Finance UK",
       "Gold price consolidates below $4,000 as the Federal Reserve cuts interest rates - KITCO",
-      "Gold Price Today (15.12.2025): XAU/USD Near $4,350 as Weaker Dollar, Lower Yields and Fed Cut Bets Drive Fresh Rally - TechStock²",
-      "XAU/USD Gold Price Today: Live Trading Analysis & 2025 Forecast - VT Markets"
+      "Gold Price Forecast: XAU/USD Record Breakout Sizzles- Exhaustion Risk - FOREX.com",
+      "Gold Price Today (15.12.2025): XAU/USD Near $4,350 as Weaker Dollar, Lower Yields and Fed Cut Bets Drive Fresh Rally - TechStock²"
     ]
   },
   "recommendations": {
     "momentum_scalper": {
       "active": true,
-      "reason": "trending_bearish — momentum scalping on Coinbase CFM (low $3 fees = edge)",
+      "reason": "High vol chop — viable with low Coinbase fees, quick scalps both sides",
       "params": {
-        "bias": "short",
-        "aggression": "aggressive",
-        "momentumThreshold": 0.04,
-        "maxTradeSeconds": 180
+        "bias": "neutral",
+        "aggression": "conservative",
+        "momentumThreshold": 0.08,
+        "maxTradeSeconds": 120,
+        "quickExitSeconds": 20
       }
     },
     "mean_reversion": {
-      "active": false,
-      "reason": "trending_bearish — don't fade a trend"
+      "active": true,
+      "reason": "high_vol_chop — fade extremes. Low Coinbase fees ($3) make MR more viable.",
+      "params": {
+        "aggression": "conservative"
+      }
     },
     "funding_arb": {
       "active": false,
@@ -78,21 +83,21 @@
   "recentCandles": [
     {
       "interval": "1m_last10",
-      "bullish": 2,
-      "bearish": 8,
-      "avgBodyPct": 0.05771664768757617
+      "bullish": 7,
+      "bearish": 3,
+      "avgBodyPct": 0.04567095300553834
     },
     {
       "interval": "5m_last1h",
-      "bullish": 5,
-      "bearish": 7,
-      "avgBodyPct": 0.12077585347619331
+      "bullish": 7,
+      "bearish": 5,
+      "avgBodyPct": 0.13033901537653
     },
     {
       "interval": "1h_last6",
       "bullish": 3,
       "bearish": 3,
-      "avgBodyPct": 0.42720634630444176
+      "avgBodyPct": 0.3626728871800009
     }
   ]
 }
