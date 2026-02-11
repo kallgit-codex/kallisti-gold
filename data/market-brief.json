@@ -1,34 +1,34 @@
 {
-  "timestamp": 1770819278371,
-  "generatedAt": "2026-02-11T14:14:38.371Z",
-  "price": 5096.7,
+  "timestamp": 1770820178317,
+  "generatedAt": "2026-02-11T14:29:38.317Z",
+  "price": 5093,
   "regime": "trending_bullish",
-  "regimeConfidence": 0.9,
-  "regimeReason": "Price 0.23% above EMA20, high vol, 24h +0.3% | ⚠️ 4 risk events",
+  "regimeConfidence": 0.85,
+  "regimeReason": "Price 0.16% above EMA20, high vol, 24h -0.0% | ⚠️ 4 risk events",
   "stats24h": {
-    "change": 0.32874015748031,
+    "change": -0.01177948798492,
     "high": 5180,
     "low": 4995.5,
-    "volume": 32624,
+    "volume": 33264,
     "range": 3.693323991592433
   },
   "volatility": {
-    "atr_1h_pct": 0.8751524057222858,
-    "atr_15m_pct": 0.5732521253514702,
-    "bbWidth_1h": 1.8686478823805457,
+    "atr_1h_pct": 0.8894016492397614,
+    "atr_15m_pct": 0.545200844080888,
+    "bbWidth_1h": 1.858987380833858,
     "level": "high"
   },
   "trend": {
     "direction": "bullish",
-    "priceVsEma20": 0.2300777599736266,
-    "priceVsEma50": 0.5053048794518668,
+    "priceVsEma20": 0.16406832088485715,
+    "priceVsEma50": 0.4351381240697687,
     "ema20VsEma50": "golden"
   },
   "orderbook": {
-    "bidDepthUsd": 5722565.9,
-    "askDepthUsd": 2922034.9,
-    "imbalance": 0.32396302209814015,
-    "bias": "bid_heavy"
+    "bidDepthUsd": 5889910.2,
+    "askDepthUsd": 5048675.100000001,
+    "imbalance": 0.07690529231417152,
+    "bias": "balanced"
   },
   "news": {
     "sentiment": "neutral",
@@ -80,19 +80,19 @@
       "interval": "1m_last10",
       "bullish": 5,
       "bearish": 5,
-      "avgBodyPct": 0.01628022196780575
+      "avgBodyPct": 0.03276935906013366
     },
     {
       "interval": "5m_last1h",
       "bullish": 6,
       "bearish": 6,
-      "avgBodyPct": 0.13979090332499894
+      "avgBodyPct": 0.13359396725265996
     },
     {
       "interval": "1h_last6",
       "bullish": 4,
       "bearish": 2,
-      "avgBodyPct": 0.3780691946868467
+      "avgBodyPct": 0.3662762782986227
     }
   ]
 }
