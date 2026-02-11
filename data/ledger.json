@@ -1,9 +1,9 @@
 {
-  "balance": 1500,
+  "balance": 1989.5204212183837,
   "initialBalance": 2000,
   "dailyStartBalance": 2000,
-  "dailyPnl": 0,
-  "consecutiveLosses": 0,
+  "dailyPnl": -10.47957878161634,
+  "consecutiveLosses": 1,
   "positions": [
     {
       "id": "swing-1770825818385-tgxd",
@@ -16,12 +16,18 @@
       "takeProfit": 5098.28175,
       "minProfitTarget": 6,
       "maxProfitTarget": 150,
-      "status": "open",
+      "status": "closed",
       "mode": "trend_follow",
       "peakGrossPnl": 0,
       "peakPrice": 5080.5,
       "trailingStopActive": false,
-      "breakevenStopActive": false
+      "breakevenStopActive": false,
+      "exitPrice": 5072.9,
+      "exitTime": 1770826628413,
+      "pnl": -10.47957878161634,
+      "fees": 2.9999999999999996,
+      "grossPnl": -7.479578781616341,
+      "reason": "stop-loss"
     }
   ],
   "lastReset": 1770825697385,
