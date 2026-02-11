@@ -1,34 +1,34 @@
 {
-  "timestamp": 1770852578623,
-  "generatedAt": "2026-02-11T23:29:38.623Z",
-  "price": 5091.7,
+  "timestamp": 1770853480476,
+  "generatedAt": "2026-02-11T23:44:40.476Z",
+  "price": 5086.3,
   "regime": "high_vol_chop",
   "regimeConfidence": 0.7,
   "regimeReason": "High ATR (0.69%) but no direction. 24h range: 3.6% | ⚠️ 5 risk events",
   "stats24h": {
-    "change": 0.44980173213123,
+    "change": 0.39674706880897,
     "high": 5180,
     "low": 5000,
-    "volume": 42879,
+    "volume": 43322,
     "range": 3.5999999999999996
   },
   "volatility": {
-    "atr_1h_pct": 0.6868116965006184,
-    "atr_15m_pct": 0.26645654291140625,
-    "bbWidth_1h": 1.341081135180611,
+    "atr_1h_pct": 0.6875408676389906,
+    "atr_15m_pct": 0.2676331054447346,
+    "bbWidth_1h": 1.34982369638841,
     "level": "high"
   },
   "trend": {
     "direction": "neutral",
-    "priceVsEma20": -0.057904786991984904,
-    "priceVsEma50": 0.18594687262750315,
+    "priceVsEma20": -0.15307255214206958,
+    "priceVsEma50": 0.0841738812410816,
     "ema20VsEma50": "golden"
   },
   "orderbook": {
-    "bidDepthUsd": 3527037.5999999996,
-    "askDepthUsd": 2704821,
-    "imbalance": 0.13193762130610595,
-    "bias": "bid_heavy"
+    "bidDepthUsd": 3152858.2000000007,
+    "askDepthUsd": 3022984.5,
+    "imbalance": 0.021029308275614052,
+    "bias": "balanced"
   },
   "news": {
     "sentiment": "neutral",
@@ -83,21 +83,21 @@
   "recentCandles": [
     {
       "interval": "1m_last10",
-      "bullish": 7,
-      "bearish": 3,
-      "avgBodyPct": 0.028286809463965907
+      "bullish": 4,
+      "bearish": 6,
+      "avgBodyPct": 0.010420365693184868
     },
     {
       "interval": "5m_last1h",
-      "bullish": 8,
-      "bearish": 4,
-      "avgBodyPct": 0.09608258393006291
+      "bullish": 7,
+      "bearish": 5,
+      "avgBodyPct": 0.09072433073522186
     },
     {
       "interval": "1h_last6",
       "bullish": 2,
       "bearish": 4,
-      "avgBodyPct": 0.17265880265060848
+      "avgBodyPct": 0.19157818000737634
     }
   ]
 }
