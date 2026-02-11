@@ -1,1 +1,30 @@
-{"balance":2000,"initialBalance":2000,"dailyStartBalance":2000,"dailyPnl":0,"consecutiveLosses":0,"positions":[],"lastReset":1770817514636,"tradesThisHour":0,"lastHourReset":1770817514636,"lastLossTime":0}
+{
+  "balance": 1500,
+  "initialBalance": 2000,
+  "dailyStartBalance": 2000,
+  "dailyPnl": 0,
+  "consecutiveLosses": 0,
+  "positions": [
+    {
+      "id": "swing-1770818405813-pdex",
+      "side": "Long",
+      "entryPrice": 5089.5,
+      "entryTime": 1770818405813,
+      "collateral": 500,
+      "leverage": 10,
+      "stopLoss": 5080.342857142858,
+      "takeProfit": 5107.814285714286,
+      "minProfitTarget": 10,
+      "maxProfitTarget": 150,
+      "status": "open",
+      "mode": "trend_follow",
+      "peakGrossPnl": 0,
+      "peakPrice": 5089.5,
+      "trailingStopActive": false,
+      "breakevenStopActive": false
+    }
+  ],
+  "lastReset": 1770817534941,
+  "tradesThisHour": 1,
+  "lastHourReset": 1770817534941
+}
