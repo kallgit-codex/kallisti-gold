@@ -48,6 +48,7 @@ export interface MarketBrief {
 export interface ScalperOverrides {
   tradingEnabled: boolean;
   reason: string;
+  bias?: "long" | "short" | "neutral";  // Directional bias from regime
   momentumThreshold?: number;
   maxTradeSeconds?: number;
   maxChasePercent?: number;
@@ -150,6 +151,7 @@ export async function getOverrides(): Promise<ScalperOverrides> {
     return {
       tradingEnabled: true,
       reason: `✅ ${regime.toUpperCase()} (${(confidence * 100).toFixed(0)}%) — ATR ${atr.toFixed(2)}%`,
+      bias: (side === "Long" ? "long" : side === "Short" ? "short" : "neutral") as "long" | "short" | "neutral",
       preferredSide: side as "Long" | "Short" | null,
       maxChasePercent: 0.20,        // Allow more chase in trends
       maxTradeSeconds: 5400,        // Let winners run in gold trends
@@ -162,6 +164,7 @@ export async function getOverrides(): Promise<ScalperOverrides> {
     return {
       tradingEnabled: true,
       reason: `✅ ${regime.toUpperCase()} — chop is tradeable at $3 fees (ATR ${atr.toFixed(2)}%)`,
+      bias: "neutral",
       preferredSide: null,          // Both directions
       momentumThreshold: 0.04,      // Higher bar in chop
       maxTradeSeconds: 1800,        // Shorter holds in chop
@@ -176,6 +179,7 @@ export async function getOverrides(): Promise<ScalperOverrides> {
     return {
       tradingEnabled: true,
       reason: `✅ ${regime.toUpperCase()} — mean reversion mode (ATR ${atr.toFixed(2)}%)`,
+      bias: "neutral",
       preferredSide: null,
       momentumThreshold: 0.05,      // Need stronger signals in range
       maxTradeSeconds: 1200,        // Medium holds
@@ -189,6 +193,7 @@ export async function getOverrides(): Promise<ScalperOverrides> {
   return {
     tradingEnabled: true,
     reason: `⚠️ Regime "${regime}" — trading conservatively`,
+    bias: "neutral",
     momentumThreshold: 0.04,
     maxTradeSeconds: 1800,
     quickGrabDollars: 4,
