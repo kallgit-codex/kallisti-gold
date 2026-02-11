@@ -1,5 +1,5 @@
 {
-  "balance": 1991.525036143122,
+  "balance": 1491.525036143122,
   "initialBalance": 2000,
   "dailyStartBalance": 2000,
   "dailyPnl": -8.474963856878144,
@@ -148,9 +148,27 @@
       "fees": 2.9999999999999996,
       "grossPnl": 7.223740726278442,
       "reason": "take-profit"
+    },
+    {
+      "id": "swing-1770809615175-p4zz",
+      "side": "Long",
+      "entryPrice": 5127.3,
+      "entryTime": 1770809615175,
+      "collateral": 500,
+      "leverage": 10,
+      "stopLoss": 5125.667142857143,
+      "takeProfit": 5134.103571428572,
+      "minProfitTarget": 5,
+      "maxProfitTarget": 150,
+      "status": "open",
+      "mode": "trend_follow",
+      "peakGrossPnl": 0,
+      "peakPrice": 5127.3,
+      "trailingStopActive": false,
+      "breakevenStopActive": false
     }
   ],
   "lastReset": 1770804003707,
-  "tradesThisHour": 6,
+  "tradesThisHour": 7,
   "lastHourReset": 1770804003707
 }
