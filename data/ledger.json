@@ -1,5 +1,5 @@
 {
-  "balance": 1987.3012954168435,
+  "balance": 1487.3012954168435,
   "initialBalance": 2000,
   "dailyStartBalance": 2000,
   "dailyPnl": -12.698704583156587,
@@ -124,9 +124,27 @@
       "fees": 2.9999999999999996,
       "grossPnl": -2.0517430045337304,
       "reason": "stop-loss"
+    },
+    {
+      "id": "swing-1770809104859-i8t5",
+      "side": "Long",
+      "entryPrice": 5122,
+      "entryTime": 1770809104859,
+      "collateral": 500,
+      "leverage": 10,
+      "stopLoss": 5120.8,
+      "takeProfit": 5127,
+      "minProfitTarget": 5,
+      "maxProfitTarget": 150,
+      "status": "open",
+      "mode": "trend_follow",
+      "peakGrossPnl": 0,
+      "peakPrice": 5122,
+      "trailingStopActive": false,
+      "breakevenStopActive": false
     }
   ],
   "lastReset": 1770804003707,
-  "tradesThisHour": 5,
+  "tradesThisHour": 6,
   "lastHourReset": 1770804003707
 }
