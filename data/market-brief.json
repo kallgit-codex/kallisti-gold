@@ -1,6 +1,6 @@
 {
-  "timestamp": 1770848078722,
-  "generatedAt": "2026-02-11T22:14:38.722Z",
+  "timestamp": 1770848978562,
+  "generatedAt": "2026-02-11T22:29:38.562Z",
   "price": 5109.7,
   "regime": "trending_bullish",
   "regimeConfidence": 0.9,
@@ -14,7 +14,7 @@
   },
   "volatility": {
     "atr_1h_pct": 0.6517628343854417,
-    "atr_15m_pct": 0.20029979211094018,
+    "atr_15m_pct": 0.18363262012380174,
     "bbWidth_1h": 1.3787199265749708,
     "level": "high"
   },
@@ -32,13 +32,11 @@
   },
   "news": {
     "sentiment": "neutral",
-    "catalystCount": 5,
+    "catalystCount": 3,
     "riskEventCount": 5,
     "catalysts": [
       "Market: Gold Price Forecast: XAU/USD Record Breakout Sizzles- Exhaustion Risk - FOREX.co",
       "Market: Gold Price Today (15.12.2025): XAU/USD Near $4,350 as Weaker Dollar, Lower Yield",
-      "Geopolitical: Gold prices eye new highs as US tariffs on Swiss bullion send futures to record ",
-      "Market: Gold prices eye new highs as US tariffs on Swiss bullion send futures to record ",
       "Macro: Gold Price Today, December 5, 2025 (3:30 p.m. EST): XAU/USD Hovers Near $4,200 a"
     ],
     "riskEvents": [
@@ -79,9 +77,9 @@
   "recentCandles": [
     {
       "interval": "1m_last10",
-      "bullish": 6,
-      "bearish": 4,
-      "avgBodyPct": 0.013708834308316162
+      "bullish": 0,
+      "bearish": 0,
+      "avgBodyPct": 0
     },
     {
       "interval": "5m_last1h",
