@@ -1,11 +1,30 @@
 {
-  "balance": 2000,
+  "balance": 1500,
   "initialBalance": 2000,
   "dailyStartBalance": 2000,
   "dailyPnl": 0,
   "consecutiveLosses": 0,
-  "positions": [],
-  "lastReset": 1770781793309,
-  "tradesThisHour": 0,
-  "lastHourReset": 1770781793309
+  "positions": [
+    {
+      "id": "swing-1770785540071-n82v",
+      "side": "Long",
+      "entryPrice": 5071.6,
+      "entryTime": 1770785540071,
+      "collateral": 500,
+      "leverage": 10,
+      "stopLoss": 5070.814285714287,
+      "takeProfit": 5073.9571428571435,
+      "minProfitTarget": 3,
+      "maxProfitTarget": 150,
+      "status": "open",
+      "mode": "bounce",
+      "peakGrossPnl": 0,
+      "peakPrice": 5071.6,
+      "trailingStopActive": false,
+      "breakevenStopActive": false
+    }
+  ],
+  "lastReset": 1770785509161,
+  "tradesThisHour": 1,
+  "lastHourReset": 1770785509161
 }
