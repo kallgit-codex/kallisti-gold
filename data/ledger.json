@@ -1,5 +1,5 @@
 {
-  "balance": 1999.7473937206755,
+  "balance": 1499.7473937206755,
   "initialBalance": 2000,
   "dailyStartBalance": 2000,
   "dailyPnl": -0.2526062793245778,
@@ -196,9 +196,27 @@
       "fees": 2.9999999999999996,
       "grossPnl": 12.917348689530405,
       "reason": "swing-profit"
+    },
+    {
+      "id": "swing-1770825634053-w3bx",
+      "side": "Long",
+      "entryPrice": 5081.5,
+      "entryTime": 1770825634053,
+      "collateral": 500,
+      "leverage": 10,
+      "stopLoss": 5075.4022,
+      "takeProfit": 5099.28525,
+      "minProfitTarget": 8,
+      "maxProfitTarget": 150,
+      "status": "open",
+      "mode": "trend_follow",
+      "peakGrossPnl": 0,
+      "peakPrice": 5081.5,
+      "trailingStopActive": false,
+      "breakevenStopActive": false
     }
   ],
   "lastReset": 1770818461673,
-  "tradesThisHour": 8,
+  "tradesThisHour": 9,
   "lastHourReset": 1770818461673
 }
