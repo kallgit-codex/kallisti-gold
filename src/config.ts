@@ -59,38 +59,38 @@ export const config = {
   
   strategy: {
     // Profit targets — gold moves slower, need patience
-    minProfitDollars: 10,
+    minProfitDollars: 8,
     maxProfitDollars: 150,
-    quickGrabDollars: 25,
+    quickGrabDollars: 20,
     
     // Gold-tuned percentages (tighter than BTC — gold is less volatile)
-    targetProfitPercent: 1.2,       // 0.50% = $25 gross → $22 net
-    initialStopPercent: 0.8,        // 0.30% = -$15 gross → -$18 net
+    targetProfitPercent: 1.5,       // 0.50% = $25 gross → $22 net
+    initialStopPercent: 0.6,        // 0.30% = -$15 gross → -$18 net
     recoveryStopPercent: 0.4,
     
     // Hold times — gold trends are cleaner, hold longer
     maxTradeSeconds: 10800,           // 2 hour max hold
-    quickExitSeconds: 1800,           // 5 min quick grab
+    quickExitSeconds: 900,           // 5 min quick grab
     recoveryTimeSeconds: 300,
-    underwaterCutSeconds: 3600,       // 15 min underwater cut
-    underwaterMinLoss: -35,          // Cut at -$15 net
+    underwaterCutSeconds: 5400,       // 15 min underwater cut
+    underwaterMinLoss: -25,          // Cut at -$15 net
     
     // Momentum detection — gold needs lower thresholds (less volatile)
     consecutiveCandles: 2,
-    momentumThreshold: 0.06,         // Gold 1m candles are smaller
-    maxChasePercent: 0.25,           // Tighter chase for gold
+    momentumThreshold: 0.03,         // Gold 1m candles are smaller
+    maxChasePercent: 0.35,           // Tighter chase for gold
     
     volumeMultiplier: 1.0,
     volumeLookback: 10,
     
-    minVolatilityPercent: 0.003,      // Lower bar — gold is inherently less volatile
+    minVolatilityPercent: 0.002,      // Lower bar — gold is inherently less volatile
     
     // Mean reversion — gold loves mean reversion to EMAs
     meanReversionEnabled: true,
-    mrThresholdPercent: 0.08,        // Fade moves > 0.20% in lookback
+    mrThresholdPercent: 0.15,        // Fade moves > 0.20% in lookback
     mrMaxThresholdPercent: 0.60,     // Don't fade > 0.60% (real breakout)
-    mrTargetPercent: 0.15,           // Target 0.15% reversion
-    mrStopPercent: 0.25,             // Stop 0.12%
+    mrTargetPercent: 0.25,           // Target 0.15% reversion
+    mrStopPercent: 0.35,             // Stop 0.12%
     mrLookbackCandles: 15,
     mrMinCandlesInDirection: 4,
   },
@@ -103,7 +103,7 @@ export const config = {
     maxDailyLossDollars: 150,
     maxConsecutiveLosses: 4,
     pauseAfterLossesMinutes: 30,
-    maxTradesPerHour: 5,
+    maxTradesPerHour: 8,
     maxOpenRiskDollars: 500,
   },
   
