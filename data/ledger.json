@@ -1,5 +1,5 @@
 {
-  "balance": 2001.5023882233188,
+  "balance": 1501.5023882233188,
   "initialBalance": 2000,
   "dailyStartBalance": 2000,
   "dailyPnl": 1.5023882233188126,
@@ -28,9 +28,27 @@
       "fees": 2.9999999999999996,
       "grossPnl": 4.502388223318812,
       "reason": "generous-exit"
+    },
+    {
+      "id": "swing-1770837436038-4tjm",
+      "side": "Long",
+      "entryPrice": 5113.5,
+      "entryTime": 1770837436038,
+      "collateral": 500,
+      "leverage": 10,
+      "stopLoss": 5103.273,
+      "takeProfit": 5131.39725,
+      "minProfitTarget": 5,
+      "maxProfitTarget": 150,
+      "status": "open",
+      "mode": "trend_follow",
+      "peakGrossPnl": 0,
+      "peakPrice": 5113.5,
+      "trailingStopActive": false,
+      "breakevenStopActive": false
     }
   ],
   "lastReset": 1770835975006,
-  "tradesThisHour": 1,
+  "tradesThisHour": 2,
   "lastHourReset": 1770835975006
 }
