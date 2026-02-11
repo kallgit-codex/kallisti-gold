@@ -480,8 +480,8 @@ function detectSwingEntry(
   const currentPrice = candles[candles.length - 1].close;
   
   // Need minimum volatility
-  if (analysis.atrPercent < 0.25) {
-    return { ...noSignal, reason: `Low ATR: ${analysis.atrPercent.toFixed(2)}% (need 0.25%)` };
+  if (analysis.atrPercent < 0.03) {
+    return { ...noSignal, reason: `Low ATR: ${analysis.atrPercent.toFixed(2)}% (need 0.03%)` };
   }
   
   // === STRATEGY 1: LONG BIAS — BUY DIPS TO SUPPORT ===
