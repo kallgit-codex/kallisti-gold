@@ -76,21 +76,21 @@ export const config = {
     underwaterMinLoss: -15,          // Cut at -$15 net
     
     // Momentum detection — gold needs lower thresholds (less volatile)
-    consecutiveCandles: 3,
-    momentumThreshold: 0.06,         // Gold 1m candles are smaller
+    consecutiveCandles: 2,
+    momentumThreshold: 0.04,         // Gold 1m candles are smaller
     maxChasePercent: 0.20,           // Tighter chase for gold
     
     volumeMultiplier: 1.0,
     volumeLookback: 10,
     
-    minVolatilityPercent: 0.04,      // Lower bar — gold is inherently less volatile
+    minVolatilityPercent: 0.02,      // Lower bar — gold is inherently less volatile
     
     // Mean reversion — gold loves mean reversion to EMAs
     meanReversionEnabled: true,
-    mrThresholdPercent: 0.20,        // Fade moves > 0.20% in lookback
+    mrThresholdPercent: 0.15,        // Fade moves > 0.20% in lookback
     mrMaxThresholdPercent: 0.60,     // Don't fade > 0.60% (real breakout)
-    mrTargetPercent: 0.15,           // Target 0.15% reversion
-    mrStopPercent: 0.12,             // Stop 0.12%
+    mrTargetPercent: 0.12,           // Target 0.15% reversion
+    mrStopPercent: 0.1,             // Stop 0.12%
     mrLookbackCandles: 10,
     mrMinCandlesInDirection: 4,
   },
@@ -103,7 +103,7 @@ export const config = {
     maxDailyLossDollars: 150,
     maxConsecutiveLosses: 3,
     pauseAfterLossesMinutes: 60,
-    maxTradesPerHour: 3,
+    maxTradesPerHour: 4,
     maxOpenRiskDollars: 500,
   },
   
