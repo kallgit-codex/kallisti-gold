@@ -1,9 +1,9 @@
 {
-  "balance": 1488.9836890638676,
+  "balance": 1976.9775022050683,
   "initialBalance": 2000,
   "dailyStartBalance": 2000,
-  "dailyPnl": -11.016310936132736,
-  "consecutiveLosses": 0,
+  "dailyPnl": -23.0224977949321,
+  "consecutiveLosses": 1,
   "positions": [
     {
       "id": "swing-1770836136019-qg2m",
@@ -112,12 +112,18 @@
       "takeProfit": 5117.8152,
       "minProfitTarget": 5,
       "maxProfitTarget": 150,
-      "status": "open",
+      "status": "closed",
       "mode": "bounce",
       "peakGrossPnl": 0,
       "peakPrice": 5107.6,
       "trailingStopActive": false,
-      "breakevenStopActive": false
+      "breakevenStopActive": false,
+      "exitPrice": 5098.4,
+      "exitTime": 1770845586042,
+      "pnl": -12.006186858799364,
+      "fees": 2.9999999999999996,
+      "grossPnl": -9.006186858799364,
+      "reason": "stop-loss"
     }
   ],
   "lastReset": 1770835975006,
