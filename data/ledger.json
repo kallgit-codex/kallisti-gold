@@ -1,5 +1,5 @@
 {
-  "balance": 1989.8300450311451,
+  "balance": 1489.8300450311451,
   "initialBalance": 2000,
   "dailyStartBalance": 2000,
   "dailyPnl": -10.169954968854983,
@@ -172,9 +172,27 @@
       "fees": 2.9999999999999996,
       "grossPnl": 7.003491881868219,
       "reason": "generous-exit"
+    },
+    {
+      "id": "swing-1770825004478-wl9t",
+      "side": "Long",
+      "entryPrice": 5070.7,
+      "entryTime": 1770825004478,
+      "collateral": 500,
+      "leverage": 10,
+      "stopLoss": 5060.614285714285,
+      "takeProfit": 5090.871428571429,
+      "minProfitTarget": 8,
+      "maxProfitTarget": 150,
+      "status": "open",
+      "mode": "pullback",
+      "peakGrossPnl": 0,
+      "peakPrice": 5070.7,
+      "trailingStopActive": false,
+      "breakevenStopActive": false
     }
   ],
   "lastReset": 1770818461673,
-  "tradesThisHour": 7,
+  "tradesThisHour": 8,
   "lastHourReset": 1770818461673
 }
