@@ -1,5 +1,5 @@
 {
-  "balance": 1986.3147676542987,
+  "balance": 1486.3147676542987,
   "initialBalance": 2000,
   "dailyStartBalance": 2000,
   "dailyPnl": -13.685232345701255,
@@ -76,9 +76,27 @@
       "fees": 2.9999999999999996,
       "grossPnl": 7.354527447096433,
       "reason": "generous-exit"
+    },
+    {
+      "id": "swing-1770835229383-dajm",
+      "side": "Long",
+      "entryPrice": 5105.6,
+      "entryTime": 1770835229383,
+      "collateral": 500,
+      "leverage": 10,
+      "stopLoss": 5099.47328,
+      "takeProfit": 5123.4696,
+      "minProfitTarget": 5,
+      "maxProfitTarget": 150,
+      "status": "open",
+      "mode": "trend_follow",
+      "peakGrossPnl": 0,
+      "peakPrice": 5105.6,
+      "trailingStopActive": false,
+      "breakevenStopActive": false
     }
   ],
   "lastReset": 1770832918183,
-  "tradesThisHour": 3,
+  "tradesThisHour": 4,
   "lastHourReset": 1770832918183
 }
