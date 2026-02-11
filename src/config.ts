@@ -59,21 +59,21 @@ export const config = {
   
   strategy: {
     // Profit targets — gold moves slower, need patience
-    minProfitDollars: 8,
+    minProfitDollars: 6,
     maxProfitDollars: 150,
-    quickGrabDollars: 20,
+    quickGrabDollars: 15,
     
     // Gold-tuned percentages (tighter than BTC — gold is less volatile)
     targetProfitPercent: 1.5,       // 0.50% = $25 gross → $22 net
-    initialStopPercent: 0.6,        // 0.30% = -$15 gross → -$18 net
+    initialStopPercent: 0.5,        // 0.30% = -$15 gross → -$18 net
     recoveryStopPercent: 0.4,
     
     // Hold times — gold trends are cleaner, hold longer
-    maxTradeSeconds: 10800,           // 2 hour max hold
-    quickExitSeconds: 900,           // 5 min quick grab
+    maxTradeSeconds: 7200,           // 2 hour max hold
+    quickExitSeconds: 600,           // 5 min quick grab
     recoveryTimeSeconds: 300,
-    underwaterCutSeconds: 5400,       // 15 min underwater cut
-    underwaterMinLoss: -25,          // Cut at -$15 net
+    underwaterCutSeconds: 3600,       // 15 min underwater cut
+    underwaterMinLoss: -20,          // Cut at -$15 net
     
     // Momentum detection — gold needs lower thresholds (less volatile)
     consecutiveCandles: 2,
@@ -87,10 +87,10 @@ export const config = {
     
     // Mean reversion — gold loves mean reversion to EMAs
     meanReversionEnabled: true,
-    mrThresholdPercent: 0.15,        // Fade moves > 0.20% in lookback
+    mrThresholdPercent: 0.12,        // Fade moves > 0.20% in lookback
     mrMaxThresholdPercent: 0.60,     // Don't fade > 0.60% (real breakout)
-    mrTargetPercent: 0.25,           // Target 0.15% reversion
-    mrStopPercent: 0.35,             // Stop 0.12%
+    mrTargetPercent: 0.2,           // Target 0.15% reversion
+    mrStopPercent: 0.3,             // Stop 0.12%
     mrLookbackCandles: 15,
     mrMinCandlesInDirection: 4,
   },
@@ -103,7 +103,7 @@ export const config = {
     maxDailyLossDollars: 150,
     maxConsecutiveLosses: 4,
     pauseAfterLossesMinutes: 30,
-    maxTradesPerHour: 8,
+    maxTradesPerHour: 10,
     maxOpenRiskDollars: 500,
   },
   
