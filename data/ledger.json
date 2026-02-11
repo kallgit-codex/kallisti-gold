@@ -1,5 +1,5 @@
 {
-  "balance": 2005.5506589274844,
+  "balance": 1505.5506589274844,
   "initialBalance": 2000,
   "dailyStartBalance": 2000,
   "dailyPnl": 5.550658927484424,
@@ -76,9 +76,27 @@
       "fees": 2.9999999999999996,
       "grossPnl": 3.728194964974768,
       "reason": "generous-exit"
+    },
+    {
+      "id": "swing-1770830378455-m5i6",
+      "side": "Long",
+      "entryPrice": 5106.5,
+      "entryTime": 1770830378455,
+      "collateral": 500,
+      "leverage": 10,
+      "stopLoss": 5100.3722,
+      "takeProfit": 5124.37275,
+      "minProfitTarget": 6,
+      "maxProfitTarget": 150,
+      "status": "open",
+      "mode": "trend_follow",
+      "peakGrossPnl": 0,
+      "peakPrice": 5106.5,
+      "trailingStopActive": false,
+      "breakevenStopActive": false
     }
   ],
   "lastReset": 1770825697385,
-  "tradesThisHour": 3,
+  "tradesThisHour": 4,
   "lastHourReset": 1770825697385
 }
