@@ -1,5 +1,5 @@
 {
-  "balance": 1994.3474361157564,
+  "balance": 1494.3474361157564,
   "initialBalance": 2000,
   "dailyStartBalance": 2000,
   "dailyPnl": -5.65256388424401,
@@ -172,9 +172,27 @@
       "fees": 2.9999999999999996,
       "grossPnl": 6.489675516224547,
       "reason": "take-profit"
+    },
+    {
+      "id": "swing-1770794003673-qvog",
+      "side": "Long",
+      "entryPrice": 5087.9,
+      "entryTime": 1770794003673,
+      "collateral": 500,
+      "leverage": 10,
+      "stopLoss": 5086.678571428572,
+      "takeProfit": 5092.989285714286,
+      "minProfitTarget": 2,
+      "maxProfitTarget": 150,
+      "status": "open",
+      "mode": "trend_follow",
+      "peakGrossPnl": 0,
+      "peakPrice": 5087.9,
+      "trailingStopActive": false,
+      "breakevenStopActive": false
     }
   ],
   "lastReset": 1770789561996,
-  "tradesThisHour": 7,
+  "tradesThisHour": 8,
   "lastHourReset": 1770789561996
 }
