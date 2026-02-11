@@ -1,44 +1,43 @@
 {
-  "timestamp": 1770789577855,
-  "generatedAt": "2026-02-11T05:59:37.855Z",
-  "price": 5077.2,
+  "timestamp": 1770790477954,
+  "generatedAt": "2026-02-11T06:14:37.954Z",
+  "price": 5080,
   "regime": "trending_bullish",
   "regimeConfidence": 0.85,
-  "regimeReason": "Price 0.26% above EMA20, high vol, 24h +0.3% | ⚠️ 4 risk events",
+  "regimeReason": "Price 0.29% above EMA20, high vol, 24h +0.4% | ⚠️ 4 risk events",
   "stats24h": {
-    "change": 0.32405943724312,
+    "change": 0.43892601526355,
     "high": 5101,
     "low": 4995.5,
-    "volume": 22047,
+    "volume": 22030,
     "range": 2.1119007106395755
   },
   "volatility": {
-    "atr_1h_pct": 0.43770693131154104,
-    "atr_15m_pct": 0.18177921134100408,
-    "bbWidth_1h": 1.0509268629907653,
+    "atr_1h_pct": 0.3958278629386233,
+    "atr_15m_pct": 0.1755455298230922,
+    "bbWidth_1h": 1.0971731585430613,
     "level": "high"
   },
   "trend": {
     "direction": "bullish",
-    "priceVsEma20": 0.26380493167444785,
-    "priceVsEma50": 0.34328302461008625,
-    "ema20VsEma50": "flat"
+    "priceVsEma20": 0.29011641059387816,
+    "priceVsEma50": 0.41912217060229107,
+    "ema20VsEma50": "golden"
   },
   "orderbook": {
-    "bidDepthUsd": 5329340.699999999,
-    "askDepthUsd": 4762198.699999998,
-    "imbalance": 0.056199750852679725,
+    "bidDepthUsd": 5727815.800000001,
+    "askDepthUsd": 5559320.6,
+    "imbalance": 0.014928073341968395,
     "bias": "balanced"
   },
   "news": {
     "sentiment": "neutral",
-    "catalystCount": 4,
+    "catalystCount": 3,
     "riskEventCount": 4,
     "catalysts": [
       "Macro: Gold Edges Higher as US Data Bolsters Case for More Rate Cuts - Bloomberg.com",
-      "Market: Gold Price Today (15.12.2025): XAU/USD Near $4,350 as Weaker Dollar, Lower Yield",
-      "Geopolitical: Gold prices eye new highs as US tariffs on Swiss bullion send futures to record ",
-      "Market: Gold prices eye new highs as US tariffs on Swiss bullion send futures to record "
+      "Market: Gold prices surge to $5,062 as silver increases to $82.64; UAE gold rates climb ",
+      "Market: Gold Price Today (15.12.2025): XAU/USD Near $4,350 as Weaker Dollar, Lower Yield"
     ],
     "riskEvents": [
       "Gold Price Forecast - XAU/USD Price Trades at $3,680 as Inflation Rises and Fed ",
@@ -51,7 +50,7 @@
       "Gold Price Forecast - XAU/USD Price Trades at $3,680 as Inflation Rises and Fed Cut Bets Build - TradingNEWS",
       "Gold Price Today: MCX Gold Rises 1% as Falling US Yields Boost Safe-Haven Demand - Analytics Insight",
       "Gold Edges Higher as US Data Bolsters Case for More Rate Cuts - Bloomberg.com",
-      "Gold price climbs after interest rates cut by Federal Reserve - Yahoo Finance UK"
+      "Gold prices surge to $5,062 as silver increases to $82.64; UAE gold rates climb - Economy Middle East"
     ]
   },
   "recommendations": {
@@ -77,21 +76,21 @@
   "recentCandles": [
     {
       "interval": "1m_last10",
-      "bullish": 1,
-      "bearish": 9,
-      "avgBodyPct": 0.016344113341962237
+      "bullish": 2,
+      "bearish": 8,
+      "avgBodyPct": 0.013592624444686448
     },
     {
       "interval": "5m_last1h",
-      "bullish": 7,
-      "bearish": 5,
-      "avgBodyPct": 0.05136140703471567
+      "bullish": 8,
+      "bearish": 4,
+      "avgBodyPct": 0.06186470345932244
     },
     {
       "interval": "1h_last6",
-      "bullish": 3,
-      "bearish": 3,
-      "avgBodyPct": 0.11682080668239404
+      "bullish": 4,
+      "bearish": 2,
+      "avgBodyPct": 0.11054477856158283
     }
   ]
 }
