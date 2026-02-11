@@ -1,43 +1,46 @@
-// Brief Reader v2 - Consumes market briefs from the research agent
-// Reads data/market-brief.json from GitHub data branch every 5 minutes
-// Returns parameter overrides for the scalper based on regime analysis
+// Brief Reader v3 — GOLD FUTURES
+// Reads gold market briefs from kallisti-gold data branch
+// Returns parameter overrides based on gold regime analysis
 // NO LLM calls — pure deterministic logic
 //
-// v2 CHANGES (Opus 4.6 recommendations):
-//   - high_vol_chop → BLOCK trading entirely (was: conservative mode)
-//   - ranging/low_vol_squeeze → BLOCK trading (momentum doesn't work here)
-//   - trending regimes → trade but with confidence gating
-//   - Regime must be stable 15+ min before acting on it
-//   - Stale brief (>20min) → pause, not trade with defaults
+// GOLD at 10x/$3 fees is MUCH more forgiving than BTC at 75x/$30 fees.
+// Breakeven is only 0.06% move. Be more permissive.
 
 import { config } from "./config";
 import { log } from "./logger";
 
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN || "";
-const BRIEF_URL = "https://api.github.com/repos/kallgit-codex/kallisti-scalper/contents/data/market-brief.json?ref=data";
+const BRIEF_URL = "https://api.github.com/repos/kallgit-codex/kallisti-gold/contents/data/market-brief.json?ref=data";
 const REFRESH_MS = 5 * 60 * 1000; // Re-fetch every 5 min
 
 export interface MarketBrief {
   timestamp: number;
-  generatedAt: string;
+  generatedAt?: string;
   price: number;
   regime: string;
   regimeConfidence: number;
-  regimeReason: string;
-  volatility: { atr_1h_pct: number; level: string };
-  trend: { direction: string; priceVsEma20: number };
-  orderbook: { imbalance: number; bias: string };
-  news: { sentiment: string; riskEventCount: number };
+  regimeReason?: string;
+  volatility: { atr_1h_pct: number; atr_15m_pct?: number; level: string };
+  trend: { direction: string; priceVsEma20: number; priceVsEma50?: number };
+  orderbook: { imbalance: number; bias: string; bidDepthUsd?: number; askDepthUsd?: number };
+  stats24h?: { change: number; high: number; low: number; volume: number; range: number };
+  news?: { sentiment: string; riskEventCount: number };
   recommendations: {
     momentum_scalper: {
       active: boolean;
-      reason: string;
+      reason?: string;
+      bias?: string;
+      aggression?: string;
       params?: {
         bias?: string;
         aggression?: string;
         momentumThreshold?: number;
         maxTradeSeconds?: number;
       };
+    };
+    mean_reversion?: {
+      active: boolean;
+      reason?: string;
     };
   };
 }
@@ -86,12 +89,9 @@ export async function getOverrides(): Promise<ScalperOverrides> {
   if (!cachedBrief || now - lastFetch > REFRESH_MS) {
     const fresh = await fetchBrief();
     if (fresh) {
-      // Track regime stability
       if (fresh.regime !== lastRegime) {
-        // On first load (no previous regime), use brief's own timestamp as baseline
-        // so we don't restart the stability clock on every deploy
         const stableSince = lastRegime === "" ? fresh.timestamp : now;
-        log(`📊 REGIME CHANGED: ${lastRegime || "none"} → ${fresh.regime.toUpperCase()} (${(fresh.regimeConfidence * 100).toFixed(0)}%) — ${fresh.regimeReason}`);
+        log(`📊 REGIME CHANGED: ${lastRegime || "none"} → ${fresh.regime.toUpperCase()} (${(fresh.regimeConfidence * 100).toFixed(0)}%) — ${fresh.regimeReason || "no reason"}`);
         regimeStableSince = stableSince;
         lastRegime = fresh.regime;
       }
@@ -100,217 +100,98 @@ export async function getOverrides(): Promise<ScalperOverrides> {
     }
   }
 
-  // No brief available — DON'T trade blind
+  // No brief? Trade with defaults — gold at 10x/$3 fees is safe enough
+  // Don't block trading just because the researcher is slow
   if (!cachedBrief) {
-    return { tradingEnabled: false, reason: "⛔ No market brief — refusing to trade blind" };
+    return {
+      tradingEnabled: true,
+      reason: "⚠️ No brief available — trading with config defaults",
+    };
   }
 
   const brief = cachedBrief;
   const rec = brief.recommendations.momentum_scalper;
 
-  // Brief too old (>20min) — data is stale, sit out
-  if (now - brief.timestamp > 20 * 60 * 1000) {
-    return { tradingEnabled: false, reason: "⛔ Brief stale (>20min) — sitting out" };
-  }
-
-  // Research agent explicitly says sit out
-  if (!rec.active) {
-    return { tradingEnabled: false, reason: `⛔ ${rec.reason}` };
-  }
-
-  // REGIME GATING — the core decision
-  const regime = brief.regime;
-  const confidence = brief.regimeConfidence;
-  const regimeAgeMin = (now - regimeStableSince) / 60000;
-
-  // ============================================================
-  // CHOP / RANGING = NO TRADE for momentum scalper
-  // Opus 4.6: "Is momentum scalping viable at 75x with taker fees
-  // in a chop regime? The math says no."
-  // ============================================================
-  if (regime === "high_vol_chop") {
-    // v4.3: Block chop trading during active corrections.
-    // Evidence: 6/6 trades lost in high_vol_chop with -2.5% 24h change.
-    // In selloffs, 'chop' is distribution noise — momentum signals catch
-    // the peak of short oscillations, then price reverts. Not tradeable.
-    const briefAny = brief as any;
-    const change24h = Math.abs(briefAny.stats24h?.change || 0);
-    if (change24h > 2.0) {
-      return {
-        tradingEnabled: false,
-        reason: `⛔ HIGH_VOL_CHOP during correction (24h: ${briefAny.stats24h?.change?.toFixed(1) || '?'}%) — distribution noise, not tradeable`,
-      };
-    }
-
-    // v4.1: At Coinbase CFM $3 fees, calm chop IS viable for quick scalps.
-    // Breakeven is only 0.06% — high ATR means plenty of 0.10%+ moves.
-    // But ONLY when market is range-bound (24h change < 2%).
-    const overrides: ScalperOverrides = {
+  // Brief too old (>30min) — still trade but with defaults
+  // Gold at $3 fees is forgiving enough to trade without fresh intel
+  if (now - brief.timestamp > 30 * 60 * 1000) {
+    return {
       tradingEnabled: true,
-      reason: `✅ HIGH_VOL_CHOP — selective scalps at $3 fees (ATR ${brief.volatility.atr_1h_pct.toFixed(2)}%)`,
-      preferredSide: null,  // Both directions in chop
-      // v4.3: Raised to 0.25%. Evidence: 6/6 losses at 0.20% threshold.
-      // In chop, 0.20% moves are the PEAK of oscillations, not the start.
-      // 0.25% ensures we only enter outsized moves that have continuation potential.
-      momentumThreshold: Math.max(0.25, rec.params?.momentumThreshold || 0.10, config.strategy.momentumThreshold),
-      maxTradeSeconds: 90,   // Shorter holds — 120s was too long, all 6 trades timed out red
-      quickExitSeconds: 20,  // Grab profits very fast in chop
-      quickGrabDollars: 5,   // $5 net = 0.16% gross — take any win in chop
-      maxChasePercent: 0.15, // Don't chase in chop
-      minProfitDollars: 6,   // $6 net = ~0.18% gross — lower bar to lock in wins
+      reason: "⚠️ Brief stale (>30min) — trading with config defaults",
     };
-
-    // Risk overlay still applies
-    if (brief.news.riskEventCount >= 6) {
-      return {
-        tradingEnabled: false,
-        reason: `⛔ HIGH_VOL_CHOP + ${brief.news.riskEventCount} risk events — too dangerous`,
-      };
-    }
-    if (brief.news.riskEventCount >= 4) {
-      overrides.momentumThreshold = Math.max(overrides.momentumThreshold || 0.10, 0.15);
-      overrides.reason += ` | ⚠️ ${brief.news.riskEventCount} risk events`;
-    }
-
-    return overrides;
   }
 
-  if (regime === "ranging" || regime === "low_vol_squeeze") {
+  // Check CME maintenance break (22:00-23:00 UTC)
+  const utcHour = new Date().getUTCHours();
+  if (utcHour === 22) {
     return {
       tradingEnabled: false,
-      reason: `⛔ ${regime.toUpperCase()} — no directional edge, waiting for trend`,
+      reason: "⛔ CME maintenance break (22:00-23:00 UTC)",
     };
   }
 
   // ============================================================
-  // TRENDING = TRADE (our edge)
-  // But require confidence > 60% and regime stable for 15+ min
+  // REGIME-BASED TUNING
+  // Gold at 10x leverage with $3 fees = very forgiving.
+  // We WANT to trade in most conditions. Only block during
+  // maintenance or extreme conditions.
   // ============================================================
-  if (regime === "trending_bullish" || regime === "trending_bearish") {
-    // Low confidence — don't trust the call
-    if (confidence < 0.70) {
-      return {
-        tradingEnabled: false,
-        reason: `⛔ ${regime} but only ${(confidence * 100).toFixed(0)}% confidence — need 70%+`,
-      };
-    }
 
-    // Weak trend — price barely above/below EMA20
-    const emaDistance = Math.abs(brief.trend.priceVsEma20);
-    // v4.1: Lowered from 0.30% to 0.15%. At 10x/$3 fees, entering slightly earlier
-    // is fine — max risk is $15.50/trade. The old 0.30% blocked entries where BTC
-    // was +2.5% 24h at 85% confidence but only 0.16% from EMA20.
-    if (emaDistance < 0.15) {
-      return {
-        tradingEnabled: false,
-        reason: `⛔ ${regime} but EMA20 distance only ${emaDistance.toFixed(2)}% — need 0.15%+ for conviction`,
-      };
-    }
+  const regime = (brief.regime || "unknown").toLowerCase().replace(/[\s-]+/g, "_");
+  const confidence = brief.regimeConfidence || 0.5;
+  const atr = brief.volatility?.atr_1h_pct || 0;
+  const bias = rec.bias || rec.params?.bias || brief.trend?.direction || "neutral";
 
-    // Regime just changed — wait for stability (Opus: "regime hysteresis")
-    if (regimeAgeMin < 15) {
-      return {
-        tradingEnabled: false,
-        reason: `⛔ ${regime} but only ${regimeAgeMin.toFixed(0)}min old — waiting for 15min stability`,
-      };
-    }
-
-    // Green light — trade in direction of trend
-    const overrides: ScalperOverrides = {
+  // TRENDING BULLISH/BEARISH — our best edge, trade aggressively
+  if (regime.includes("trending") || regime.includes("bull") || regime.includes("bear")) {
+    const side = (regime.includes("bull") || regime.includes("bullish")) ? "Long" : 
+                 (regime.includes("bear") || regime.includes("bearish")) ? "Short" : null;
+    
+    return {
       tradingEnabled: true,
-      reason: `✅ ${regime.toUpperCase()} (${(confidence * 100).toFixed(0)}%, ${regimeAgeMin.toFixed(0)}min stable)`,
-      preferredSide: regime === "trending_bullish" ? "Long" : "Short",
-      maxChasePercent: 0.35,        // Allow more chase in trends
-      minProfitDollars: 8,          // At 10x: $8 net = $11 gross = 0.22% move
+      reason: `✅ ${regime.toUpperCase()} (${(confidence * 100).toFixed(0)}%) — ATR ${atr.toFixed(2)}%`,
+      preferredSide: side as "Long" | "Short" | null,
+      maxChasePercent: 0.20,        // Allow more chase in trends
+      maxTradeSeconds: 5400,        // Let winners run in gold trends
+      minProfitDollars: 3,          // Low bar — $3 fees mean even small wins count
     };
-
-    // Apply research agent's recommended params if provided
-    // FLOOR: brief can RAISE threshold but never LOWER it below config base
-    if (rec.params?.momentumThreshold) {
-      overrides.momentumThreshold = Math.max(rec.params.momentumThreshold, config.strategy.momentumThreshold);
-    }
-    if (rec.params?.maxTradeSeconds) {
-      overrides.maxTradeSeconds = rec.params.maxTradeSeconds;
-    }
-
-    // CANDLE RATIO SANITY CHECK: If recent 1m candles contradict trend, block
-    // This catches intraday reversals the regime classification misses
-    const briefAny = brief as any;
-    const candles1m = briefAny.recentCandles?.find((c: any) => c.interval === '1m');
-    if (candles1m && candles1m.count >= 8) {
-      const bearishRatio = candles1m.bearish / candles1m.count;
-      const bullishRatio = candles1m.bullish / candles1m.count;
-      if (regime === 'trending_bullish' && bearishRatio > 0.65) {
-        return {
-          tradingEnabled: false,
-          reason: `⛔ ${regime} but 1m candles are ${(bearishRatio * 100).toFixed(0)}% bearish (${candles1m.bearish}/${candles1m.count}) — intraday reversal signal`,
-        };
-      }
-      if (regime === 'trending_bearish' && bullishRatio > 0.65) {
-        return {
-          tradingEnabled: false,
-          reason: `⛔ ${regime} but 1m candles are ${(bullishRatio * 100).toFixed(0)}% bullish (${candles1m.bullish}/${candles1m.count}) — intraday reversal signal`,
-        };
-      }
-    }
-
-    // ORDERBOOK SANITY CHECK: Don't go long into heavy sell pressure or short into heavy buy pressure
-    const obBias = brief.orderbook.bias;
-    const obImbalance = Math.abs(brief.orderbook.imbalance);
-    
-    // SEVERE contradiction (>0.55): OB is extremely against trend — BLOCK
-    // v3.5: Raised from 0.25 to 0.55. During trending moves, moderate ask_heavy is NORMAL
-    // (sellers selling into strength). Only block when OB is overwhelmingly one-sided.
-    // Evidence: 3hr session where price went UP 1% while OB was ask_heavy 0.36-0.64.
-    if (obImbalance > 0.55) {
-      if (regime === "trending_bullish" && obBias === "ask_heavy") {
-        return {
-          tradingEnabled: false,
-          reason: `⛔ ${regime} but extreme ask-heavy OB (${obImbalance.toFixed(2)}) — supply wall blocks longs`,
-        };
-      }
-      if (regime === "trending_bearish" && obBias === "bid_heavy") {
-        return {
-          tradingEnabled: false,
-          reason: `⛔ ${regime} but extreme bid-heavy OB (${obImbalance.toFixed(2)}) — demand wall blocks shorts`,
-        };
-      }
-    }
-    
-    // MODERATE contradiction (>0.40): raise threshold but don't block
-    if (obImbalance > 0.40) {
-      if (regime === "trending_bullish" && obBias === "ask_heavy") {
-        overrides.momentumThreshold = Math.max(overrides.momentumThreshold || config.strategy.momentumThreshold, 0.18);
-        overrides.reason += ` | ⚠️ Ask-heavy OB (${obImbalance.toFixed(2)}) — raised threshold to 0.18`;
-      }
-      if (regime === "trending_bearish" && obBias === "bid_heavy") {
-        overrides.momentumThreshold = Math.max(overrides.momentumThreshold || config.strategy.momentumThreshold, 0.18);
-        overrides.reason += ` | ⚠️ Bid-heavy OB (${obImbalance.toFixed(2)}) — raised threshold to 0.18`;
-      }
-    }
-
-    // Risk overlay: news risk = tighten or block
-    if (brief.news.riskEventCount >= 6) {
-      // 6+ risk events = too much uncertainty for leveraged scalping
-      return {
-        tradingEnabled: false,
-        reason: `⛔ ${brief.news.riskEventCount} risk events — too dangerous for leveraged scalping`,
-      };
-    }
-    if (brief.news.riskEventCount >= 4) {
-      // v3.5: Raised from 3→4. Crypto always has 2-3 risk headlines.
-      overrides.momentumThreshold = Math.max(overrides.momentumThreshold || 0.12, 0.18);
-      overrides.maxTradeSeconds = Math.min(overrides.maxTradeSeconds || 180, 150);
-      overrides.reason += ` | ⚠️ ${brief.news.riskEventCount} risk events — raised threshold to 0.18`;
-    }
-
-    return overrides;
   }
 
-  // Unknown regime — don't trade
+  // HIGH VOL CHOP — tradeable at gold's fee structure, just be careful
+  if (regime.includes("chop") || regime.includes("high_vol")) {
+    return {
+      tradingEnabled: true,
+      reason: `✅ ${regime.toUpperCase()} — chop is tradeable at $3 fees (ATR ${atr.toFixed(2)}%)`,
+      preferredSide: null,          // Both directions
+      momentumThreshold: 0.04,      // Higher bar in chop
+      maxTradeSeconds: 1800,        // Shorter holds in chop
+      quickExitSeconds: 90,         // Grab profits faster
+      quickGrabDollars: 4,          // Take $4+ in chop
+      maxChasePercent: 0.10,        // Don't chase in chop
+    };
+  }
+
+  // RANGING / SIDEWAYS — mean reversion territory
+  if (regime.includes("rang") || regime.includes("sideways") || regime.includes("squeeze")) {
+    return {
+      tradingEnabled: true,
+      reason: `✅ ${regime.toUpperCase()} — mean reversion mode (ATR ${atr.toFixed(2)}%)`,
+      preferredSide: null,
+      momentumThreshold: 0.05,      // Need stronger signals in range
+      maxTradeSeconds: 1200,        // Medium holds
+      quickExitSeconds: 120,
+      quickGrabDollars: 3,
+      maxChasePercent: 0.08,
+    };
+  }
+
+  // UNKNOWN / OTHER — trade conservatively but don't block
   return {
-    tradingEnabled: false,
-    reason: `⛔ Unknown regime "${regime}" — sitting out`,
+    tradingEnabled: true,
+    reason: `⚠️ Regime "${regime}" — trading conservatively`,
+    momentumThreshold: 0.04,
+    maxTradeSeconds: 1800,
+    quickGrabDollars: 4,
   };
 }
 
