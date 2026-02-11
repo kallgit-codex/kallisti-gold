@@ -29,7 +29,7 @@ const GITHUB_SYNC_INTERVAL_MS = 300_000;
 let lastSignalTime = 0;
 const MIN_SIGNAL_INTERVAL = 90_000; // 90s between signals — swing trader patience
 let lastLossTime = 0;
-const POST_LOSS_COOLDOWN_MS = 300_000; // 5 min cooldown after loss (was 3)
+const POST_LOSS_COOLDOWN_MS = 480_000; // 8 min cooldown after loss — gold needs patience
 let scanCount = 0;
 let lastGitHubSync = 0;
 let isRunning = true;
@@ -49,8 +49,8 @@ const trailingStops: Map<string, TrailingState> = new Map();
 
 // Hard limits
 const ABSOLUTE_MAX_HOLD_SECONDS = 7200; // 2 hour absolute max (gold trends longer)
-const ABSOLUTE_MAX_LOSS_DOLLARS = 25;   // $25 max loss per trade (gold is calmer)
-const BREAKEVEN_TRIGGER_PERCENT = 0.4;  // Move stop to breakeven after 0.4% profit
+const ABSOLUTE_MAX_LOSS_DOLLARS = 35;   // $35 max loss — gold gaps through tight stops on 30s scans
+const BREAKEVEN_TRIGGER_PERCENT = 0.25; // Move stop to BE after 0.25% — reachable in gold vol
 const TRAILING_DISTANCE_PERCENT = 0.25; // Trail 0.25% behind peak (tighter to lock in gains)
 
 let coinbaseClient: CoinbaseClient | null = null;
@@ -397,7 +397,7 @@ function manageTrailingStop(
   // === ADAPTIVE TRAILING STOP ===
   if (state.stopMovedToBreakeven) {
     // Use ATR-adaptive trail distance: wider in high vol, tighter in low vol
-    const adaptiveTrailPct = Math.max(0.15, Math.min(0.4, atrPercent * 0.4));
+    const adaptiveTrailPct = Math.max(0.20, Math.min(0.6, atrPercent * 1.0));
     const trailDistance = currentPrice * (adaptiveTrailPct / 100);
     const newTrailingStop = isLong
       ? currentPrice - trailDistance
@@ -450,7 +450,7 @@ function manageTrailingStop(
   }
   
   // === UNDERWATER CUT: Losing after 15 min ===
-  if (holdSeconds > 900 && unrealizedPnl < -8) {
+  if (holdSeconds > 1500 && unrealizedPnl < -18) {
     return {
       shouldClose: true,
       reason: `🔻 UNDERWATER CUT: $${unrealizedPnl.toFixed(2)} after ${Math.round(holdSeconds / 60)}min`,
@@ -944,19 +944,20 @@ async function scan(ledger: Ledger, ghSync: GitHubSync) {
     
     const position = createPosition(finalSide, currentPrice, collateral, swingSignal.mode);
     
-    // Dynamic stop based on ATR
-    let stopPercent = Math.min(0.5, swingAnalysis.atrPercent * 0.6);
-    let targetPercent = Math.min(2.0, swingAnalysis.atrPercent * 2.0);
+    // Dynamic stop based on ATR — GOLD TUNED: wide stops survive noise, gold trends pay
+    // Floor of 0.12% stop (~$6) prevents noise stop-outs on 30s scan intervals
+    let stopPercent = Math.max(0.12, Math.min(0.6, swingAnalysis.atrPercent * 2.0));
+    let targetPercent = Math.max(0.30, Math.min(2.5, swingAnalysis.atrPercent * 3.5));
     
-    // Longs get slightly wider targets (they work better)
+    // Longs get slightly wider targets (gold trends up better than down)
     if (finalSide === "Long") {
-      targetPercent = Math.min(2.5, swingAnalysis.atrPercent * 2.5);
+      targetPercent = Math.max(0.35, Math.min(3.0, swingAnalysis.atrPercent * 4.0));
     }
     
-    // Bounce plays: tighter stops, quicker targets
+    // Bounce plays: moderate stops, quicker targets (mean reversion = faster exit)
     if (swingSignal.mode === "bounce") {
-      stopPercent = Math.min(0.4, swingAnalysis.atrPercent * 0.5);
-      targetPercent = Math.min(1.5, swingAnalysis.atrPercent * 1.5);
+      stopPercent = Math.max(0.10, Math.min(0.5, swingAnalysis.atrPercent * 1.5));
+      targetPercent = Math.max(0.20, Math.min(2.0, swingAnalysis.atrPercent * 2.5));
     }
     
     if (finalSide === "Long") {
