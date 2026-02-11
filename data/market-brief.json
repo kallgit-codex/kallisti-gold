@@ -1,58 +1,58 @@
 {
-  "timestamp": 1770839078526,
-  "generatedAt": "2026-02-11T19:44:38.526Z",
-  "price": 5109.6,
+  "timestamp": 1770839978444,
+  "generatedAt": "2026-02-11T19:59:38.444Z",
+  "price": 5105.1,
   "regime": "trending_bullish",
   "regimeConfidence": 0.85,
-  "regimeReason": "Price 0.35% above EMA20, high vol, 24h +1.2% | ⚠️ 5 risk events",
+  "regimeReason": "Price 0.27% above EMA20, high vol, 24h +1.1% | ⚠️ 5 risk events",
   "stats24h": {
-    "change": 1.21026047340794,
+    "change": 1.09709487692338,
     "high": 5180,
     "low": 5000,
-    "volume": 42874,
+    "volume": 43343,
     "range": 3.5999999999999996
   },
   "volatility": {
-    "atr_1h_pct": 0.7413780290912895,
-    "atr_15m_pct": 0.26170010645380526,
-    "bbWidth_1h": 1.4784285779245308,
+    "atr_1h_pct": 0.7535233088698584,
+    "atr_15m_pct": 0.25648578283423246,
+    "bbWidth_1h": 1.462959320620126,
     "level": "high"
   },
   "trend": {
     "direction": "bullish",
-    "priceVsEma20": 0.3531447301796221,
-    "priceVsEma50": 0.6881601977440863,
+    "priceVsEma20": 0.27320439050478623,
+    "priceVsEma50": 0.6029830643104437,
     "ema20VsEma50": "golden"
   },
   "orderbook": {
-    "bidDepthUsd": 2768241.6,
-    "askDepthUsd": 5417643.8,
-    "imbalance": -0.3236549341382179,
-    "bias": "ask_heavy"
+    "bidDepthUsd": 4127632.7000000007,
+    "askDepthUsd": 4130958.5,
+    "imbalance": -0.0004027079097945116,
+    "bias": "balanced"
   },
   "news": {
     "sentiment": "neutral",
     "catalystCount": 5,
     "riskEventCount": 5,
     "catalysts": [
-      "Market: Gold Price Forecast: XAU/USD Record Breakout Sizzles- Exhaustion Risk - FOREX.co",
+      "Geopolitical: Gold Price Forecast - XAU/USD Slides 3% to $4,000 as Risk Appetite Rises and Fed",
       "Market: Gold Price Today (15.12.2025): XAU/USD Near $4,350 as Weaker Dollar, Lower Yield",
       "Geopolitical: Gold prices eye new highs as US tariffs on Swiss bullion send futures to record ",
       "Market: Gold prices eye new highs as US tariffs on Swiss bullion send futures to record ",
       "Macro: Gold Price Today, December 5, 2025 (3:30 p.m. EST): XAU/USD Hovers Near $4,200 a"
     ],
     "riskEvents": [
+      "Gold Price Forecast - XAU/USD Slides 3% to $4,000 as Risk Appetite Rises and Fed",
       "Gold Price Forecast - XAU/USD Price Trades at $3,680 as Inflation Rises and Fed ",
       "Gold price climbs after interest rates cut by Federal Reserve - Yahoo Finance UK",
       "Gold price consolidates below $4,000 as the Federal Reserve cuts interest rates ",
-      "Gold Price Today (15.12.2025): XAU/USD Near $4,350 as Weaker Dollar, Lower Yield",
-      "Gold Price Today, December 5, 2025 (3:30 p.m. EST): XAU/USD Hovers Near $4,200 a"
+      "Gold Price Today (15.12.2025): XAU/USD Near $4,350 as Weaker Dollar, Lower Yield"
     ],
     "topHeadlines": [
+      "Gold Price Forecast - XAU/USD Slides 3% to $4,000 as Risk Appetite Rises and Fed Cut Bets Pressure Safe Havens - TradingNEWS",
       "Gold Price Forecast - XAU/USD Price Trades at $3,680 as Inflation Rises and Fed Cut Bets Build - TradingNEWS",
       "Gold price climbs after interest rates cut by Federal Reserve - Yahoo Finance UK",
       "Gold price consolidates below $4,000 as the Federal Reserve cuts interest rates - KITCO",
-      "Gold Price Forecast: XAU/USD Record Breakout Sizzles- Exhaustion Risk - FOREX.com",
       "Gold Price Today (15.12.2025): XAU/USD Near $4,350 as Weaker Dollar, Lower Yields and Fed Cut Bets Drive Fresh Rally - TechStock²"
     ]
   },
@@ -81,19 +81,19 @@
       "interval": "1m_last10",
       "bullish": 4,
       "bearish": 6,
-      "avgBodyPct": 0.01976622893653817
+      "avgBodyPct": 0.013312459074678614
     },
     {
       "interval": "5m_last1h",
       "bullish": 7,
       "bearish": 5,
-      "avgBodyPct": 0.04141214250451218
+      "avgBodyPct": 0.04695951480797422
     },
     {
       "interval": "1h_last6",
-      "bullish": 4,
-      "bearish": 2,
-      "avgBodyPct": 0.16323028668083636
+      "bullish": 3,
+      "bearish": 3,
+      "avgBodyPct": 0.16812447434356811
     }
   ]
 }
