@@ -1,33 +1,33 @@
 {
-  "timestamp": 1770872378723,
-  "generatedAt": "2026-02-12T04:59:38.723Z",
-  "price": 5090.3,
-  "regime": "high_vol_chop",
-  "regimeConfidence": 0.7,
-  "regimeReason": "High ATR (0.52%) but no direction. 24h range: 3.6% | ⚠️ 5 risk events",
+  "timestamp": 1770873278800,
+  "generatedAt": "2026-02-12T05:14:38.800Z",
+  "price": 5096.3,
+  "regime": "trending_bullish",
+  "regimeConfidence": 0.85,
+  "regimeReason": "Price 0.11% above EMA20, high vol, 24h +0.5% | ⚠️ 5 risk events",
   "stats24h": {
-    "change": 0.37861607935162,
+    "change": 0.45533391153513,
     "high": 5180,
     "low": 5000,
-    "volume": 44793,
+    "volume": 45130,
     "range": 3.5999999999999996
   },
   "volatility": {
-    "atr_1h_pct": 0.521126330228114,
-    "atr_15m_pct": 0.19172920052471984,
-    "bbWidth_1h": 1.253036106963459,
+    "atr_1h_pct": 0.4856459478952987,
+    "atr_15m_pct": 0.19636373035634186,
+    "bbWidth_1h": 1.2020067606845157,
     "level": "high"
   },
   "trend": {
-    "direction": "neutral",
-    "priceVsEma20": 0.0018988402634155944,
-    "priceVsEma50": 0.20179432209789927,
+    "direction": "bullish",
+    "priceVsEma20": 0.10970866034564078,
+    "priceVsEma50": 0.3079147366618846,
     "ema20VsEma50": "golden"
   },
   "orderbook": {
-    "bidDepthUsd": 3322428.7000000007,
-    "askDepthUsd": 4349451.9,
-    "imbalance": -0.13386850676482107,
+    "bidDepthUsd": 3540420.2,
+    "askDepthUsd": 4633744.000000002,
+    "imbalance": -0.13375358914370736,
     "bias": "ask_heavy"
   },
   "news": {
@@ -58,21 +58,17 @@
   "recommendations": {
     "momentum_scalper": {
       "active": true,
-      "reason": "High vol chop — viable with low Coinbase fees, quick scalps both sides",
+      "reason": "trending_bullish — momentum scalping on Coinbase CFM (low $3 fees = edge)",
       "params": {
-        "bias": "neutral",
-        "aggression": "conservative",
-        "momentumThreshold": 0.08,
-        "maxTradeSeconds": 120,
-        "quickExitSeconds": 20
+        "bias": "long",
+        "aggression": "aggressive",
+        "momentumThreshold": 0.04,
+        "maxTradeSeconds": 180
       }
     },
     "mean_reversion": {
-      "active": true,
-      "reason": "high_vol_chop — fade extremes. Low Coinbase fees ($3) make MR more viable.",
-      "params": {
-        "aggression": "conservative"
-      }
+      "active": false,
+      "reason": "trending_bullish — don't fade a trend"
     },
     "funding_arb": {
       "active": false,
@@ -82,21 +78,21 @@
   "recentCandles": [
     {
       "interval": "1m_last10",
-      "bullish": 8,
-      "bearish": 2,
-      "avgBodyPct": 0.02282384394787179
+      "bullish": 5,
+      "bearish": 5,
+      "avgBodyPct": 0.025520824804663465
     },
     {
       "interval": "5m_last1h",
       "bullish": 8,
       "bearish": 4,
-      "avgBodyPct": 0.04873547538262104
+      "avgBodyPct": 0.06246915656205141
     },
     {
       "interval": "1h_last6",
-      "bullish": 3,
-      "bearish": 3,
-      "avgBodyPct": 0.1497667091432233
+      "bullish": 4,
+      "bearish": 2,
+      "avgBodyPct": 0.0829494394297383
     }
   ]
 }
