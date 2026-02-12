@@ -49,7 +49,7 @@ const trailingStops: Map<string, TrailingState> = new Map();
 
 // Hard limits
 const ABSOLUTE_MAX_HOLD_SECONDS = 43200; // 12hr max hold (champion: swing trades)
-const ABSOLUTE_MAX_LOSS_DOLLARS = 400; // 4.95% SL at 15x = ~$371 max loss
+const ABSOLUTE_MAX_LOSS_DOLLARS = 300; // 4.95% SL at 10x = ~$247 max loss per trade
 const BREAKEVEN_TRIGGER_PERCENT = 1.40; // Champion: trail activates after 1.40% profit
 const TRAILING_DISTANCE_PERCENT = 0.52; // Champion: 0.52% trail distance
 
