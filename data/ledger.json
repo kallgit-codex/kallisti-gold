@@ -1,5 +1,5 @@
 {
-  "balance": 1962.8900162443733,
+  "balance": 1462.8900162443733,
   "initialBalance": 2000,
   "dailyStartBalance": 1470.8042143455273,
   "dailyPnl": -7.914198101153852,
@@ -220,9 +220,27 @@
       "fees": 2.9999999999999996,
       "grossPnl": -4.914198101153853,
       "reason": "trend-failed"
+    },
+    {
+      "id": "swing-1770854946042-lqan",
+      "side": "Long",
+      "entryPrice": 5082,
+      "entryTime": 1770854946042,
+      "collateral": 500,
+      "leverage": 10,
+      "stopLoss": 5072.8524,
+      "takeProfit": 5092.164,
+      "minProfitTarget": 5,
+      "maxProfitTarget": 150,
+      "status": "open",
+      "mode": "bounce",
+      "peakGrossPnl": 0,
+      "peakPrice": 5082,
+      "trailingStopActive": false,
+      "breakevenStopActive": false
     }
   ],
   "lastReset": 1770854405975,
-  "tradesThisHour": 9,
+  "tradesThisHour": 10,
   "lastHourReset": 1770835975006
 }
