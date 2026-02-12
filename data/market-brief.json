@@ -1,73 +1,78 @@
 {
-  "timestamp": 1770908379091,
-  "generatedAt": "2026-02-12T14:59:39.091Z",
-  "price": 5064,
-  "regime": "trending_bearish",
-  "regimeConfidence": 0.9,
-  "regimeReason": "Price 0.44% below EMA20, high vol, 24h -0.4% | ⚠️ 5 risk events",
+  "timestamp": 1770909279436,
+  "generatedAt": "2026-02-12T15:14:39.436Z",
+  "price": 5087.5,
+  "regime": "high_vol_chop",
+  "regimeConfidence": 0.7,
+  "regimeReason": "High ATR (0.49%) but no direction. 24h range: 1.5% | ⚠️ 5 risk events",
   "stats24h": {
-    "change": -0.35615198441589,
+    "change": -0.06089655443366,
     "high": 5123.8,
     "low": 5050,
-    "volume": 31788,
+    "volume": 30800,
     "range": 1.461386138613865
   },
   "volatility": {
-    "atr_1h_pct": 0.494318300056545,
-    "atr_15m_pct": 0.28410403250067795,
-    "bbWidth_1h": 0.9337695626886022,
+    "atr_1h_pct": 0.48882500304594806,
+    "atr_15m_pct": 0.3051280187264195,
+    "bbWidth_1h": 0.8515173394536678,
     "level": "high"
   },
   "trend": {
-    "direction": "bearish",
-    "priceVsEma20": -0.43772059908066524,
-    "priceVsEma50": -0.3684925904914051,
+    "direction": "neutral",
+    "priceVsEma20": 0.018545991542600743,
+    "priceVsEma50": 0.08746121661839362,
     "ema20VsEma50": "flat"
   },
   "orderbook": {
-    "bidDepthUsd": 3305329.7000000007,
-    "askDepthUsd": 5238022.3,
-    "imbalance": -0.2262218155122251,
-    "bias": "ask_heavy"
+    "bidDepthUsd": 5288830.9,
+    "askDepthUsd": 4336959.499999999,
+    "imbalance": 0.09888760927102687,
+    "bias": "balanced"
   },
   "news": {
     "sentiment": "neutral",
-    "catalystCount": 3,
+    "catalystCount": 4,
     "riskEventCount": 5,
     "catalysts": [
       "Market: Gold Price Forecast: XAU/USD Record Breakout Sizzles- Exhaustion Risk - FOREX.co",
       "Market: Gold Price Today (15.12.2025): XAU/USD Near $4,350 as Weaker Dollar, Lower Yield",
-      "Macro: Gold Price Today, December 5, 2025 (3:30 p.m. EST): XAU/USD Hovers Near $4,200 a"
+      "Geopolitical: Gold prices eye new highs as US tariffs on Swiss bullion send futures to record ",
+      "Market: Gold prices eye new highs as US tariffs on Swiss bullion send futures to record "
     ],
     "riskEvents": [
+      "Gold Price Forecast: XAU/USD consolidates ahead of Federal Reserve’s decision - ",
       "Gold Price Forecast - XAU/USD Price Trades at $3,680 as Inflation Rises and Fed ",
       "Gold price climbs after interest rates cut by Federal Reserve - Yahoo Finance UK",
       "Gold price consolidates below $4,000 as the Federal Reserve cuts interest rates ",
-      "Gold Price Today (15.12.2025): XAU/USD Near $4,350 as Weaker Dollar, Lower Yield",
-      "Gold Price Today, December 5, 2025 (3:30 p.m. EST): XAU/USD Hovers Near $4,200 a"
+      "Gold Price Today (15.12.2025): XAU/USD Near $4,350 as Weaker Dollar, Lower Yield"
     ],
     "topHeadlines": [
+      "Gold Price Forecast: XAU/USD consolidates ahead of Federal Reserve’s decision - FXStreet",
       "Gold Price Forecast - XAU/USD Price Trades at $3,680 as Inflation Rises and Fed Cut Bets Build - TradingNEWS",
       "Gold price climbs after interest rates cut by Federal Reserve - Yahoo Finance UK",
       "Gold price consolidates below $4,000 as the Federal Reserve cuts interest rates - KITCO",
-      "Gold Price Forecast: XAU/USD Record Breakout Sizzles- Exhaustion Risk - FOREX.com",
-      "Gold Price Today (15.12.2025): XAU/USD Near $4,350 as Weaker Dollar, Lower Yields and Fed Cut Bets Drive Fresh Rally - TechStock²"
+      "Gold Price Forecast: XAU/USD Record Breakout Sizzles- Exhaustion Risk - FOREX.com"
     ]
   },
   "recommendations": {
     "momentum_scalper": {
       "active": true,
-      "reason": "trending_bearish — momentum scalping on Coinbase CFM (low $3 fees = edge)",
+      "reason": "High vol chop — viable with low Coinbase fees, quick scalps both sides",
       "params": {
-        "bias": "short",
-        "aggression": "aggressive",
-        "momentumThreshold": 0.04,
-        "maxTradeSeconds": 180
+        "bias": "neutral",
+        "aggression": "conservative",
+        "momentumThreshold": 0.08,
+        "maxTradeSeconds": 120,
+        "quickExitSeconds": 20
       }
     },
     "mean_reversion": {
-      "active": false,
-      "reason": "trending_bearish — don't fade a trend"
+      "active": true,
+      "reason": "high_vol_chop — fade extremes. Low Coinbase fees ($3) make MR more viable.",
+      "params": {
+        "aggression": "conservative"
+      }
     },
     "funding_arb": {
       "active": false,
@@ -77,21 +82,21 @@
   "recentCandles": [
     {
       "interval": "1m_last10",
-      "bullish": 5,
-      "bearish": 5,
-      "avgBodyPct": 0.03349241142676935
+      "bullish": 6,
+      "bearish": 4,
+      "avgBodyPct": 0.02894651312534726
     },
     {
       "interval": "5m_last1h",
-      "bullish": 4,
-      "bearish": 8,
-      "avgBodyPct": 0.11252917792095961
+      "bullish": 6,
+      "bearish": 6,
+      "avgBodyPct": 0.11005146013217389
     },
     {
       "interval": "1h_last6",
       "bullish": 3,
       "bearish": 3,
-      "avgBodyPct": 0.27836200188825916
+      "avgBodyPct": 0.3130400226192408
     }
   ]
 }
