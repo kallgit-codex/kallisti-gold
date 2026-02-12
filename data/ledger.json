@@ -1,9 +1,9 @@
 {
   "balance": 1470.8042143455273,
   "initialBalance": 2000,
-  "dailyStartBalance": 2000,
-  "dailyPnl": -29.1957856544731,
-  "consecutiveLosses": 1,
+  "dailyStartBalance": 1470.8042143455273,
+  "dailyPnl": 0,
+  "consecutiveLosses": 0,
   "positions": [
     {
       "id": "swing-1770836136019-qg2m",
@@ -216,7 +216,7 @@
       "breakevenStopActive": false
     }
   ],
-  "lastReset": 1770835975006,
+  "lastReset": 1770854405975,
   "tradesThisHour": 9,
   "lastHourReset": 1770835975006
 }
