@@ -1,33 +1,33 @@
 {
-  "timestamp": 1770914679173,
-  "generatedAt": "2026-02-12T16:44:39.173Z",
-  "price": 4971.9,
+  "timestamp": 1770915579719,
+  "generatedAt": "2026-02-12T16:59:39.719Z",
+  "price": 4974.1,
   "regime": "trending_bearish",
   "regimeConfidence": 0.9,
-  "regimeReason": "Price 2.04% below EMA20, high vol, 24h -2.5% | ⚠️ 5 risk events",
+  "regimeReason": "Price 2.00% below EMA20, high vol, 24h -2.4% | ⚠️ 5 risk events",
   "stats24h": {
-    "change": -2.4754320236951,
+    "change": -2.43036484896038,
     "high": 5123.8,
     "low": 4901,
-    "volume": 36943,
+    "volume": 38004,
     "range": 4.546011018159564
   },
   "volatility": {
-    "atr_1h_pct": 0.9641333623189671,
-    "atr_15m_pct": 0.8691890148655984,
-    "bbWidth_1h": 2.1528849558822154,
+    "atr_1h_pct": 0.9637069347447119,
+    "atr_15m_pct": 0.8260857767700293,
+    "bbWidth_1h": 2.1082915711360166,
     "level": "high"
   },
   "trend": {
     "direction": "bearish",
-    "priceVsEma20": -2.041906317276057,
-    "priceVsEma50": -2.1142646044889095,
+    "priceVsEma20": -2.0037098410710907,
+    "priceVsEma50": -2.073068442341603,
     "ema20VsEma50": "flat"
   },
   "orderbook": {
-    "bidDepthUsd": 1492395.5000000002,
-    "askDepthUsd": 1868458.4000000001,
-    "imbalance": -0.11189504548234003,
+    "bidDepthUsd": 1959648,
+    "askDepthUsd": 2753232.7999999993,
+    "imbalance": -0.1683863508705757,
     "bias": "ask_heavy"
   },
   "news": {
@@ -81,19 +81,19 @@
       "interval": "1m_last10",
       "bullish": 6,
       "bearish": 4,
-      "avgBodyPct": 0.1439746630719569
+      "avgBodyPct": 0.09871143667463733
     },
     {
       "interval": "5m_last1h",
       "bullish": 4,
       "bearish": 8,
-      "avgBodyPct": 0.40383359509825323
+      "avgBodyPct": 0.44760358061572725
     },
     {
       "interval": "1h_last6",
       "bullish": 3,
       "bearish": 3,
-      "avgBodyPct": 0.6477599469461333
+      "avgBodyPct": 0.6385820865676115
     }
   ]
 }
