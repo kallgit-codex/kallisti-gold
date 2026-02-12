@@ -1,34 +1,34 @@
 {
-  "timestamp": 1770864278753,
-  "generatedAt": "2026-02-12T02:44:38.753Z",
-  "price": 5080.5,
-  "regime": "trending_bearish",
-  "regimeConfidence": 0.85,
-  "regimeReason": "Price 0.21% below EMA20, high vol, 24h 0.1% | ⚠️ 5 risk events",
+  "timestamp": 1770865178645,
+  "generatedAt": "2026-02-12T02:59:38.645Z",
+  "price": 5086.9,
+  "regime": "high_vol_chop",
+  "regimeConfidence": 0.7,
+  "regimeReason": "High ATR (0.57%) but no direction. 24h range: 3.6% | ⚠️ 5 risk events",
   "stats24h": {
-    "change": 0.07682307055904,
+    "change": 0.1614586409908,
     "high": 5180,
     "low": 5000,
-    "volume": 44184,
+    "volume": 43970,
     "range": 3.5999999999999996
   },
   "volatility": {
-    "atr_1h_pct": 0.5696088745008164,
-    "atr_15m_pct": 0.3045567008516774,
-    "bbWidth_1h": 1.2780721903770442,
+    "atr_1h_pct": 0.5702027862879288,
+    "atr_15m_pct": 0.2139621337755055,
+    "bbWidth_1h": 1.2579552553469844,
     "level": "high"
   },
   "trend": {
-    "direction": "bearish",
-    "priceVsEma20": -0.20742216998672222,
-    "priceVsEma50": -0.1067866262714161,
+    "direction": "neutral",
+    "priceVsEma20": -0.09367282970494134,
+    "priceVsEma50": 0.014115211907335834,
     "ema20VsEma50": "golden"
   },
   "orderbook": {
-    "bidDepthUsd": 4983860.699999999,
-    "askDepthUsd": 4308970.500000001,
-    "imbalance": 0.07262482073278145,
-    "bias": "balanced"
+    "bidDepthUsd": 3492449.1999999997,
+    "askDepthUsd": 4334397.100000001,
+    "imbalance": -0.10757179427427888,
+    "bias": "ask_heavy"
   },
   "news": {
     "sentiment": "neutral",
@@ -49,26 +49,30 @@
     ],
     "topHeadlines": [
       "Gold Price Forecast - XAU/USD Price Trades at $3,680 as Inflation Rises and Fed Cut Bets Build - TradingNEWS",
-      "Gold Prices Top $4,000 for First Time - The Wall Street Journal",
       "Gold price climbs after interest rates cut by Federal Reserve - Yahoo Finance UK",
       "Gold price consolidates below $4,000 as the Federal Reserve cuts interest rates - KITCO",
-      "Gold Price Today (15.12.2025): XAU/USD Near $4,350 as Weaker Dollar, Lower Yields and Fed Cut Bets Drive Fresh Rally - TechStock²"
+      "Gold Price Today (15.12.2025): XAU/USD Near $4,350 as Weaker Dollar, Lower Yields and Fed Cut Bets Drive Fresh Rally - TechStock²",
+      "XAU/USD Gold Price Today: Live Trading Analysis & 2025 Forecast - VT Markets"
     ]
   },
   "recommendations": {
     "momentum_scalper": {
       "active": true,
-      "reason": "trending_bearish — momentum scalping on Coinbase CFM (low $3 fees = edge)",
+      "reason": "High vol chop — viable with low Coinbase fees, quick scalps both sides",
       "params": {
-        "bias": "short",
-        "aggression": "aggressive",
-        "momentumThreshold": 0.04,
-        "maxTradeSeconds": 180
+        "bias": "neutral",
+        "aggression": "conservative",
+        "momentumThreshold": 0.08,
+        "maxTradeSeconds": 120,
+        "quickExitSeconds": 20
       }
     },
     "mean_reversion": {
-      "active": false,
-      "reason": "trending_bearish — don't fade a trend"
+      "active": true,
+      "reason": "high_vol_chop — fade extremes. Low Coinbase fees ($3) make MR more viable.",
+      "params": {
+        "aggression": "conservative"
+      }
     },
     "funding_arb": {
       "active": false,
@@ -78,21 +82,21 @@
   "recentCandles": [
     {
       "interval": "1m_last10",
-      "bullish": 5,
-      "bearish": 5,
-      "avgBodyPct": 0.014165127565036444
+      "bullish": 6,
+      "bearish": 4,
+      "avgBodyPct": 0.01750479558520577
     },
     {
       "interval": "5m_last1h",
-      "bullish": 5,
-      "bearish": 7,
-      "avgBodyPct": 0.05277276681023168
+      "bullish": 6,
+      "bearish": 6,
+      "avgBodyPct": 0.047521213129550495
     },
     {
       "interval": "1h_last6",
-      "bullish": 2,
-      "bearish": 4,
-      "avgBodyPct": 0.12897801256792468
+      "bullish": 3,
+      "bearish": 3,
+      "avgBodyPct": 0.11586936151366141
     }
   ]
 }
