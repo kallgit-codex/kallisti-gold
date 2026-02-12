@@ -1,6 +1,6 @@
 {
-  "timestamp": 1770935379426,
-  "generatedAt": "2026-02-12T22:29:39.426Z",
+  "timestamp": 1770936279599,
+  "generatedAt": "2026-02-12T22:44:39.599Z",
   "price": 4940.6,
   "regime": "trending_bearish",
   "regimeConfidence": 0.85,
@@ -14,7 +14,7 @@
   },
   "volatility": {
     "atr_1h_pct": 0.8087632890897145,
-    "atr_15m_pct": 0.3076265495878534,
+    "atr_15m_pct": 0.3072164552305559,
     "bbWidth_1h": 4.763954285197557,
     "level": "high"
   },
