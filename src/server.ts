@@ -23,7 +23,7 @@ import { Ledger } from "./ledger";
 import { GitHubSync } from "./github-sync";
 import { getOverrides, getCurrentBrief, ScalperOverrides } from "./brief-reader";
 
-const SCAN_INTERVAL_MS = 10_000; // 10s scans — catch stops faster, Coinbase rate limit is fine
+const SCAN_INTERVAL_MS = 30_000; // 30s scans — hourly candle strategy, but monitor exits
 const GITHUB_SYNC_INTERVAL_MS = 300_000;
 
 let lastSignalTime = 0;
@@ -48,10 +48,10 @@ interface TrailingState {
 const trailingStops: Map<string, TrailingState> = new Map();
 
 // Hard limits
-const ABSOLUTE_MAX_HOLD_SECONDS = 7200; // 2 hour absolute max (gold trends longer)
-const ABSOLUTE_MAX_LOSS_DOLLARS = 35;   // $35 max loss — gold gaps through tight stops on 30s scans
-const BREAKEVEN_TRIGGER_PERCENT = 0.25; // Move stop to BE after 0.25% — reachable in gold vol
-const TRAILING_DISTANCE_PERCENT = 0.25; // Trail 0.25% behind peak (tighter to lock in gains)
+const ABSOLUTE_MAX_HOLD_SECONDS = 43200; // 12hr max hold (champion: swing trades)
+const ABSOLUTE_MAX_LOSS_DOLLARS = 400; // 4.95% SL at 15x = ~$371 max loss
+const BREAKEVEN_TRIGGER_PERCENT = 1.40; // Champion: trail activates after 1.40% profit
+const TRAILING_DISTANCE_PERCENT = 0.52; // Champion: 0.52% trail distance
 
 let coinbaseClient: CoinbaseClient | null = null;
 let coinbaseTrader: CoinbaseTrader | null = null;
@@ -927,69 +927,37 @@ async function scan(ledger: Ledger, ghSync: GitHubSync) {
       return;
     }
 
-    // ===== SWING SIGNAL DETECTION =====
-    if (!swingAnalysis) {
-      if (scanCount % 10 === 0) log(scanId + " 📊 Insufficient data for swing analysis");
-      return;
-    }
+    // ===== CHAMPION STRATEGY SIGNAL DETECTION (v2.0) =====
+    // EMA 5/34 crossover + MACD momentum | Backtested: +101.4%, PF 2.46, 7.8% DD
+    const signal = detectMomentum(candles);
     
-    const swingSignal = detectSwingEntry(candles, swingAnalysis, overrides);
-    
-    if (!swingSignal.detected) {
+    if (!signal.detected) {
       if (scanCount % 5 === 0) {
-        log(scanId + " 🔍 " + swingSignal.reason);
+        log(scanId + " 🔍 " + (signal.reason || "No signal"));
       }
       return;
     }
     
-    // Confidence filter
-    if (swingSignal.confidence < 0.45) {
-      log(scanId + " 🔍 Signal too weak: " + swingSignal.reason + " (conf: " + swingSignal.confidence.toFixed(2) + ")");
-      return;
-    }
-    
-    // SHORT PENALTY: Require much higher confidence for shorts (0% historical WR)
-    if (swingSignal.side === "Short" && swingSignal.confidence < 0.7) {
-      log(scanId + " 📉 Short signal rejected — need 0.70+ confidence (got " + swingSignal.confidence.toFixed(2) + ") due to 0% short WR");
-      return;
-    }
-    
-    // Apply bias from brief
-    let finalSide = swingSignal.side;
-    if (overrides.bias === "long" && finalSide === "Short") {
-      log(scanId + " 📊 Brief says long bias — skipping Short signal");
-      return;
-    }
-    if (overrides.bias === "short" && finalSide === "Long" && swingSignal.mode !== "bounce") {
-      log(scanId + " 📊 Brief says short bias — skipping Long signal (except bounce plays)");
+    // Long-only is enforced in strategy, but double-check
+    const finalSide = signal.side || "Long";
+    if (finalSide === "Short" && config.strategy?.longOnly !== false) {
+      log(scanId + " 📉 Short rejected — long-only mode");
       return;
     }
 
     // FIRE! Open position
-    log("🚀 SWING SIGNAL: " + swingSignal.reason + " (conf: " + swingSignal.confidence.toFixed(2) + ")");
+    log("🚀 CHAMPION SIGNAL: " + signal.reason + " (strength: " + (signal.strength || 0) + ")");
     lastSignalTime = Date.now();
 
     const collateral = config.risk.positionSizeDollars;
     const leverage = config.futures.leverage;
     const notional = collateral * leverage;
     
-    const position = createPosition(finalSide, currentPrice, collateral, swingSignal.mode);
+    const position = createPosition(finalSide, currentPrice, collateral, signal.mode || "swing_trend");
     
-    // Dynamic stop based on ATR — GOLD TUNED: wide stops survive noise, gold trends pay
-    // Floor of 0.12% stop (~$6) prevents noise stop-outs on 30s scan intervals
-    let stopPercent = Math.max(0.20, Math.min(0.6, swingAnalysis.atrPercent * 2.0));
-    let targetPercent = Math.max(0.40, Math.min(2.5, swingAnalysis.atrPercent * 3.5));
-    
-    // Longs get slightly wider targets (gold trends up better than down)
-    if (finalSide === "Long") {
-      targetPercent = Math.max(0.35, Math.min(3.0, swingAnalysis.atrPercent * 4.0));
-    }
-    
-    // Bounce plays: moderate stops, quicker targets (mean reversion = faster exit)
-    if (swingSignal.mode === "bounce") {
-      stopPercent = Math.max(0.18, Math.min(0.5, swingAnalysis.atrPercent * 1.5));
-      targetPercent = Math.max(0.20, Math.min(2.0, swingAnalysis.atrPercent * 2.5));
-    }
+    // Use champion strategy's stop/target (backtested optimal values)
+    const stopPercent = signal.stopPercent || config.strategy?.stoplossPercent || 4.95;
+    const targetPercent = signal.targetPercent || config.strategy?.roiTable?.[0] || 8.58;
     
     if (finalSide === "Long") {
       position.stopLoss = currentPrice * (1 - stopPercent / 100);
@@ -1026,11 +994,10 @@ async function scan(ledger: Ledger, ghSync: GitHubSync) {
     const maxLoss = (stopDist / 100) * notional;
     const maxProfit = (targetDist / 100) * notional;
     
-    log("📈 OPENED " + finalSide + " [" + swingSignal.mode.toUpperCase() + "] @ $" + currentPrice.toFixed(2) + 
+    log("📈 OPENED " + finalSide + " [" + (signal.mode || "TREND").toUpperCase() + "] @ $" + currentPrice.toFixed(2) + 
         " | Stop: $" + position.stopLoss.toFixed(2) + " (-" + stopDist.toFixed(2) + "% / -$" + maxLoss.toFixed(2) + ")" +
         " | Target: $" + position.takeProfit.toFixed(2) + " (+" + targetDist.toFixed(2) + "% / +$" + maxProfit.toFixed(2) + ")" +
-        " | ATR: " + swingAnalysis.atrPercent.toFixed(2) + "% | RSI: " + swingAnalysis.rsi14.toFixed(1) +
-        " | Trailing: BE@" + BREAKEVEN_TRIGGER_PERCENT + "%, adaptive trail");
+        " | Trailing: activate@" + BREAKEVEN_TRIGGER_PERCENT + "%, trail " + TRAILING_DISTANCE_PERCENT + "%");
     
     try { await ghSync.pushLedger(); } catch (e) { error("GitHub push failed: " + e); }
 
@@ -1041,16 +1008,17 @@ async function scan(ledger: Ledger, ghSync: GitHubSync) {
 
 async function main() {
   log("═══════════════════════════════════════");
-  log("  KALLISTI GOLD v1.0 — GOLD FUTURES SWING TRADER");
-  log("  Support Bounce + Pullback + Trend Follow");
+  log("  KALLISTI GOLD v2.0 — CHAMPION STRATEGY");
+  log("  EMA 5/34 Crossover + MACD Momentum | Long-Only");
+  log("  Backtested: +101.4% | PF 2.46 | 58.4% WR | 7.8% DD");
   log("  Mode: " + config.tradingMode.toUpperCase());
   log("  Exchange: Coinbase CFM");
   log("  Leverage: " + config.futures.leverage + "x");
   log("  Position: $" + config.risk.positionSizeDollars + " × " + config.futures.leverage + "x = $" + (config.risk.positionSizeDollars * config.futures.leverage));
   log("  Fees: " + config.fees.takerFeePercent + "% taker / " + config.fees.makerFeePercent + "% maker");
   log("  Max hold: " + ABSOLUTE_MAX_HOLD_SECONDS + "s | Max loss: $" + ABSOLUTE_MAX_LOSS_DOLLARS);
-  log("  Trailing: BE@" + BREAKEVEN_TRIGGER_PERCENT + "%, adaptive ATR trail");
-  log("  Short penalty: requires 0.70+ confidence (0% historical WR)");
+  log("  Trailing: activate@" + BREAKEVEN_TRIGGER_PERCENT + "%, trail " + TRAILING_DISTANCE_PERCENT + "%");
+  log("  Stoploss: " + (config.strategy?.stoplossPercent || 4.95) + "% | Long-only mode");
   log("══════════════════════════════════════════════════");
 
   // Health check server — [docs.cdp.coinbase.com](https://docs.cdp.coinbase.com/get-started/develop-with-ai/ai-troubleshooting)
@@ -1063,7 +1031,7 @@ async function main() {
         if (url.pathname === "/health") {
           return new Response(JSON.stringify({ 
             status: "ok", 
-            version: "v1.0-gold-swing", 
+            version: "v2.0-champion", 
             uptime: process.uptime(),
             scanCount,
             tradingMode: config.tradingMode,
@@ -1074,7 +1042,7 @@ async function main() {
         if (url.pathname === "/status") {
           try {
             return new Response(JSON.stringify({
-              version: "gold-v1.0",
+              version: "gold-v2.0-champion",
               uptime: process.uptime(),
               scanCount,
               tradingMode: config.tradingMode,
@@ -1087,7 +1055,7 @@ async function main() {
             return new Response('{"status":"error"}', { status: 500 });
           }
         }
-        return new Response("Kallisti Gold v1.0 — Gold Futures Swing Trader", { status: 200 });
+        return new Response("Kallisti Gold v2.0 — Champion Strategy", { status: 200 });
       },
     });
     log(`Health check listening on port ${PORT}`);
@@ -1100,7 +1068,7 @@ async function main() {
         Bun.serve({
           port: altPort,
           fetch(req: Request) {
-            return new Response(JSON.stringify({ status: "ok", version: "gold-v1.0" }), {
+            return new Response(JSON.stringify({ status: "ok", version: "gold-v2.0-champion" }), {
               headers: { "Content-Type": "application/json" },
             });
           },
@@ -1183,4 +1151,5 @@ main().catch((err) => {
   console.error("Fatal error:", err);
   process.exit(1);
 });
+
 
