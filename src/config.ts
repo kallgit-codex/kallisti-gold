@@ -52,7 +52,7 @@ export const config = {
   },
   
   futures: {
-    leverage: 15,         // Was 10, backtested optimal is 15
+    leverage: 10,         // Coinbase max is 10x
     maxPositions: 1,
     contractSize: 1,
   },
@@ -137,7 +137,7 @@ export const config = {
     positionSizeDollars: 500,
     riskPerTrade: 500,
     maxDailyLossPercent: 15,          // Wider for swing trades
-    maxDailyLossDollars: 400,         // 5% stop × 15x lev = $375 max per trade
+    maxDailyLossDollars: 300,   // ~1.2x max single loss at 10x ($247)
     maxConsecutiveLosses: 4,
     pauseAfterLossesMinutes: 60,      // 1 hour cooldown (was 30m)
     maxTradesPerHour: 2,              // Hourly candles = fewer trades
@@ -146,3 +146,4 @@ export const config = {
   
   ledgerPath: "./data/ledger.json",
 };
+
