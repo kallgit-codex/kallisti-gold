@@ -1,42 +1,44 @@
 {
-  "timestamp": 1770903879110,
-  "generatedAt": "2026-02-12T13:44:39.110Z",
-  "price": 5100,
+  "timestamp": 1770904779232,
+  "generatedAt": "2026-02-12T13:59:39.232Z",
+  "price": 5097.7,
   "regime": "trending_bullish",
-  "regimeConfidence": 0.9,
-  "regimeReason": "Price 0.22% above EMA20, high vol, 24h +0.3% | ⚠️ 5 risk events",
+  "regimeConfidence": 0.85,
+  "regimeReason": "Price 0.18% above EMA20, high vol, 24h +0.2% | ⚠️ 5 risk events",
   "stats24h": {
-    "change": 0.2930129200999,
+    "change": 0.19458312040568,
     "high": 5123.8,
     "low": 5059.4,
-    "volume": 35463,
+    "volume": 35314,
     "range": 1.272878206902015
   },
   "volatility": {
-    "atr_1h_pct": 0.3955625736973374,
-    "atr_15m_pct": 0.18780525491912617,
-    "bbWidth_1h": 0.9169479359244985,
+    "atr_1h_pct": 0.4127421763781876,
+    "atr_15m_pct": 0.18056509112368305,
+    "bbWidth_1h": 0.9119113291328907,
     "level": "high"
   },
   "trend": {
     "direction": "bullish",
-    "priceVsEma20": 0.22009403185095944,
-    "priceVsEma50": 0.34734040820783724,
+    "priceVsEma20": 0.17920895310549553,
+    "priceVsEma50": 0.3038658114134904,
     "ema20VsEma50": "golden"
   },
   "orderbook": {
-    "bidDepthUsd": 4608874.1,
-    "askDepthUsd": 3578886.1999999997,
-    "imbalance": 0.1257960495008629,
-    "bias": "bid_heavy"
+    "bidDepthUsd": 5071378.800000001,
+    "askDepthUsd": 4717358.499999999,
+    "imbalance": 0.03616608446525597,
+    "bias": "balanced"
   },
   "news": {
     "sentiment": "neutral",
-    "catalystCount": 2,
+    "catalystCount": 4,
     "riskEventCount": 5,
     "catalysts": [
       "Market: Gold Price Forecast: XAU/USD Record Breakout Sizzles- Exhaustion Risk - FOREX.co",
-      "Market: Gold Price Today (15.12.2025): XAU/USD Near $4,350 as Weaker Dollar, Lower Yield"
+      "Market: Gold Price Today (15.12.2025): XAU/USD Near $4,350 as Weaker Dollar, Lower Yield",
+      "Geopolitical: Gold prices eye new highs as US tariffs on Swiss bullion send futures to record ",
+      "Market: Gold prices eye new highs as US tariffs on Swiss bullion send futures to record "
     ],
     "riskEvents": [
       "Gold Price Forecast: XAU/USD consolidates ahead of Federal Reserve’s decision - ",
@@ -48,9 +50,9 @@
     "topHeadlines": [
       "Gold Price Forecast: XAU/USD consolidates ahead of Federal Reserve’s decision - FXStreet",
       "Gold Price Forecast - XAU/USD Price Trades at $3,680 as Inflation Rises and Fed Cut Bets Build - TradingNEWS",
-      "Gold Price Falls: Rs 400 Drop, Silver Flat - Rediff MoneyWiz",
       "Gold price climbs after interest rates cut by Federal Reserve - Yahoo Finance UK",
-      "Gold price consolidates below $4,000 as the Federal Reserve cuts interest rates - KITCO"
+      "Gold price consolidates below $4,000 as the Federal Reserve cuts interest rates - KITCO",
+      "Gold Price Forecast: XAU/USD Record Breakout Sizzles- Exhaustion Risk - FOREX.com"
     ]
   },
   "recommendations": {
@@ -78,19 +80,19 @@
       "interval": "1m_last10",
       "bullish": 3,
       "bearish": 7,
-      "avgBodyPct": 0.011184279183790145
+      "avgBodyPct": 0.025867883717853153
     },
     {
       "interval": "5m_last1h",
-      "bullish": 9,
-      "bearish": 3,
-      "avgBodyPct": 0.07309870425470744
+      "bullish": 10,
+      "bearish": 2,
+      "avgBodyPct": 0.07891482834418777
     },
     {
       "interval": "1h_last6",
       "bullish": 4,
       "bearish": 2,
-      "avgBodyPct": 0.1859126825594671
+      "avgBodyPct": 0.17835976286342226
     }
   ]
 }
