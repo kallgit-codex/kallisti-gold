@@ -1,34 +1,34 @@
 {
-  "timestamp": 1770875078796,
-  "generatedAt": "2026-02-12T05:44:38.796Z",
-  "price": 5091.5,
+  "timestamp": 1770875978744,
+  "generatedAt": "2026-02-12T05:59:38.744Z",
+  "price": 5094.4,
   "regime": "high_vol_chop",
   "regimeConfidence": 0.7,
   "regimeReason": "High ATR (0.49%) but no direction. 24h range: 3.6% | ⚠️ 4 risk events",
   "stats24h": {
-    "change": 0.11995123294136,
+    "change": 0.33876940045694,
     "high": 5180,
     "low": 5000,
-    "volume": 45090,
+    "volume": 44969,
     "range": 3.5999999999999996
   },
   "volatility": {
-    "atr_1h_pct": 0.48610378950384187,
-    "atr_15m_pct": 0.19248283394917354,
-    "bbWidth_1h": 1.2067013869348093,
+    "atr_1h_pct": 0.48582707370030054,
+    "atr_15m_pct": 0.18231192613834524,
+    "bbWidth_1h": 1.2046354447939904,
     "level": "high"
   },
   "trend": {
     "direction": "neutral",
-    "priceVsEma20": 0.02440147746280399,
-    "priceVsEma50": 0.21715173224279943,
+    "priceVsEma20": 0.07856436420623493,
+    "priceVsEma50": 0.2730720927466758,
     "ema20VsEma50": "golden"
   },
   "orderbook": {
-    "bidDepthUsd": 5788272.800000001,
-    "askDepthUsd": 5388738,
-    "imbalance": 0.03574612274687976,
-    "bias": "balanced"
+    "bidDepthUsd": 3972906.0000000005,
+    "askDepthUsd": 2940948.1999999997,
+    "imbalance": 0.14925941018542171,
+    "bias": "bid_heavy"
   },
   "news": {
     "sentiment": "neutral",
@@ -81,21 +81,21 @@
   "recentCandles": [
     {
       "interval": "1m_last10",
-      "bullish": 4,
-      "bearish": 6,
-      "avgBodyPct": 0.018864735250459664
+      "bullish": 2,
+      "bearish": 8,
+      "avgBodyPct": 0.011778860801870931
     },
     {
       "interval": "5m_last1h",
-      "bullish": 7,
-      "bearish": 5,
-      "avgBodyPct": 0.06797483091200082
+      "bullish": 6,
+      "bearish": 6,
+      "avgBodyPct": 0.05858363614094094
     },
     {
       "interval": "1h_last6",
       "bullish": 4,
       "bearish": 2,
-      "avgBodyPct": 0.06723419957588944
+      "avgBodyPct": 0.07214521203021702
     }
   ]
 }
