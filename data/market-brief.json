@@ -1,6 +1,6 @@
 {
-  "timestamp": 1770936279599,
-  "generatedAt": "2026-02-12T22:44:39.599Z",
+  "timestamp": 1770937179516,
+  "generatedAt": "2026-02-12T22:59:39.516Z",
   "price": 4940.6,
   "regime": "trending_bearish",
   "regimeConfidence": 0.85,
@@ -14,7 +14,7 @@
   },
   "volatility": {
     "atr_1h_pct": 0.8087632890897145,
-    "atr_15m_pct": 0.3072164552305559,
+    "atr_15m_pct": 0.3024845972617351,
     "bbWidth_1h": 4.763954285197557,
     "level": "high"
   },
@@ -25,10 +25,10 @@
     "ema20VsEma50": "death"
   },
   "orderbook": {
-    "bidDepthUsd": 1099519.6,
-    "askDepthUsd": 971807,
-    "imbalance": 0.061657393865361496,
-    "bias": "balanced"
+    "bidDepthUsd": 1364075.9,
+    "askDepthUsd": 976749,
+    "imbalance": 0.16546598594367307,
+    "bias": "bid_heavy"
   },
   "news": {
     "sentiment": "neutral",
