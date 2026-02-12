@@ -1,59 +1,59 @@
 {
-  "timestamp": 1770918279471,
-  "generatedAt": "2026-02-12T17:44:39.471Z",
-  "price": 4988.4,
+  "timestamp": 1770919179917,
+  "generatedAt": "2026-02-12T17:59:39.917Z",
+  "price": 4964.3,
   "regime": "trending_bearish",
-  "regimeConfidence": 0.9,
-  "regimeReason": "Price 1.56% below EMA20, high vol, 24h -2.6% | ⚠️ 5 risk events",
+  "regimeConfidence": 0.85,
+  "regimeReason": "Price 2.00% below EMA20, high vol, 24h -3.0% | ⚠️ 5 risk events",
   "stats24h": {
-    "change": -2.57792359971877,
+    "change": -2.9784822248715,
     "high": 5123.8,
     "low": 4901,
-    "volume": 37962,
+    "volume": 38146,
     "range": 4.546011018159564
   },
   "volatility": {
-    "atr_1h_pct": 0.9384480541542841,
-    "atr_15m_pct": 0.6975028821926331,
-    "bbWidth_1h": 2.5930975410815833,
+    "atr_1h_pct": 0.9491813427894967,
+    "atr_15m_pct": 0.6849455103991275,
+    "bbWidth_1h": 2.8324897364573878,
     "level": "high"
   },
   "trend": {
     "direction": "bearish",
-    "priceVsEma20": -1.5591057965037474,
-    "priceVsEma50": -1.7457467500978225,
+    "priceVsEma20": -1.9965669223471154,
+    "priceVsEma50": -2.204797086844261,
     "ema20VsEma50": "death"
   },
   "orderbook": {
-    "bidDepthUsd": 1186909.9,
-    "askDepthUsd": 1512412.0999999999,
-    "imbalance": -0.12058665101829272,
-    "bias": "ask_heavy"
+    "bidDepthUsd": 1538540.8000000003,
+    "askDepthUsd": 1515979.7999999998,
+    "imbalance": 0.0073861017666734564,
+    "bias": "balanced"
   },
   "news": {
     "sentiment": "neutral",
     "catalystCount": 5,
     "riskEventCount": 5,
     "catalysts": [
-      "Geopolitical: Gold Price Forecast - XAU/USD Slides 3% to $4,000 as Risk Appetite Rises and Fed",
       "Market: Gold Price Today (15.12.2025): XAU/USD Near $4,350 as Weaker Dollar, Lower Yield",
       "Geopolitical: Gold prices eye new highs as US tariffs on Swiss bullion send futures to record ",
       "Market: Gold prices eye new highs as US tariffs on Swiss bullion send futures to record ",
-      "Macro: Gold Price Today, December 5, 2025 (3:30 p.m. EST): XAU/USD Hovers Near $4,200 a"
+      "Macro: Gold Price Today, December 5, 2025 (3:30 p.m. EST): XAU/USD Hovers Near $4,200 a",
+      "Market: Gold Price Today, December 3, 2025: XAU Holds Above $4,200 as Fed Cut Bets and W"
     ],
     "riskEvents": [
-      "Gold Price Forecast - XAU/USD Slides 3% to $4,000 as Risk Appetite Rises and Fed",
       "Gold Price Forecast - XAU/USD Price Trades at $3,680 as Inflation Rises and Fed ",
-      "Gold price climbs after interest rates cut by Federal Reserve - Yahoo Finance UK",
-      "Gold price consolidates below $4,000 as the Federal Reserve cuts interest rates ",
-      "Gold Price Today (15.12.2025): XAU/USD Near $4,350 as Weaker Dollar, Lower Yield"
+      "Gold Price Today (15.12.2025): XAU/USD Near $4,350 as Weaker Dollar, Lower Yield",
+      "Gold Price Today, December 5, 2025 (3:30 p.m. EST): XAU/USD Hovers Near $4,200 a",
+      "Gold Price Today (Dec. 18, 2025, 09:55): XAU/USD Holds Near $4,330 as Softer U.S",
+      "Gold Price Today, December 3, 2025: XAU Holds Above $4,200 as Fed Cut Bets and W"
     ],
     "topHeadlines": [
-      "Gold Price Forecast - XAU/USD Slides 3% to $4,000 as Risk Appetite Rises and Fed Cut Bets Pressure Safe Havens - TradingNEWS",
       "Gold Price Forecast - XAU/USD Price Trades at $3,680 as Inflation Rises and Fed Cut Bets Build - TradingNEWS",
-      "Gold and Silver crash: Why are gold and silver prices falling today? Gold prices crash 2.3% to $4,981 while silver plunges 8.8% - The Economic Times",
-      "Gold price climbs after interest rates cut by Federal Reserve - Yahoo Finance UK",
-      "Gold price consolidates below $4,000 as the Federal Reserve cuts interest rates - KITCO"
+      "Gold Price Today (15.12.2025): XAU/USD Near $4,350 as Weaker Dollar, Lower Yields and Fed Cut Bets Drive Fresh Rally - TechStock²",
+      "XAU/USD Gold Price Today: Live Trading Analysis & 2025 Forecast - VT Markets",
+      "Gold price analysis: XAU/USD price today, how high will gold go in 2026? - Markets.com",
+      "Gold prices eye new highs as US tariffs on Swiss bullion send futures to record - Türkiye Today"
     ]
   },
   "recommendations": {
@@ -79,21 +79,21 @@
   "recentCandles": [
     {
       "interval": "1m_last10",
-      "bullish": 6,
-      "bearish": 4,
-      "avgBodyPct": 0.035703431507514205
+      "bullish": 3,
+      "bearish": 7,
+      "avgBodyPct": 0.029380939560168094
     },
     {
       "interval": "5m_last1h",
       "bullish": 6,
       "bearish": 6,
-      "avgBodyPct": 0.14678780581388856
+      "avgBodyPct": 0.12410782868668957
     },
     {
       "interval": "1h_last6",
-      "bullish": 3,
-      "bearish": 3,
-      "avgBodyPct": 0.6720478801126532
+      "bullish": 2,
+      "bearish": 4,
+      "avgBodyPct": 0.6502565671357556
     }
   ]
 }
