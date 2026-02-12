@@ -1,58 +1,57 @@
 {
-  "timestamp": 1770884078899,
-  "generatedAt": "2026-02-12T08:14:38.899Z",
-  "price": 5088.7,
+  "timestamp": 1770884978842,
+  "generatedAt": "2026-02-12T08:29:38.842Z",
+  "price": 5082.8,
   "regime": "high_vol_chop",
   "regimeConfidence": 0.7,
-  "regimeReason": "High ATR (0.42%) but no direction. 24h range: 3.6% | ⚠️ 5 risk events",
+  "regimeReason": "High ATR (0.42%) but no direction. 24h range: 3.6% | ⚠️ 4 risk events",
   "stats24h": {
-    "change": 0.26599936948298,
+    "change": 0.20305569245934,
     "high": 5180,
     "low": 5000,
-    "volume": 44964,
+    "volume": 45009,
     "range": 3.5999999999999996
   },
   "volatility": {
-    "atr_1h_pct": 0.41774736162160114,
-    "atr_15m_pct": 0.1594996985272782,
-    "bbWidth_1h": 0.9077084526567106,
+    "atr_1h_pct": 0.4224294350391847,
+    "atr_15m_pct": 0.1623577767428984,
+    "bbWidth_1h": 0.9228148348441576,
     "level": "high"
   },
   "trend": {
     "direction": "neutral",
-    "priceVsEma20": -0.013163750221109912,
-    "priceVsEma50": 0.13388591438867464,
+    "priceVsEma20": -0.11806393816955645,
+    "priceVsEma50": 0.022341410221070255,
     "ema20VsEma50": "golden"
   },
   "orderbook": {
-    "bidDepthUsd": 4964062.600000001,
-    "askDepthUsd": 3334727.8000000003,
-    "imbalance": 0.19633401031552744,
+    "bidDepthUsd": 4949222.1,
+    "askDepthUsd": 3463480,
+    "imbalance": 0.17660700240413835,
     "bias": "bid_heavy"
   },
   "news": {
     "sentiment": "neutral",
     "catalystCount": 4,
-    "riskEventCount": 5,
+    "riskEventCount": 4,
     "catalysts": [
-      "Geopolitical: Gold Price Forecast - XAU/USD Slides 3% to $4,000 as Risk Appetite Rises and Fed",
+      "Market: Gold Price Forecast: XAU/USD Record Breakout Sizzles- Exhaustion Risk - FOREX.co",
       "Market: Gold Price Today (15.12.2025): XAU/USD Near $4,350 as Weaker Dollar, Lower Yield",
       "Geopolitical: Gold prices eye new highs as US tariffs on Swiss bullion send futures to record ",
       "Market: Gold prices eye new highs as US tariffs on Swiss bullion send futures to record "
     ],
     "riskEvents": [
-      "Gold Price Forecast - XAU/USD Slides 3% to $4,000 as Risk Appetite Rises and Fed",
       "Gold Price Forecast - XAU/USD Price Trades at $3,680 as Inflation Rises and Fed ",
       "Gold price climbs after interest rates cut by Federal Reserve - Yahoo Finance UK",
       "Gold price consolidates below $4,000 as the Federal Reserve cuts interest rates ",
       "Gold Price Today (15.12.2025): XAU/USD Near $4,350 as Weaker Dollar, Lower Yield"
     ],
     "topHeadlines": [
-      "Gold Price Forecast - XAU/USD Slides 3% to $4,000 as Risk Appetite Rises and Fed Cut Bets Pressure Safe Havens - TradingNEWS",
       "Gold Price Forecast - XAU/USD Price Trades at $3,680 as Inflation Rises and Fed Cut Bets Build - TradingNEWS",
       "Gold’s Safe-Haven Rush: Massive Opportunity or Late-Stage FOMO Risk for XAUUSD Traders? - AD HOC NEWS",
-      "Gold prices fall as US payroll data reduces rate-cut hopes - NewsBytes",
-      "Gold price climbs after interest rates cut by Federal Reserve - Yahoo Finance UK"
+      "Gold price climbs after interest rates cut by Federal Reserve - Yahoo Finance UK",
+      "Gold price consolidates below $4,000 as the Federal Reserve cuts interest rates - KITCO",
+      "Gold Price Forecast: XAU/USD Record Breakout Sizzles- Exhaustion Risk - FOREX.com"
     ]
   },
   "recommendations": {
@@ -82,21 +81,21 @@
   "recentCandles": [
     {
       "interval": "1m_last10",
-      "bullish": 7,
-      "bearish": 3,
-      "avgBodyPct": 0.009036421907385213
+      "bullish": 3,
+      "bearish": 7,
+      "avgBodyPct": 0.00845124299608664
     },
     {
       "interval": "5m_last1h",
       "bullish": 6,
       "bearish": 6,
-      "avgBodyPct": 0.048676567143714246
+      "avgBodyPct": 0.04752240157423399
     },
     {
       "interval": "1h_last6",
-      "bullish": 4,
-      "bearish": 2,
-      "avgBodyPct": 0.15664970126889255
+      "bullish": 3,
+      "bearish": 3,
+      "avgBodyPct": 0.15894353478901185
     }
   ]
 }
