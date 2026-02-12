@@ -1,10 +1,10 @@
 {
-  "timestamp": "2026-02-12T02:54:03.219Z",
+  "timestamp": "2026-02-12T18:56:23.281Z",
   "version": "v7.1-gold-params-only",
   "asset": "GOLD",
-  "analysis": "02:53 UTC = Asian session dead zone. Strategy correctly blocking entries: ADX 12.9 < 18, volume 0.42x < 1.29x, no EMA crossover, trending bearish with RSI 29. EMA5 (5089) converging toward EMA34 (5087) but price at 5080 is below both — no long signal. The champion long-only strategy is doing exactly what it should: staying flat in a bearish low-ADX overnight session. No changes needed.",
+  "analysis": "Gold in strong bearish trend: -2.9% in 24h, price $4961 is 1.3% below EMA5 ($5000) and 2% below EMA34 ($5066), RSI deeply oversold at 24, MACD histogram negative. Long-only strategy correctly blocking all entries — EMA5 far below EMA34 with no crossover signal. No parameter changes needed; the strategy is properly sitting out this bearish move. NY session ends in ~1hr, approaching maintenance break.",
   "paramChanges": {},
-  "paramReason": "All filters correctly blocking entries in bearish/low-ADX Asian session — champion strategy patience is working as designed",
+  "paramReason": "Long-only strategy correctly flat during strong bearish selloff — EMA5/34 gap widening, RSI 24 oversold, no bullish crossover signal anywhere close",
   "resetLedger": false,
   "paused": false,
   "balance": 2000,
