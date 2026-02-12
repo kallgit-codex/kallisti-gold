@@ -1,12 +1,12 @@
 {
-  "timestamp": "2026-02-12T00:53:50.140Z",
+  "timestamp": "2026-02-12T02:54:03.219Z",
   "version": "v7.1-gold-params-only",
   "asset": "GOLD",
-  "analysis": "Champion strategy just deployed and correctly sitting out: bearish regime + low ADX (10.9<18) + overnight dead zone. Previous $49 loss was from old scalping config. The long-only hourly EMA crossover system needs to wait for a bullish setup — this patience IS the edge that produced 101% backtest returns.",
+  "analysis": "02:53 UTC = Asian session dead zone. Strategy correctly blocking entries: ADX 12.9 < 18, volume 0.42x < 1.29x, no EMA crossover, trending bearish with RSI 29. EMA5 (5089) converging toward EMA34 (5087) but price at 5080 is below both — no long signal. The champion long-only strategy is doing exactly what it should: staying flat in a bearish low-ADX overnight session. No changes needed.",
   "paramChanges": {},
-  "paramReason": "Champion strategy correctly filtering — no changes needed, let it work",
-  "resetLedger": true,
+  "paramReason": "All filters correctly blocking entries in bearish/low-ADX Asian session — champion strategy patience is working as designed",
+  "resetLedger": false,
   "paused": false,
-  "balance": 1950.8384617382735,
-  "dailyPnl": -19.965752607253634
+  "balance": 2000,
+  "dailyPnl": 0
 }
