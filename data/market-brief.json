@@ -1,34 +1,34 @@
 {
-  "timestamp": 1770860678698,
-  "generatedAt": "2026-02-12T01:44:38.698Z",
-  "price": 5083.5,
+  "timestamp": 1770861578651,
+  "generatedAt": "2026-02-12T01:59:38.651Z",
+  "price": 5084.2,
   "regime": "trending_bearish",
-  "regimeConfidence": 0.9,
-  "regimeReason": "Price 0.17% below EMA20, high vol, 24h 0.3% | ⚠️ 5 risk events",
+  "regimeConfidence": 0.85,
+  "regimeReason": "Price 0.16% below EMA20, high vol, 24h 0.2% | ⚠️ 5 risk events",
   "stats24h": {
-    "change": 0.32761649134579,
+    "change": 0.15957132444199,
     "high": 5180,
     "low": 5000,
-    "volume": 44591,
+    "volume": 44850,
     "range": 3.5999999999999996
   },
   "volatility": {
-    "atr_1h_pct": 0.6096615562886472,
-    "atr_15m_pct": 0.2310047493938985,
-    "bbWidth_1h": 1.294317006013112,
+    "atr_1h_pct": 0.6095776172049364,
+    "atr_15m_pct": 0.25107022143850366,
+    "bbWidth_1h": 1.2922420095054685,
     "level": "high"
   },
   "trend": {
     "direction": "bearish",
-    "priceVsEma20": -0.16822707585380647,
-    "priceVsEma50": -0.03927700278187974,
+    "priceVsEma20": -0.15578738708176984,
+    "priceVsEma50": -0.02605201977339196,
     "ema20VsEma50": "golden"
   },
   "orderbook": {
-    "bidDepthUsd": 3846253.2,
-    "askDepthUsd": 5206832.1,
-    "imbalance": -0.15028897385955253,
-    "bias": "ask_heavy"
+    "bidDepthUsd": 4172199.4000000004,
+    "askDepthUsd": 3501995.6999999993,
+    "imbalance": 0.08733211643264076,
+    "bias": "balanced"
   },
   "news": {
     "sentiment": "neutral",
@@ -79,21 +79,21 @@
   "recentCandles": [
     {
       "interval": "1m_last10",
-      "bullish": 3,
-      "bearish": 7,
-      "avgBodyPct": 0.01101587374460407
+      "bullish": 6,
+      "bearish": 4,
+      "avgBodyPct": 0.019091178097665938
     },
     {
       "interval": "5m_last1h",
       "bullish": 6,
       "bearish": 6,
-      "avgBodyPct": 0.07336608402363486
+      "avgBodyPct": 0.0873116900812239
     },
     {
       "interval": "1h_last6",
-      "bullish": 1,
-      "bearish": 5,
-      "avgBodyPct": 0.11779715998868116
+      "bullish": 2,
+      "bearish": 4,
+      "avgBodyPct": 0.12009216670977167
     }
   ]
 }
