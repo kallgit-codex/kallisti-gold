@@ -1,34 +1,34 @@
 {
-  "timestamp": 1770855278649,
-  "generatedAt": "2026-02-12T00:14:38.649Z",
-  "price": 5076.3,
+  "timestamp": 1770856178711,
+  "generatedAt": "2026-02-12T00:29:38.711Z",
+  "price": 5082,
   "regime": "trending_bearish",
   "regimeConfidence": 0.85,
-  "regimeReason": "Price 0.31% below EMA20, high vol, 24h 0.4% | ⚠️ 5 risk events",
+  "regimeReason": "Price 0.21% below EMA20, high vol, 24h 0.4% | ⚠️ 5 risk events",
   "stats24h": {
-    "change": 0.39753174320636,
+    "change": 0.37725414288254,
     "high": 5180,
     "low": 5000,
-    "volume": 44041,
+    "volume": 44633,
     "range": 3.5999999999999996
   },
   "volatility": {
-    "atr_1h_pct": 0.6450890833683491,
-    "atr_15m_pct": 0.26945801990338325,
-    "bbWidth_1h": 1.3682630904297624,
+    "atr_1h_pct": 0.6443655477966844,
+    "atr_15m_pct": 0.26314195279926517,
+    "bbWidth_1h": 1.3472735947646697,
     "level": "high"
   },
   "trend": {
     "direction": "bearish",
-    "priceVsEma20": -0.31242585082756075,
-    "priceVsEma50": -0.14628385000763083,
+    "priceVsEma20": -0.21038173528008167,
+    "priceVsEma50": -0.038248428447034015,
     "ema20VsEma50": "golden"
   },
   "orderbook": {
-    "bidDepthUsd": 4429901.4,
-    "askDepthUsd": 2564338.999999999,
-    "imbalance": 0.26672837839545827,
-    "bias": "bid_heavy"
+    "bidDepthUsd": 3901913.4999999995,
+    "askDepthUsd": 4118613.5999999996,
+    "imbalance": -0.0270181868720324,
+    "bias": "balanced"
   },
   "news": {
     "sentiment": "neutral",
@@ -79,21 +79,21 @@
   "recentCandles": [
     {
       "interval": "1m_last10",
-      "bullish": 4,
-      "bearish": 6,
-      "avgBodyPct": 0.058866609926783955
+      "bullish": 6,
+      "bearish": 4,
+      "avgBodyPct": 0.024212553813915346
     },
     {
       "interval": "5m_last1h",
-      "bullish": 5,
-      "bearish": 7,
-      "avgBodyPct": 0.04308650402554682
+      "bullish": 4,
+      "bearish": 8,
+      "avgBodyPct": 0.04587667628837133
     },
     {
       "interval": "1h_last6",
       "bullish": 1,
       "bearish": 5,
-      "avgBodyPct": 0.1707159274992139
+      "avgBodyPct": 0.1533414987245367
     }
   ]
 }
