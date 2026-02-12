@@ -1,40 +1,41 @@
 {
-  "timestamp": 1770922779342,
-  "generatedAt": "2026-02-12T18:59:39.342Z",
-  "price": 4955.1,
+  "timestamp": 1770923679566,
+  "generatedAt": "2026-02-12T19:14:39.566Z",
+  "price": 4952.2,
   "regime": "trending_bearish",
   "regimeConfidence": 0.85,
-  "regimeReason": "Price 1.97% below EMA20, high vol, 24h -3.0% | ⚠️ 4 risk events",
+  "regimeReason": "Price 1.84% below EMA20, high vol, 24h -3.2% | ⚠️ 4 risk events",
   "stats24h": {
-    "change": -2.99524284959182,
+    "change": -3.18279569892473,
     "high": 5123.8,
     "low": 4901,
-    "volume": 41479,
+    "volume": 41085,
     "range": 4.546011018159564
   },
   "volatility": {
-    "atr_1h_pct": 0.9429970935634007,
-    "atr_15m_pct": 0.5823174103966908,
-    "bbWidth_1h": 3.4621218505877525,
+    "atr_1h_pct": 0.8517010270950418,
+    "atr_15m_pct": 0.5432205147538784,
+    "bbWidth_1h": 3.951782712187769,
     "level": "high"
   },
   "trend": {
     "direction": "bearish",
-    "priceVsEma20": -1.9668833683151101,
-    "priceVsEma50": -2.2351114006026047,
+    "priceVsEma20": -1.840802409944072,
+    "priceVsEma50": -2.248551324211268,
     "ema20VsEma50": "death"
   },
   "orderbook": {
-    "bidDepthUsd": 1520916.6,
-    "askDepthUsd": 1135496.7000000004,
-    "imbalance": 0.14509033665807936,
-    "bias": "bid_heavy"
+    "bidDepthUsd": 1837416.1,
+    "askDepthUsd": 1779600.2000000002,
+    "imbalance": 0.015984417875031392,
+    "bias": "balanced"
   },
   "news": {
     "sentiment": "neutral",
-    "catalystCount": 3,
+    "catalystCount": 4,
     "riskEventCount": 4,
     "catalysts": [
+      "Macro: Gold prices dip as strong U.S. labor data dampens rate cut hopes - Investing.com",
       "Market: Gold Price Today (15.12.2025): XAU/USD Near $4,350 as Weaker Dollar, Lower Yield",
       "Geopolitical: Gold prices eye new highs as US tariffs on Swiss bullion send futures to record ",
       "Market: Gold prices eye new highs as US tariffs on Swiss bullion send futures to record "
@@ -47,7 +48,7 @@
     ],
     "topHeadlines": [
       "Gold Price Forecast - XAU/USD Price Trades at $3,680 as Inflation Rises and Fed Cut Bets Build - TradingNEWS",
-      "Gold price drops 3% on US jobs data beat - Mining.com",
+      "Gold prices dip as strong U.S. labor data dampens rate cut hopes - Investing.com",
       "What happened to gold, silver, platinum and copper today? Why are precious metal prices crashing sharply t - The Economic Times",
       "Gold price climbs after interest rates cut by Federal Reserve - Yahoo Finance UK",
       "Gold price consolidates below $4,000 as the Federal Reserve cuts interest rates - KITCO"
@@ -78,19 +79,19 @@
       "interval": "1m_last10",
       "bullish": 4,
       "bearish": 6,
-      "avgBodyPct": 0.051975929723090585
+      "avgBodyPct": 0.01453218174193135
     },
     {
       "interval": "5m_last1h",
       "bullish": 7,
       "bearish": 5,
-      "avgBodyPct": 0.176730672039166
+      "avgBodyPct": 0.14797817134108202
     },
     {
       "interval": "1h_last6",
-      "bullish": 2,
-      "bearish": 4,
-      "avgBodyPct": 0.6504514253222514
+      "bullish": 1,
+      "bearish": 5,
+      "avgBodyPct": 0.5866278303811082
     }
   ]
 }
