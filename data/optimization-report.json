@@ -1,23 +1,12 @@
 {
-  "timestamp": "2026-02-11T18:00:45.072Z",
+  "timestamp": "2026-02-12T00:53:50.140Z",
   "version": "v7.1-gold-params-only",
   "asset": "GOLD",
-  "analysis": "Gold at $5115 in trending_bullish regime with 80% WR and solid $14 daily PnL. Current open long from $5116 is flat. The bot is performing well but leaving money on the table — two 'generous-exit' trades captured only $0.53 avg vs $8.03 peak unrealized on one. The key issue is the trailing stop / profit-taking isn't locking in gains when they appear. Orderbook is ask-heavy (-0.18 imbalance) which suggests some resistance overhead, so I'll tighten the BE activation and improve profit capture. Per [ad-hoc-news.de](https://www.ad-hoc-news.de/boerse/ueberblick/gold-s-safe-haven-supercycle-massive-opportunity-or-late-to-the-party/68571494) gold is in a 'powerful momentum-driven upswing' with dips being bought — staying long-biased with better profit management.",
-  "paramChanges": {
-    "strategy.targetProfitPercent": 1.2,
-    "strategy.quickGrabDollars": 12,
-    "strategy.quickExitSeconds": 420,
-    "strategy.maxTradeSeconds": 5400,
-    "strategy.underwaterCutSeconds": 2400,
-    "strategy.underwaterMinLoss": -15,
-    "strategy.initialStopPercent": 0.4,
-    "strategy.momentumThreshold": 0.025,
-    "strategy.consecutiveCandles": 2,
-    "strategy.minProfitDollars": 5
-  },
-  "paramReason": "Tighten stops and lower profit thresholds to lock in gains faster — too many trades giving back $8+ peaks for $0.50 exits",
-  "resetLedger": false,
+  "analysis": "Champion strategy just deployed and correctly sitting out: bearish regime + low ADX (10.9<18) + overnight dead zone. Previous $49 loss was from old scalping config. The long-only hourly EMA crossover system needs to wait for a bullish setup — this patience IS the edge that produced 101% backtest returns.",
+  "paramChanges": {},
+  "paramReason": "Champion strategy correctly filtering — no changes needed, let it work",
+  "resetLedger": true,
   "paused": false,
-  "balance": 1514.1337371286172,
-  "dailyPnl": 14.133737128617302
+  "balance": 1950.8384617382735,
+  "dailyPnl": -19.965752607253634
 }
