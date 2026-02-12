@@ -1,6 +1,6 @@
 {
-  "timestamp": 1770934479393,
-  "generatedAt": "2026-02-12T22:14:39.393Z",
+  "timestamp": 1770935379426,
+  "generatedAt": "2026-02-12T22:29:39.426Z",
   "price": 4940.6,
   "regime": "trending_bearish",
   "regimeConfidence": 0.85,
@@ -14,7 +14,7 @@
   },
   "volatility": {
     "atr_1h_pct": 0.8087632890897145,
-    "atr_15m_pct": 0.2850576901245629,
+    "atr_15m_pct": 0.3076265495878534,
     "bbWidth_1h": 4.763954285197557,
     "level": "high"
   },
@@ -79,9 +79,9 @@
   "recentCandles": [
     {
       "interval": "1m_last10",
-      "bullish": 2,
-      "bearish": 8,
-      "avgBodyPct": 0.015978952635091873
+      "bullish": 0,
+      "bearish": 0,
+      "avgBodyPct": 0
     },
     {
       "interval": "5m_last1h",
