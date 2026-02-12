@@ -1,57 +1,58 @@
 {
-  "timestamp": 1770894879004,
-  "generatedAt": "2026-02-12T11:14:39.004Z",
-  "price": 5083.9,
+  "timestamp": 1770895779107,
+  "generatedAt": "2026-02-12T11:29:39.107Z",
+  "price": 5083.7,
   "regime": "high_vol_chop",
   "regimeConfidence": 0.7,
-  "regimeReason": "High ATR (0.36%) but no direction. 24h range: 2.9% | ⚠️ 4 risk events",
+  "regimeReason": "High ATR (0.37%) but no direction. 24h range: 2.9% | ⚠️ 5 risk events",
   "stats24h": {
-    "change": -0.59829895395444,
+    "change": -0.95659289276808,
     "high": 5143.5,
     "low": 5000,
-    "volume": 42043,
+    "volume": 41606,
     "range": 2.87
   },
   "volatility": {
-    "atr_1h_pct": 0.36481568163339667,
-    "atr_15m_pct": 0.12380563337371168,
-    "bbWidth_1h": 0.8797131974075736,
+    "atr_1h_pct": 0.36902645262099726,
+    "atr_15m_pct": 0.11493395538796948,
+    "bbWidth_1h": 0.8803325450822774,
     "level": "high"
   },
   "trend": {
     "direction": "neutral",
-    "priceVsEma20": -0.09722459169514544,
-    "priceVsEma50": 0.022201784666282802,
+    "priceVsEma20": -0.10078083057521864,
+    "priceVsEma50": 0.01842126026823579,
     "ema20VsEma50": "golden"
   },
   "orderbook": {
-    "bidDepthUsd": 5172125.499999999,
-    "askDepthUsd": 5216614.199999999,
-    "imbalance": -0.00428239625640059,
-    "bias": "balanced"
+    "bidDepthUsd": 5612060.1000000015,
+    "askDepthUsd": 3632061.9000000004,
+    "imbalance": 0.21418996850106486,
+    "bias": "bid_heavy"
   },
   "news": {
     "sentiment": "neutral",
     "catalystCount": 4,
-    "riskEventCount": 4,
+    "riskEventCount": 5,
     "catalysts": [
-      "Market: Gold Price Forecast: XAU/USD Record Breakout Sizzles- Exhaustion Risk - FOREX.co",
+      "Geopolitical: Gold Price Forecast - XAU/USD Slides 3% to $4,000 as Risk Appetite Rises and Fed",
       "Market: Gold Price Today (15.12.2025): XAU/USD Near $4,350 as Weaker Dollar, Lower Yield",
       "Geopolitical: Gold prices eye new highs as US tariffs on Swiss bullion send futures to record ",
       "Market: Gold prices eye new highs as US tariffs on Swiss bullion send futures to record "
     ],
     "riskEvents": [
+      "Gold Price Forecast - XAU/USD Slides 3% to $4,000 as Risk Appetite Rises and Fed",
       "Gold Price Forecast - XAU/USD Price Trades at $3,680 as Inflation Rises and Fed ",
       "Gold price climbs after interest rates cut by Federal Reserve - Yahoo Finance UK",
       "Gold price consolidates below $4,000 as the Federal Reserve cuts interest rates ",
       "Gold Price Today (15.12.2025): XAU/USD Near $4,350 as Weaker Dollar, Lower Yield"
     ],
     "topHeadlines": [
+      "Gold Price Forecast - XAU/USD Slides 3% to $4,000 as Risk Appetite Rises and Fed Cut Bets Pressure Safe Havens - TradingNEWS",
       "Gold Price Forecast - XAU/USD Price Trades at $3,680 as Inflation Rises and Fed Cut Bets Build - TradingNEWS",
       "Gold Price Today, Feb 12: Falls 0.8% After Strong US Jobs Report - Meyka",
       "Gold price climbs after interest rates cut by Federal Reserve - Yahoo Finance UK",
-      "Gold price consolidates below $4,000 as the Federal Reserve cuts interest rates - KITCO",
-      "Gold Price Forecast: XAU/USD Record Breakout Sizzles- Exhaustion Risk - FOREX.com"
+      "Gold price consolidates below $4,000 as the Federal Reserve cuts interest rates - KITCO"
     ]
   },
   "recommendations": {
@@ -81,21 +82,21 @@
   "recentCandles": [
     {
       "interval": "1m_last10",
-      "bullish": 4,
-      "bearish": 6,
-      "avgBodyPct": 0.0035408328837276694
+      "bullish": 2,
+      "bearish": 8,
+      "avgBodyPct": 0.005310341873275164
     },
     {
       "interval": "5m_last1h",
-      "bullish": 7,
-      "bearish": 5,
-      "avgBodyPct": 0.032945665243800486
+      "bullish": 6,
+      "bearish": 6,
+      "avgBodyPct": 0.023608096572791795
     },
     {
       "interval": "1h_last6",
       "bullish": 3,
       "bearish": 3,
-      "avgBodyPct": 0.14245269467104665
+      "avgBodyPct": 0.14310832059711767
     }
   ]
 }
