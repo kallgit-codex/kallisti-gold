@@ -1,33 +1,33 @@
 {
-  "timestamp": 1770943479795,
-  "generatedAt": "2026-02-13T00:44:39.795Z",
-  "price": 4956.4,
+  "timestamp": 1770944379535,
+  "generatedAt": "2026-02-13T00:59:39.535Z",
+  "price": 4945.3,
   "regime": "trending_bearish",
   "regimeConfidence": 0.85,
-  "regimeReason": "Price 1.11% below EMA20, high vol, 24h -2.5% | ⚠️ 5 risk events",
+  "regimeReason": "Price 1.31% below EMA20, high vol, 24h -2.7% | ⚠️ 5 risk events",
   "stats24h": {
-    "change": -2.45419298970695,
+    "change": -2.71859939018393,
     "high": 5106.5,
     "low": 4901,
-    "volume": 47999,
+    "volume": 48679,
     "range": 4.193021832279126
   },
   "volatility": {
-    "atr_1h_pct": 0.80892913301457,
-    "atr_15m_pct": 0.35139583824246756,
-    "bbWidth_1h": 5.211688942727538,
+    "atr_1h_pct": 0.810744819297801,
+    "atr_15m_pct": 0.3647042391938267,
+    "bbWidth_1h": 5.265273109190846,
     "level": "high"
   },
   "trend": {
     "direction": "bearish",
-    "priceVsEma20": -1.1133026502938743,
-    "priceVsEma50": -1.7395192855827473,
+    "priceVsEma20": -1.3146982018640974,
+    "priceVsEma50": -1.9514200714339631,
     "ema20VsEma50": "death"
   },
   "orderbook": {
-    "bidDepthUsd": 4717106.4,
-    "askDepthUsd": 4968694.100000001,
-    "imbalance": -0.025974900061177204,
+    "bidDepthUsd": 4553028.5,
+    "askDepthUsd": 5032217.9,
+    "imbalance": -0.049992392475168956,
     "bias": "balanced"
   },
   "news": {
@@ -79,21 +79,21 @@
   "recentCandles": [
     {
       "interval": "1m_last10",
-      "bullish": 6,
-      "bearish": 4,
-      "avgBodyPct": 0.03489508968889922
+      "bullish": 3,
+      "bearish": 7,
+      "avgBodyPct": 0.026856292397024795
     },
     {
       "interval": "5m_last1h",
-      "bullish": 6,
-      "bearish": 6,
-      "avgBodyPct": 0.08646407504937602
+      "bullish": 5,
+      "bearish": 7,
+      "avgBodyPct": 0.0899173083211864
     },
     {
       "interval": "1h_last6",
       "bullish": 3,
       "bearish": 3,
-      "avgBodyPct": 0.2453376487645945
+      "avgBodyPct": 0.20920340498339976
     }
   ]
 }
