@@ -1,43 +1,44 @@
 {
-  "timestamp": 1770946179605,
-  "generatedAt": "2026-02-13T01:29:39.605Z",
-  "price": 4989.2,
+  "timestamp": 1770947079761,
+  "generatedAt": "2026-02-13T01:44:39.761Z",
+  "price": 4998.1,
   "regime": "trending_bearish",
   "regimeConfidence": 0.85,
-  "regimeReason": "Price 0.41% below EMA20, high vol, 24h -1.8% | ⚠️ 5 risk events",
+  "regimeReason": "Price 0.25% below EMA20, high vol, 24h -1.7% | ⚠️ 5 risk events",
   "stats24h": {
-    "change": -1.79706721779352,
+    "change": -1.6741422725842,
     "high": 5106.5,
     "low": 4901,
-    "volume": 49737,
+    "volume": 50463,
     "range": 4.193021832279126
   },
   "volatility": {
-    "atr_1h_pct": 0.8239694747859417,
-    "atr_15m_pct": 0.38262244025140757,
-    "bbWidth_1h": 5.191065774300423,
+    "atr_1h_pct": 0.8345068133094614,
+    "atr_15m_pct": 0.38013384769705233,
+    "bbWidth_1h": 5.171937829721654,
     "level": "high"
   },
   "trend": {
     "direction": "bearish",
-    "priceVsEma20": -0.4063394484679933,
-    "priceVsEma50": -1.0779391232798716,
+    "priceVsEma20": -0.24555748168970237,
+    "priceVsEma50": -0.9083339336881737,
     "ema20VsEma50": "death"
   },
   "orderbook": {
-    "bidDepthUsd": 5131101.5,
-    "askDepthUsd": 5100253.5,
-    "imbalance": 0.0030150454167605367,
+    "bidDepthUsd": 5061918.9,
+    "askDepthUsd": 5520963.2,
+    "imbalance": -0.04337611396048717,
     "bias": "balanced"
   },
   "news": {
     "sentiment": "neutral",
-    "catalystCount": 3,
+    "catalystCount": 4,
     "riskEventCount": 5,
     "catalysts": [
       "Geopolitical: Gold Price Forecast: XAU/USD Holds $5,000 As Street Targets Shift Toward $6,100–",
       "Market: Gold Price Forecast: XAU/USD Record Breakout Sizzles- Exhaustion Risk - FOREX.co",
-      "Market: Gold Price Today (15.12.2025): XAU/USD Near $4,350 as Weaker Dollar, Lower Yield"
+      "Market: Gold Price Today (15.12.2025): XAU/USD Near $4,350 as Weaker Dollar, Lower Yield",
+      "Market: Gold Price Forecast: XAU/USD drifts from record highs, $3.660 support on focus -"
     ],
     "riskEvents": [
       "Gold Price Forecast - XAU/USD Price Trades at $3,680 as Inflation Rises and Fed ",
@@ -79,19 +80,19 @@
       "interval": "1m_last10",
       "bullish": 6,
       "bearish": 4,
-      "avgBodyPct": 0.03908412855060449
+      "avgBodyPct": 0.050900209240600756
     },
     {
       "interval": "5m_last1h",
       "bullish": 7,
       "bearish": 5,
-      "avgBodyPct": 0.09185373871259574
+      "avgBodyPct": 0.11654073826853568
     },
     {
       "interval": "1h_last6",
       "bullish": 4,
       "bearish": 2,
-      "avgBodyPct": 0.33251339623048254
+      "avgBodyPct": 0.36247488393617505
     }
   ]
 }
